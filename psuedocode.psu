@@ -1,0 +1,279 @@
+// Main Game Engine Structure
+class GameEngine:
+    properties:
+        worlds: List<World>
+        currentPlayer: Player
+    
+    function startGame():
+        loadGameData()
+        initializePlayer()
+        currentRoom = startingRoom
+        while (player.health > 0 AND NOT gameCompleted):
+            displayRoomDescription(currentRoom)
+            command = getPlayerInput()
+            processCommand(command)
+    
+    function loadGameData():
+        worlds = loadWorldsFromFile()
+        rooms = loadRoomsFromFile()
+        items = loadItemsFromFile()
+        monsters = loadMonstersFromFile()
+        puzzles = loadPuzzlesFromFile()
+        fixtures = loadFixturesFromFile()
+        recipes = loadRecipesFromFile()
+        connectRooms()
+    
+    function processCommand(command):
+        action = parseCommandAction(command)
+        target = parseCommandTarget(command)
+        
+        if action == "move":
+            movePlayer(target)
+        else if action == "take":
+            pickupItem(target)
+        else if action == "drop":
+            dropItem(target)
+        else if action == "use":
+            secondTarget = parseCommandSecondTarget(command)
+            useItem(target, secondTarget)
+        else if action == "inspect":
+            inspectObject(target)
+        else if action == "inventory":
+            showInventory()
+        else if action == "help":
+            showHelp()
+        else if action == "quit":
+            endGame()
+        else:
+            displayMessage("I don't understand that command.")
+
+class Player extends GameObject:
+    properties:
+        health: integer
+        inventory: List<Item>
+        score: integer
+        currentRoom: Room
+        maxWeight: integer
+    
+    function move(direction):
+        if currentRoom.exits.containsKey(direction):
+            newRoom = currentRoom.exits.get(direction)
+            currentRoom = newRoom
+            return true
+        return false
+    
+    function pickupItem(itemName):
+        item = currentRoom.findItem(itemName)
+        if item != null AND canCarryWeight(item.weight):
+            currentRoom.items.remove(item)
+            inventory.add(item)
+            return true
+        return false
+    
+    function dropItem(itemName):
+        item = findItemInInventory(itemName)
+        if item != null:
+            inventory.remove(item)
+            currentRoom.items.add(item)
+            return true
+        return false
+    
+    function useItem(itemName, targetName):
+        item = findItemInInventory(itemName)
+        if item == null:
+            return false
+        
+        // Check for monster target
+        monster = currentRoom.findMonster(targetName)
+        if monster != null:
+            return attackMonster(monster, item)
+        
+        // Check for puzzle target
+        puzzle = currentRoom.findPuzzle(targetName)
+        if puzzle != null:
+            return solvePuzzle(puzzle, item)
+        
+        // Check for fixture target
+        fixture = currentRoom.findFixture(targetName)
+        if fixture != null:
+            return interactWithFixture(fixture, item)
+        
+        return false
+    
+    function getInventoryWeight():
+        totalWeight = 0
+        for each item in inventory:
+            totalWeight += item.weight
+        return totalWeight
+    
+    function canCarryWeight(additionalWeight):
+        return (getInventoryWeight() + additionalWeight) <= maxWeight
+
+class Room extends GameObject:
+    properties:
+        exits: Map<Direction, Room>
+        items: List<Item>
+        fixtures: List<Fixture>
+        monsters: List<Monster>
+        puzzles: List<Puzzle>
+    
+    function getExit(direction):
+        return exits.get(direction)
+    
+    function addExit(direction, room):
+        exits.put(direction, room)
+    
+    function findItem(name):
+        for each item in items:
+            if item.name.equalsIgnoreCase(name):
+                return item
+        return null
+    
+    function findMonster(name):
+        for each monster in monsters:
+            if monster.name.equalsIgnoreCase(name):
+                return monster
+        return null
+    
+    function findPuzzle(name):
+        for each puzzle in puzzles:
+            if puzzle.name.equalsIgnoreCase(name):
+                return puzzle
+        return null
+    
+    function findFixture(name):
+        for each fixture in fixtures:
+            if fixture.name.equalsIgnoreCase(name):
+                return fixture
+        return null
+
+class Item extends GameObject:
+    properties:
+        weight: integer
+        value: integer
+    
+    function getWeight():
+        return weight
+    
+    function use():
+        // Basic items just display a message
+        return "You use the " + name + "."
+
+class Monster extends GameObject:
+    properties:
+        damage: integer
+        isDefeated: boolean
+        weakness: String
+    
+    function attack(player):
+        if not isDefeated:
+            player.health -= damage
+            return "The " + name + " attacks you for " + damage + " damage!"
+        return "The " + name + " is already defeated."
+    
+    function isVulnerableTo(item):
+        return item.name.equalsIgnoreCase(weakness)
+    
+    function defeat(item):
+        isDefeated = true
+        return "You defeated the " + name + " with the " + item.name + "!"
+
+class Puzzle extends GameObject:
+    properties:
+        isSolved: boolean
+        solution: Solution
+    
+    function solve(solution):
+        if not isSolved AND this.solution.matches(solution):
+            isSolved = true
+            return true
+        return false
+
+class Fixture extends GameObject:
+    properties:
+        isInteractive: boolean
+    
+    function interact(item = null):
+        if isInteractive:
+            // Default behavior is just a message
+            return "You interact with the " + name + "."
+        return "You can't interact with the " + name + "."
+
+class CraftingStation extends Fixture:
+    properties:
+        recipes: List<Recipe>
+    
+    function interact(item):
+        // Check if we're starting the crafting process
+        if item != null:
+            for each recipe in recipes:
+                if recipe.hasIngredient(item):
+                    return "You place the " + item.name + " on the " + name + "."
+        return "You can't use that with the " + name + "."
+    
+    function attemptCrafting(player):
+        for each recipe in recipes:
+            if recipe.canCraft(player.inventory):
+                return craftItem(player, recipe)
+        return "You don't have the required materials for crafting."
+    
+    function craftItem(player, recipe):
+        for each ingredientName in recipe.requiredItems:
+            item = player.findItemInInventory(ingredientName)
+            player.inventory.remove(item)
+        
+        newItem = createItem(recipe.result)
+        player.inventory.add(newItem)
+        return "You crafted a " + newItem.name + "!"
+
+class Solution:
+    properties:
+        type: SolutionType // ITEM or ANSWER
+        value: String
+    
+    function matches(solution):
+        if type == SolutionType.ITEM:
+            // For item solutions, comparison is based on the item name
+            return solution.name.equalsIgnoreCase(value)
+        else if type == SolutionType.ANSWER:
+            // For answer solutions, it's a direct string comparison
+            return solution.equalsIgnoreCase(value)
+        return false
+
+class Recipe:
+    properties:
+        name: String
+        requiredItems: List<String>
+        result: String
+        stationRequired: String
+    
+    function canCraft(inventory):
+        for each ingredientName in requiredItems:
+            hasIngredient = false
+            for each item in inventory:
+                if item.name.equalsIgnoreCase(ingredientName):
+                    hasIngredient = true
+                    break
+            if not hasIngredient:
+                return false
+        return true
+
+enum Direction:
+    NORTH, SOUTH, EAST, WEST, UP, DOWN
+
+enum SolutionType:
+    ITEM, ANSWER
+
+class World:
+    properties:
+        name: String
+        description: String
+        rooms: List<Room>
+    
+    function addRoom(room):
+        rooms.add(room)
+    
+    function getStartingRoom():
+        // Return the designated starting room
+        // This could be the first room or a specifically marked room
+        return rooms.get(0)
