@@ -1,279 +1,603 @@
-// Main Game Engine Structure
-class GameEngine:
+// GameEngineApp - Entry point class
+class GameEngineApp:
     properties:
-        worlds: List<World>
-        currentPlayer: Player
-    
-    function startGame():
-        loadGameData()
+        gameFileName: String
+        input: ReadableSource
+        output: WriteableDestination
+
+    constructor(gameFileName, input, output):
+        this.gameFileName = gameFileName
+        this.input = input
+        this.output = output
+
+    function start():
+        try:
+            gameWorld = new GameWorld(gameFileName)
+            controller = new GameController(gameWorld, input, output)
+            controller.play()
+        catch Exception:
+            throw IOException("Error starting game")
+
+// GameWorld - Main model class
+class GameWorld:
+    properties:
+        gameName: String
+        version: String
+        rooms: Map<String, Room>
+        items: Map<String, Item>
+        fixtures: Map<String, Fixture>
+        puzzles: Map<String, Puzzle>
+        monsters: Map<String, Monster>
+        player: Player
+
+    constructor(gameFileName):
+        initialize empty maps for rooms, items, fixtures, puzzles, monsters
+        loadGameData(gameFileName)
         initializePlayer()
-        currentRoom = startingRoom
-        while (player.health > 0 AND NOT gameCompleted):
-            displayRoomDescription(currentRoom)
-            command = getPlayerInput()
-            processCommand(command)
-    
-    function loadGameData():
-        worlds = loadWorldsFromFile()
-        rooms = loadRoomsFromFile()
-        items = loadItemsFromFile()
-        monsters = loadMonstersFromFile()
-        puzzles = loadPuzzlesFromFile()
-        fixtures = loadFixturesFromFile()
-        recipes = loadRecipesFromFile()
+
+    function loadGameData(gameFileName):
+        parse JSON file
+        load game metadata (name, version)
+        load items
+        load fixtures
+        load puzzles
+        load monsters
+        load rooms
         connectRooms()
-    
-    function processCommand(command):
-        action = parseCommandAction(command)
-        target = parseCommandTarget(command)
-        
-        if action == "move":
-            movePlayer(target)
-        else if action == "take":
-            pickupItem(target)
-        else if action == "drop":
-            dropItem(target)
-        else if action == "use":
-            secondTarget = parseCommandSecondTarget(command)
-            useItem(target, secondTarget)
-        else if action == "inspect":
-            inspectObject(target)
-        else if action == "inventory":
-            showInventory()
-        else if action == "help":
-            showHelp()
-        else if action == "quit":
-            endGame()
-        else:
-            displayMessage("I don't understand that command.")
 
-class Player extends GameObject:
-    properties:
-        health: integer
-        inventory: List<Item>
-        score: integer
-        currentRoom: Room
-        maxWeight: integer
-    
-    function move(direction):
-        if currentRoom.exits.containsKey(direction):
-            newRoom = currentRoom.exits.get(direction)
-            currentRoom = newRoom
-            return true
-        return false
-    
-    function pickupItem(itemName):
-        item = currentRoom.findItem(itemName)
-        if item != null AND canCarryWeight(item.weight):
-            currentRoom.items.remove(item)
-            inventory.add(item)
-            return true
-        return false
-    
-    function dropItem(itemName):
-        item = findItemInInventory(itemName)
-        if item != null:
-            inventory.remove(item)
-            currentRoom.items.add(item)
-            return true
-        return false
-    
-    function useItem(itemName, targetName):
-        item = findItemInInventory(itemName)
-        if item == null:
-            return false
-        
-        // Check for monster target
-        monster = currentRoom.findMonster(targetName)
-        if monster != null:
-            return attackMonster(monster, item)
-        
-        // Check for puzzle target
-        puzzle = currentRoom.findPuzzle(targetName)
-        if puzzle != null:
-            return solvePuzzle(puzzle, item)
-        
-        // Check for fixture target
-        fixture = currentRoom.findFixture(targetName)
-        if fixture != null:
-            return interactWithFixture(fixture, item)
-        
-        return false
-    
-    function getInventoryWeight():
-        totalWeight = 0
-        for each item in inventory:
-            totalWeight += item.weight
-        return totalWeight
-    
-    function canCarryWeight(additionalWeight):
-        return (getInventoryWeight() + additionalWeight) <= maxWeight
+    function connectRooms():
+        for each room in rooms:
+            for each direction in (NORTH, SOUTH, EAST, WEST):
+                targetRoomNumber = room.getExitRoomNumber(direction)
+                if targetRoomNumber > 0:
+                    targetRoom = rooms.get(targetRoomNumber)
+                    room.setExit(direction, targetRoom)
 
-class Room extends GameObject:
+    function applySolution(solution):
+        currentRoom = player.getCurrentRoom()
+
+        // Check if solution solves a puzzle
+        if currentRoom has active puzzle:
+            if puzzle.solve(solution):
+                player.addScore(puzzle.getValue())
+                unblockPaths(currentRoom)
+                return true
+
+        // Check if solution defeats a monster
+        if currentRoom has active monster:
+            if monster.getSolution() equals solution:
+                monster.defeat()
+                player.addScore(monster.getValue())
+                unblockPaths(currentRoom)
+                return true
+
+        return false
+
+    function saveGame(filename):
+        create JSON object with:
+            player data (name, health, score, current room)
+            inventory items
+            room states (puzzle/monster active states, exits, items)
+        write to file
+
+    function loadGame(filename):
+        read JSON from file
+        restore player state (name, health, score)
+        set player's current room
+        restore player's inventory
+        restore room states (puzzles, monsters, exits, items)
+
+// Direction - Enum
+enum Direction:
+    NORTH, SOUTH, EAST, WEST
+
+    function getOpposite():
+        if this == NORTH: return SOUTH
+        if this == SOUTH: return NORTH
+        if this == EAST: return WEST
+        if this == WEST: return EAST
+
+// Room - Represents a location
+class Room:
     properties:
+        name: String
+        roomNumber: String
+        description: String
+        exitRoomNumbers: Map<Direction, String>
         exits: Map<Direction, Room>
         items: List<Item>
         fixtures: List<Fixture>
-        monsters: List<Monster>
-        puzzles: List<Puzzle>
-    
-    function getExit(direction):
-        return exits.get(direction)
-    
-    function addExit(direction, room):
-        exits.put(direction, room)
-    
-    function findItem(name):
-        for each item in items:
-            if item.name.equalsIgnoreCase(name):
-                return item
-        return null
-    
-    function findMonster(name):
-        for each monster in monsters:
-            if monster.name.equalsIgnoreCase(name):
-                return monster
-        return null
-    
-    function findPuzzle(name):
-        for each puzzle in puzzles:
-            if puzzle.name.equalsIgnoreCase(name):
-                return puzzle
-        return null
-    
-    function findFixture(name):
-        for each fixture in fixtures:
-            if fixture.name.equalsIgnoreCase(name):
-                return fixture
-        return null
+        puzzle: Puzzle
+        monster: Monster
 
-class Item extends GameObject:
-    properties:
-        weight: integer
-        value: integer
-    
-    function getWeight():
-        return weight
-    
-    function use():
-        // Basic items just display a message
-        return "You use the " + name + "."
+    constructor(name, roomNumber, description, exitRoomNumbers):
+        initialize properties
+        initialize empty lists/maps for items, fixtures, exits
 
-class Monster extends GameObject:
-    properties:
-        damage: integer
-        isDefeated: boolean
-        weakness: String
-    
-    function attack(player):
-        if not isDefeated:
-            player.health -= damage
-            return "The " + name + " attacks you for " + damage + " damage!"
-        return "The " + name + " is already defeated."
-    
-    function isVulnerableTo(item):
-        return item.name.equalsIgnoreCase(weakness)
-    
-    function defeat(item):
-        isDefeated = true
-        return "You defeated the " + name + " with the " + item.name + "!"
+    // Methods for exits
+    function getExitRoomNumber(direction): return exitRoomNumbers.get(direction)
+    function setExitRoomNumber(direction, roomNumber): exitRoomNumbers.put(direction, roomNumber)
+    function setExit(direction, room): exits.put(direction, room)
+    function getExit(direction): return exits.get(direction)
 
-class Puzzle extends GameObject:
+    // Methods for items
+    function addItem(item): items.add(item)
+    function removeItem(item): return items.remove(item)
+    function getItem(itemName): return first item with matching name
+
+    // Methods for fixtures
+    function addFixture(fixture): fixtures.add(fixture)
+    function getFixture(fixtureName): return first fixture with matching name
+
+    // Methods for puzzle/monster
+    function setPuzzle(puzzle): this.puzzle = puzzle
+    function getPuzzle(): return puzzle
+    function setMonster(monster): this.monster = monster
+    function getMonster(): return monster
+
+    // Getters for properties
+    function getName(): return name
+    function getRoomNumber(): return roomNumber
+    function getDescription(): return description
+    function getItems(): return copy of items list
+    function getFixtures(): return copy of fixtures list
+    function clearItems(): items.clear()
+
+// Player - Represents the user's character
+class Player:
     properties:
-        isSolved: boolean
-        solution: Solution
-    
-    function solve(solution):
-        if not isSolved AND this.solution.matches(solution):
-            isSolved = true
+        name: String
+        health: Integer
+        inventory: List<Item>
+        currentRoom: Room
+        score: Integer
+        MAX_WEIGHT: Integer (constant = 13)
+
+    constructor(startRoom):
+        name = "Player"
+        health = 100
+        inventory = new empty list
+        currentRoom = startRoom
+        score = 0
+
+    function setName(name): this.name = name
+    function getName(): return name
+
+    function getHealth(): return health
+    function setHealth(health):
+        this.health = health
+        if this.health < 0: this.health = 0
+
+    function takeDamage(amount):
+        health -= amount
+        if health < 0: health = 0
+
+    function getHealthStatus():
+        if health <= 0: return "ASLEEP"
+        if health < 40: return "WOOZY"
+        if health < 70: return "FATIGUED"
+        return "AWAKE"
+
+    function addToInventory(item):
+        if getInventoryWeight() + item.getWeight() <= MAX_WEIGHT:
+            inventory.add(item)
             return true
         return false
 
-class Fixture extends GameObject:
-    properties:
-        isInteractive: boolean
-    
-    function interact(item = null):
-        if isInteractive:
-            // Default behavior is just a message
-            return "You interact with the " + name + "."
-        return "You can't interact with the " + name + "."
+    function removeFromInventory(item): return inventory.remove(item)
 
-class CraftingStation extends Fixture:
-    properties:
-        recipes: List<Recipe>
-    
-    function interact(item):
-        // Check if we're starting the crafting process
-        if item != null:
-            for each recipe in recipes:
-                if recipe.hasIngredient(item):
-                    return "You place the " + item.name + " on the " + name + "."
-        return "You can't use that with the " + name + "."
-    
-    function attemptCrafting(player):
-        for each recipe in recipes:
-            if recipe.canCraft(player.inventory):
-                return craftItem(player, recipe)
-        return "You don't have the required materials for crafting."
-    
-    function craftItem(player, recipe):
-        for each ingredientName in recipe.requiredItems:
-            item = player.findItemInInventory(ingredientName)
-            player.inventory.remove(item)
-        
-        newItem = createItem(recipe.result)
-        player.inventory.add(newItem)
-        return "You crafted a " + newItem.name + "!"
+    function getItemFromInventory(itemName):
+        for each item in inventory:
+            if item.getName() equals itemName (case insensitive):
+                return item
+        return null
 
-class Solution:
+    function getInventoryWeight():
+        totalWeight = 0
+        for each item in inventory:
+            totalWeight += item.getWeight()
+        return totalWeight
+
+    function getInventory(): return copy of inventory list
+    function setInventory(inventory): this.inventory = copy of inventory list
+
+    function getCurrentRoom(): return currentRoom
+    function setCurrentRoom(room): this.currentRoom = room
+
+    function addScore(points): this.score += points
+    function setScore(score): this.score = score
+    function getScore(): return score
+
+    function getRank():
+        if score >= 1000: return "Adventure Master"
+        if score >= 750: return "Expert Explorer"
+        if score >= 500: return "Seasoned Adventurer"
+        if score >= 250: return "Novice Explorer"
+        return "Beginner"
+
+// Item - Represents an object that can be picked up and used
+class Item:
     properties:
-        type: SolutionType // ITEM or ANSWER
-        value: String
-    
-    function matches(solution):
-        if type == SolutionType.ITEM:
-            // For item solutions, comparison is based on the item name
-            return solution.name.equalsIgnoreCase(value)
-        else if type == SolutionType.ANSWER:
-            // For answer solutions, it's a direct string comparison
-            return solution.equalsIgnoreCase(value)
+        name: String
+        weight: Integer
+        maxUses: Integer
+        usesRemaining: Integer
+        value: Integer
+        whenUsed: String
+        description: String
+
+    constructor(name, weight, maxUses, usesRemaining, value, whenUsed, description):
+        initialize all properties
+
+    function use():
+        if usesRemaining > 0:
+            usesRemaining--
+            return true
         return false
 
-class Recipe:
+    // Getters and setters
+    function getWhenUsed(): return whenUsed
+    function getName(): return name
+    function getWeight(): return weight
+    function getMaxUses(): return maxUses
+    function getUsesRemaining(): return usesRemaining
+    function setUsesRemaining(uses): this.usesRemaining = uses
+    function getValue(): return value
+    function getDescription(): return description
+
+// Fixture - Represents an immovable object in a room
+class Fixture:
     properties:
         name: String
-        requiredItems: List<String>
-        result: String
-        stationRequired: String
-    
-    function canCraft(inventory):
-        for each ingredientName in requiredItems:
-            hasIngredient = false
-            for each item in inventory:
-                if item.name.equalsIgnoreCase(ingredientName):
-                    hasIngredient = true
-                    break
-            if not hasIngredient:
-                return false
-        return true
-
-enum Direction:
-    NORTH, SOUTH, EAST, WEST, UP, DOWN
-
-enum SolutionType:
-    ITEM, ANSWER
-
-class World:
-    properties:
-        name: String
+        weight: Integer  // Always > 200 to be immovable
         description: String
-        rooms: List<Room>
-    
-    function addRoom(room):
-        rooms.add(room)
-    
-    function getStartingRoom():
-        // Return the designated starting room
-        // This could be the first room or a specifically marked room
-        return rooms.get(0)
+
+    constructor(name, weight, description):
+        initialize properties
+
+    // Getters
+    function getName(): return name
+    function getWeight(): return weight
+    function getDescription(): return description
+
+// Puzzle - Represents a challenge that blocks a path
+class Puzzle:
+    properties:
+        name: String
+        active: Boolean
+        affectsTarget: Boolean
+        affectsPlayer: Boolean
+        solution: String
+        value: Integer
+        description: String
+        effects: String
+        target: String
+
+    constructor(name, active, affectsTarget, affectsPlayer, solution, value, description, effects, target):
+        initialize properties
+
+    function solve(solution):
+        // Check for text answer solutions (with quotes)
+        if this.solution starts with "'" and ends with "'":
+            answerWithoutQuotes = this.solution without quotes
+            if active and answerWithoutQuotes equals solution (case insensitive):
+                active = false
+                return true
+        // Normal item solution
+        else if active and this.solution equals solution (case insensitive):
+            active = false
+            return true
+        return false
+
+    // Getters and setters
+    function isActive(): return active
+    function setActive(active): this.active = active
+    function getName(): return name
+    function affectsTarget(): return affectsTarget
+    function affectsPlayer(): return affectsPlayer
+    function getSolution(): return solution
+    function getValue(): return value
+    function getDescription(): return description
+    function getEffects(): return effects
+    function getTarget(): return target
+
+// Monster - Represents an enemy that can attack the player
+class Monster:
+    properties:
+        name: String
+        active: Boolean
+        damage: Integer
+        canAttack: Boolean
+        attackDescription: String
+        description: String
+        effects: String
+        value: Integer
+        solution: String
+        target: String
+
+    constructor(name, active, damage, canAttack, attackDescription, description, effects, value, solution, target):
+        initialize properties
+
+    function attack(player):
+        if active and canAttack:
+            player.takeDamage(abs(damage))
+            return abs(damage)
+        return 0
+
+    function defeat(): this.active = false
+
+    // Getters and setters
+    function isActive(): return active
+    function setActive(active): this.active = active
+    function getName(): return name
+    function getDamage(): return damage
+    function canAttack(): return canAttack
+    function getAttackDescription(): return attackDescription
+    function getDescription(): return description
+    function getEffects(): return effects
+    function getValue(): return value
+    function getSolution(): return solution
+    function getTarget(): return target
+
+// GameController - Processes user input and controls game flow
+class GameController:
+    properties:
+        model: GameWorld
+        input: ReadableSource
+        output: WriteableDestination
+        scanner: Scanner
+        gameOver: Boolean
+
+    constructor(model, input, output):
+        this.model = model
+        this.input = input
+        this.output = output
+        this.scanner = new Scanner(input)
+        this.gameOver = false
+
+    function play():
+        // Get player name
+        displayWelcome()
+        getPlayerName()
+
+        // Main game loop
+        while not gameOver and scanner has next line:
+            lookAround()
+
+            // Check if player's health is depleted
+            if model.getPlayer().getHealth() <= 0:
+                displayGameOver()
+                endGame()
+                return
+
+            displayMenu()
+            command = scanner.nextLine().trim().toLowerCase()
+            processCommand(command)
+
+    function processCommand(command):
+        if command is empty: return
+
+        // Movement commands
+        if command is "n" or "north": move(NORTH)
+        else if command is "s" or "south": move(SOUTH)
+        else if command is "e" or "east": move(EAST)
+        else if command is "w" or "west": move(WEST)
+
+        // Look command
+        else if command is "l" or "look": lookAround()
+
+        // Inventory command
+        else if command is "i" or "inventory": showInventory()
+
+        // Take command
+        else if command starts with "t " or "take ":
+            itemName = extract item name from command
+            takeItem(itemName)
+
+        // Drop command
+        else if command starts with "d " or "drop ":
+            itemName = extract item name from command
+            dropItem(itemName)
+
+        // Inspect command (formerly examine)
+        else if command starts with "x " or "inspect ":
+            target = extract target from command
+            inspect(target)
+
+        // Use command
+        else if command starts with "u " or "use ":
+            itemName = extract item name from command
+            useItem(itemName)
+
+        // Answer command
+        else if command starts with "a " or "answer ":
+            answer = extract answer from command
+            provideAnswer(answer)
+
+        // Save command
+        else if command is "save": saveGame()
+
+        // Restore command
+        else if command is "restore": restoreGame()
+
+        // Quit command
+        else if command is "q" or "quit":
+            showFinalScore()
+            endGame()
+
+        // Invalid command
+        else: displayInvalidCommand()
+
+    function move(direction):
+        currentRoom = model.getPlayer().getCurrentRoom()
+        exitNumber = currentRoom.getExitRoomNumber(direction)
+
+        // Wall (0)
+        if exitNumber is "0":
+            displayNoExit()
+            return
+
+        // Puzzle or monster blocking (negative number)
+        if parseInt(exitNumber) < 0:
+            if currentRoom has active puzzle:
+                displayPuzzleBlocking()
+            else if currentRoom has active monster:
+                displayMonsterBlocking()
+                monsterAttacksPlayer()
+            else:
+                displayPathBlocked()
+            return
+
+        // Move to new room
+        nextRoom = currentRoom.getExit(direction)
+        if nextRoom is not null:
+            model.getPlayer().setCurrentRoom(nextRoom)
+            displayMoveSuccess(direction)
+        else:
+            displayCannotMove()
+
+    function lookAround():
+        currentRoom = model.getPlayer().getCurrentRoom()
+
+        displayHealthStatus()
+        displayRoomName()
+
+        // Show puzzle effects, monster effects, or room description
+        if currentRoom has active puzzle that affects target:
+            displayPuzzleEffects()
+        else if currentRoom has active monster:
+            displayMonsterEffects()
+            monsterAttacksPlayer()
+        else:
+            displayRoomDescription()
+
+        // List items in room
+        displayRoomItems()
+
+    function showInventory():
+        inventory = model.getPlayer().getInventory()
+        displayInventoryHeader()
+
+        if inventory is empty:
+            displayEmptyInventory()
+        else:
+            displayInventoryItems()
+
+    function takeItem(itemName):
+        currentRoom = model.getPlayer().getCurrentRoom()
+        item = currentRoom.getItem(itemName)
+
+        if item is null:
+            displayItemNotFound()
+            return
+
+        if model.getPlayer().addToInventory(item):
+            currentRoom.removeItem(item)
+            displayItemTaken(item)
+        else:
+            displayInventoryTooHeavy()
+
+    function dropItem(itemName):
+        item = model.getPlayer().getItemFromInventory(itemName)
+
+        if item is null:
+            displayItemNotInInventory()
+            return
+
+        if model.getPlayer().removeFromInventory(item):
+            model.getPlayer().getCurrentRoom().addItem(item)
+            displayItemDropped(item)
+        else:
+            displayCannotDropItem(item)
+
+    function inspect(target):
+        // Check inventory first
+        inventoryItem = model.getPlayer().getItemFromInventory(target)
+        if inventoryItem is not null:
+            displayText(inventoryItem.getDescription())
+            return
+
+        // Check room items
+        currentRoom = model.getPlayer().getCurrentRoom()
+        roomItem = currentRoom.getItem(target)
+        if roomItem is not null:
+            displayText(roomItem.getDescription())
+            return
+
+        // Check fixtures
+        fixture = currentRoom.getFixture(target)
+        if fixture is not null:
+            displayText(fixture.getDescription())
+            return
+
+        displayTargetNotFound(target)
+
+    function useItem(itemName):
+        item = model.getPlayer().getItemFromInventory(itemName)
+
+        if item is null:
+            displayItemNotInInventory()
+            return
+
+        if item.getUsesRemaining() <= 0:
+            displayItemNoUsesRemaining(item)
+            return
+
+        currentRoom = model.getPlayer().getCurrentRoom()
+
+        // Try to solve puzzle or defeat monster
+        solved = model.applySolution(item.getName())
+
+        if solved:
+            if currentRoom.getPuzzle() is not null and not currentRoom.getPuzzle().isActive():
+                displayPuzzleSolved(item)
+            else if currentRoom.getMonster() is not null and not currentRoom.getMonster().isActive():
+                displayMonsterDefeated(item)
+
+            item.use()
+        else:
+            // Generic use
+            displayItemUsed(item)
+            item.use()
+
+    function provideAnswer(answer):
+        currentRoom = model.getPlayer().getCurrentRoom()
+
+        if currentRoom has no active puzzle:
+            displayNoPuzzleForAnswer()
+            return
+
+        puzzle = currentRoom.getPuzzle()
+
+        if puzzle's solution does not start with "'":
+            displayPuzzleNeedsItem()
+            return
+
+        solved = model.applySolution(answer)
+
+        if solved:
+            displayAnswerCorrect()
+        else:
+            displayAnswerIncorrect()
+
+    function saveGame():
+        try:
+            model.saveGame("saved_game.json")
+            displayGameSaved()
+        catch:
+            displaySaveError()
+
+    function restoreGame():
+        try:
+            model.loadGame("saved_game.json")
+            displayGameRestored()
+        catch:
+            displayRestoreError()
+
+    function showFinalScore():
+        score = model.getPlayer().getScore()
+        rank = model.getPlayer().getRank()
+        displayFinalScore(score, rank)
+
+    function endGame():
+        gameOver = true
