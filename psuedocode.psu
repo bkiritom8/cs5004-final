@@ -73,6 +73,14 @@ class GameWorld:
 
         return false
 
+    function unblockPaths(room):
+        // After defeating a monster or solving a puzzle, unblock any paths that were blocked
+        for each direction in (NORTH, SOUTH, EAST, WEST):
+            exitNumber = room.getExitRoomNumber(direction)
+            if parseInt(exitNumber) < 0:
+                // Convert negative exit number to positive (unblocked) exit number
+                room.setExitRoomNumber(direction, String.valueOf(Math.abs(parseInt(exitNumber))))
+
     function saveGame(filename):
         create JSON object with:
             player data (name, health, score, current room)
@@ -152,6 +160,8 @@ class Player:
         currentRoom: Room
         score: Integer
         MAX_WEIGHT: Integer (constant = 13)
+        attackPower: Integer
+        criticalChance: Integer  // Percentage chance (0-100)
 
     constructor(startRoom):
         name = "Player"
@@ -159,6 +169,8 @@ class Player:
         inventory = new empty list
         currentRoom = startRoom
         score = 0
+        attackPower = 10
+        criticalChance = 15
 
     function setName(name): this.name = name
     function getName(): return name
@@ -214,6 +226,19 @@ class Player:
         if score >= 500: return "Seasoned Adventurer"
         if score >= 250: return "Novice Explorer"
         return "Beginner"
+
+    function attack(monster):
+        // Check if attack is critical hit
+        isCritical = random(1, 100) <= criticalChance
+
+        // Calculate damage - critical hits do double damage
+        damage = attackPower
+        if isCritical:
+            damage = attackPower * 2
+
+        // Apply damage to monster
+        result = monster.takeDamage(damage, isCritical)
+        return result
 
 // Item - Represents an object that can be picked up and used
 class Item:
@@ -314,9 +339,13 @@ class Monster:
         value: Integer
         solution: String
         target: String
+        health: Integer
+        maxHealth: Integer
 
     constructor(name, active, damage, canAttack, attackDescription, description, effects, value, solution, target):
         initialize properties
+        this.maxHealth = 100  // Default value, can be adjusted per monster
+        this.health = maxHealth
 
     function attack(player):
         if active and canAttack:
@@ -324,7 +353,37 @@ class Monster:
             return abs(damage)
         return 0
 
-    function defeat(): this.active = false
+    function defeat():
+        this.active = false
+        this.health = 0
+
+    function takeDamage(amount, isCritical):
+        if not active:
+            return {"success": false, "message": "Monster is already defeated"}
+
+        this.health -= amount
+
+        if this.health <= 0:
+            this.health = 0
+            this.defeat()
+            return {
+                "success": true,
+                "damage": amount,
+                "critical": isCritical,
+                "defeated": true,
+                "healthRemaining": 0
+            }
+
+        return {
+            "success": true,
+            "damage": amount,
+            "critical": isCritical,
+            "defeated": false,
+            "healthRemaining": this.health
+        }
+
+    function getHealthPercentage():
+        return (this.health / this.maxHealth) * 100
 
     // Getters and setters
     function isActive(): return active
@@ -399,7 +458,7 @@ class GameController:
             itemName = extract item name from command
             dropItem(itemName)
 
-        // Inspect command (formerly examine)
+        // Inspect command
         else if command starts with "x " or "inspect ":
             target = extract target from command
             inspect(target)
@@ -413,6 +472,10 @@ class GameController:
         else if command starts with "a " or "answer ":
             answer = extract answer from command
             provideAnswer(answer)
+
+        // Attack command
+        else if command is "attack" or command is "att" or command is "a":
+            attackMonster()
 
         // Save command
         else if command is "save": saveGame()
@@ -560,6 +623,36 @@ class GameController:
             displayItemUsed(item)
             item.use()
 
+    function attackMonster():
+        currentRoom = model.getPlayer().getCurrentRoom()
+        monster = currentRoom.getMonster()
+
+        // Check if there's a monster to attack
+        if monster is null or not monster.isActive():
+            displayNoMonsterToAttack()
+            return
+
+        // Player attacks monster
+        attackResult = model.getPlayer().attack(monster)
+
+        if attackResult.success:
+            if attackResult.critical:
+                displayCriticalHit(attackResult.damage)
+            else:
+                displayAttackHit(attackResult.damage)
+
+            displayMonsterHealth(monster.getHealthPercentage())
+
+            if attackResult.defeated:
+                displayMonsterDefeated()
+                model.getPlayer().addScore(monster.getValue())
+                model.unblockPaths(currentRoom)
+            else:
+                // Monster counterattacks if not defeated
+                monsterAttacksPlayer()
+        else:
+            displayAttackMissed()
+
     function provideAnswer(answer):
         currentRoom = model.getPlayer().getCurrentRoom()
 
@@ -601,3 +694,44 @@ class GameController:
 
     function endGame():
         gameOver = true
+
+    function monsterAttacksPlayer():
+        currentRoom = model.getPlayer().getCurrentRoom()
+        monster = currentRoom.getMonster()
+
+        if monster is not null and monster.isActive() and monster.canAttack():
+            damageDealt = monster.attack(model.getPlayer())
+            if damageDealt > 0:
+                displayMonsterAttack(monster, damageDealt)
+                displayPlayerHealth()
+
+    // Display methods for the attack function
+    function displayNoMonsterToAttack():
+        output.println("There's nothing here to attack.")
+
+    function displayAttackHit(damage):
+        output.println("You attack the monster for " + damage + " damage!")
+
+    function displayCriticalHit(damage):
+        output.println("CRITICAL HIT! You attack the monster for " + damage + " damage!")
+
+    function displayAttackMissed():
+        output.println("Your attack had no effect.")
+
+    function displayMonsterHealth(healthPercentage):
+        if healthPercentage > 75:
+            output.println("The monster appears mostly unharmed.")
+        else if healthPercentage > 50:
+            output.println("The monster appears wounded.")
+        else if healthPercentage > 25:
+            output.println("The monster appears badly injured.")
+        else:
+            output.println("The monster appears to be near death!")
+
+    function displayMonsterAttack(monster, damage):
+        output.println(monster.getAttackDescription())
+        output.println("You took " + damage + " damage!")
+
+    function displayPlayerHealth():
+        output.println("Your health: " + model.getPlayer().getHealth() +
+                      " (" + model.getPlayer().getHealthStatus() + ")")
