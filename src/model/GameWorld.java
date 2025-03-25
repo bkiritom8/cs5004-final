@@ -12,7 +12,6 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import javax.swing.*;
 
@@ -241,7 +240,8 @@ public class GameWorld {
       String effects = (String) puzzleData.get("effects");
       String target = (String) puzzleData.get("target");
 
-      Puzzle puzzle = new Puzzle(name, active, affectsTarget, affectsPlayer, solution, value, description, effects, target);
+      Puzzle puzzle = new Puzzle(name, active, affectsTarget, affectsPlayer, solution, value,
+              description, effects, target);
       puzzles.put(name.toUpperCase(), puzzle);
     }
   }
@@ -268,7 +268,8 @@ public class GameWorld {
       String solution = (String) monsterData.get("solution");
       String target = (String) monsterData.get("target");
 
-      Monster monster = new Monster(name, active, damage, canAttack, attackDescription, description, effects, value, solution, target);
+      Monster monster = new Monster(name, active, damage, canAttack, attackDescription,
+              description, effects, value, solution, target);
       monsters.put(name.toUpperCase(), monster);
     }
   }
@@ -469,8 +470,8 @@ public class GameWorld {
       }
 
       // Save room exits
-      JSONObject exitsData = new JSONobject();
-      for (Direction dir : Direction.value()) {
+      JSONObject exitsData = new JSONObject();
+      for (Direction dir : Direction.values()) {
         exitsData.put(dir.toString(), room.getExitRoomNumber(dir));
       }
       roomData.put("exits", exitsData);
@@ -498,7 +499,7 @@ public class GameWorld {
     JSONParser parser = new JSONParser();
 
     try (FileReader file = new FileReader(filename)) {
-      JSONObject saveData = (JSONObject) parser.parse(reader);
+      JSONObject saveData = (JSONObject) parser.parse(file);
 
       // Load player data
       JSONObject playerData = (JSONObject) saveData.get("player");
