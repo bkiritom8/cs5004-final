@@ -47,4 +47,28 @@ public class GameWorldIntegrationTest {
     assertEquals("2", player.getCurrentRoom().getRoomNumber());
   }
 
+  @Test
+  void testItemInteractionScenario() throws IOException {
+    GameWorld gameWorld = new GameWorld("./resources/simple_hallway.json");
+    Player player = gameWorld.getPlayer();
+
+    // Take notebook from starting room
+    Room startRoom = player.getCurrentRoom();
+    Item notebook = startRoom.getItem("Notebook");
+    assertNotNull(notebook);
+
+    player.addToInventory(notebook);
+    startRoom.removeItem(notebook);
+
+    assertTrue(player.getInventory().contains(notebook));
+    assertFalse(startRoom.getItems().contains(notebook));
+
+    //Drop notebook back in room
+    player.removeFromInventory(notebook);
+    startRoom.addItem(notebook);
+
+    assertFalse(player.getInventory().contains(notebook));
+    assertTrue(startRoom.getItems().contains(notebook));
+  }
+
 }
