@@ -32,7 +32,6 @@ public class GameWorld {
   private Player player;
 
   /**
-   *
    * @param gameFileName
    * @throws IOException
    */
@@ -59,7 +58,6 @@ public class GameWorld {
   }
 
   /**
-   *
    * @param gameFileName
    * @throws IOException
    * @throws ParseException
@@ -107,7 +105,6 @@ public class GameWorld {
   }
 
   /**
-   *
    * @param roomsArray
    */
   private void loadRooms(JSONArray roomsArray) {
@@ -177,7 +174,6 @@ public class GameWorld {
   }
 
   /**
-   *
    * @param itemsArray
    */
   private void loadItems(JSONArray itemsArray) {
@@ -202,7 +198,6 @@ public class GameWorld {
   }
 
   /**
-   *
    * @param fixturesArray
    */
   private void loadFixtures(JSONArray fixturesArray) {
@@ -223,7 +218,6 @@ public class GameWorld {
   }
 
   /**
-   *
    * @param puzzlesArray
    */
   private void loadPuzzles(JSONArray puzzlesArray) {
@@ -250,7 +244,6 @@ public class GameWorld {
   }
 
   /**
-   *
    * @param monstersArray
    */
   private void loadMonsters(JSONArray monstersArray) {
@@ -303,7 +296,6 @@ public class GameWorld {
   }
 
   /**
-   *
    * @param value
    * @param defaultValue
    * @return
@@ -325,4 +317,82 @@ public class GameWorld {
 
     return defaultValue;
   }
+
+  /**
+   *
+   * @return
+   */
+  public Player getPlayer() {
+    return player;
+  }
+
+  /**
+   *
+   * @param name
+   */
+  public void setPlayerName(String name) {
+    player.setName(name);
+  }
+
+  /**
+   *
+   * @param roomNumber
+   * @return
+   */
+  public Room getRoom(String roomNumber) {
+    return rooms.get(roomNumber);
+  }
+
+  /**
+   *
+   * @param name
+   * @return
+   */
+  public Puzzle getPuzzleByName(String name) {
+    return puzzles.get(name.toUpperCase());
+  }
+
+  /**
+   *
+   * @return
+   */
+  public String getGameName() {
+    return gameName;
+  }
+
+  /**
+   *
+   * @param solution
+   * @return
+   */
+  public boolean applySolution(String solution) {
+    Room currentRoom = player.getCurrentRoom();
+
+    // Check if there's a puzzle in the room
+    if (currentRoom.getPuzzle() != null && currentRoom.getPuzzle().isActive()) {
+      Puzzle puzzle = currentRoom.getPuzzle();
+      if (puzzle.solve(solution)) {
+        // Update player score
+        player.addScore(puzzle.getValue());
+
+        // Unblock paths
+        for (Direction dir : Direction.values()) {
+          String exitNumber = currentRoom.getExitRoomNumber(dir);
+          if (Integer.parseInt(exitNumber) < 0) {
+            // Convert negative to positive to unblock
+            currentRoom.setExitRoomNumber(dir, String.valueOf(Math.abs
+                    (Integer.parseInt(exitNumber))));
+            // Set the actual exit
+            Room targetRoom = rooms.get(String.valueOf(Math.abs(Integer.parseInt(exitNumber))));
+            if (targetRoom != null) {
+              currentRoom.setExit(dir, targetRoom);
+            }
+          }
+        }
+        return true;
+      }
+    }
+  }
+
+}
 
