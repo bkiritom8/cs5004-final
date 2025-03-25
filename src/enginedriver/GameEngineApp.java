@@ -39,7 +39,7 @@ public class GameEngineApp {
       // Start game loop
       controller.play();
     } catch (IOException e) {
-      throw new IOException("Error starting game", e.getMessage(), e);
+      throw new IOException("Error starting game: " + e.getMessage(), e);
     }
   }
 }
