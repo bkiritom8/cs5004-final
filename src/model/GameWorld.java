@@ -455,7 +455,7 @@ public class GameWorld {
     // Save room states
     JSONArray roomsData = new JSONArray();
     for (Room room : rooms.values()) {
-      JSONObject roomData = new JSONObject;
+      JSONObject roomData = new JSONObject();
       roomData.put("room_number", room.getRoomNumber());
 
       // Save puzzle state
