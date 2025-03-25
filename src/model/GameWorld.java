@@ -13,6 +13,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import javax.swing.*;
+
 /**
  *
  */
@@ -392,7 +394,105 @@ public class GameWorld {
         return true;
       }
     }
+
+    // Check if there's a monster in the room
+    if (currentRoom.getMonster() != null && currentRoom.getMonster().isActive()) {
+      Monster monster = currentRoom.getMonster();
+      if (monster.getSolution().equalsIgnoreCase(solution)) {
+        monster.defeat();
+        // Update Players score
+        player.addScore(monster.getValue());
+
+        // Unblock paths
+        for (Direction dir : Direction.values()) {
+          String exitNumber = currentRoom.getExitRoomNumber(dir);
+          if (Integer.parseInt(exitNumber) < 0) {
+            // Convert negative to positive to unblock
+            currentRoom.setExitRoomNumber(dir, String.valueOf(Math.abs
+                    (Integer.parseInt(exitNumber))));
+            // Set the actual exit
+            Room targetRoom = rooms.get(String.valueOf(Math.abs(Integer.parseInt(exitNumber))));
+            if (targetRoom != null) {
+              currentRoom.setExit(dir, targetRoom);
+            }
+          }
+        }
+        return true;
+      }
+    }
+
+    return false;
   }
+
+  /**
+   *
+   * @param filename
+   * @throws IOException
+   */
+  public void saveGame(String filename) throws IOException {
+    JSONObject saveData = new JSONObject();
+
+    // Save player data
+    JSONObject playerData = new JSONobject();
+    playerData.put("name", player.getName());
+    playerData.put("health", player.getHealth());
+    playerData.put("score", player.getScore());
+    playerData.put("current_room", player.getCurrentRoom().getRoomNumber());
+
+    // Save inventory
+    JSONArray inventoryData = new JSONArray();
+    for (Item item : player.getInventory()) {
+      JSONObject itemData = new JSONObject();
+      itemData.put("name", item.getName());
+      itemData.put("uses_remaining", item.getUsesRemaining());
+      inventoryData.add(itemData);
+    }
+    playerData.put("inventory", inventoryData);
+
+    saveData.put("player", playerData);
+
+    // Save room states
+    JSONArray roomsData = new JSONArray();
+    for (Room room : rooms.values()) {
+      JSONObject roomData = new JSONObject;
+      roomData.put("room_number", room.getRoomNumber());
+
+      // Save puzzle state
+      if (room.getPuzzle() != null) {
+        roomData.put("puzzle_active", room.getPuzzle().isActive());
+      }
+
+      // Save monster state
+      if (room.getMonster() != null) {
+        roomData.put("monster_active", room.getMonster().isActive());
+      }
+
+      // Save room exits
+      JSONObject exitsData = new JSONobject();
+      for (Direction dir : Direction.value()) {
+        exitsData.put(dir.toString(), room.getExitRoomNumber(dir));
+      }
+      roomData.put("exits", exitsData);
+
+      // Save items in room
+      JSONArray roomItemsData = new JSONArray();
+      for (Item item : room.getItems()) {
+        roomItemsData.add(item.getName());
+      }
+      roomData.put("items", roomItemsData);
+
+      roomsData.add(roomData);
+    }
+
+    saveData.put("rooms", roomsData);
+    saveData.put("game_name", gameName);
+    saveData.put("version", version);
+
+    try (FileWriter file = new FileWriter(filename)) {
+      file.write(saveData.toJSONString());
+    }
+  }
+
 
 }
 
