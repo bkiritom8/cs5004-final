@@ -3,6 +3,7 @@ package model;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileWriter;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -493,6 +494,95 @@ public class GameWorld {
     }
   }
 
+  public void loadGame(String filename) throws IOException, ParseException {
+    JSONParser parser = new JSONParser();
 
+    try (FileReader file = new FileReader(filename)) {
+      JSONObject saveData = (JSONObject) parser.parse(reader);
+
+      // Load player data
+      JSONObject playerData = (JSONObject) saveData.get("player");
+      String playerName = (String) playerData.get("name");
+      long health = (Long) playerData.get("health");
+      long score = (Long) playerData.get("score");
+      String currentRoomNumber = (String) playerData.get("current_room");
+
+      // Load inventory
+      JSONArray inventoryData = (JSONArray) playerData.get("inventory");
+      List<Item> inventory = new ArrayList<>();
+      for (Object obj : inventoryData) {
+        JSONObject itemData = (JSONObject) obj;
+        String itemName = (String) itemData.get("name");
+        long usesRemaining = (Long) itemData.get("uses_remaining");
+
+        Item item = items.get(itemName.toUpperCase());
+        if (item != null) {
+          item.setUsesRemaining((int) usesRemaining);
+          inventory.add(item);
+        }
+      }
+
+      // Set Player State
+      player.setName(playerName);
+      player.setHealth((int) health);
+      player.setScore((int) score);
+      player.setCurrentRoom(rooms.get(currentRoomNumber));
+      player.setInventory(inventory);
+
+      // Load room state
+      JSONArray roomsData = (JSONArray) saveData.get("rooms");
+      for (Object obj : roomsData) {
+        JSONObject roomData = (JSONObject) obj;
+        String roomNumber = (String) roomData.get("room_number");
+        Room room = rooms.get(roomNumber);
+
+        if (room != null) {
+          // Load puzzle state
+          if (roomData.containsKey("puzzle_active") && room.getPuzzle() != null) {
+            boolean puzzleActive = (Boolean) roomData.get("puzzle_active");
+            room.getPuzzle().setActive(puzzleActive);
+          }
+
+          // Load monster state
+          if (roomData.containsKey("monster_active") && room.getMonster() != null) {
+            boolean monsterActive = (Boolean) roomData.get("monster_active");
+            room.getMonster().setActive(monsterActive);
+          }
+
+          // Load room exits
+          if (roomData.containsKey("exits")) {
+            JSONObject exitsData = (JSONObject) roomData.get("exits");
+            for (Direction dir : Direction.value()) {
+              String exitNumber = (String) exitsData.get(dir.toString());
+              room.setExitRoomNumber(dir, exitNumber);
+
+              // Update actual exit connections
+              if (!exitNumber.equals("0") && Integer.parseInt(exitNumber) > 0) {
+                Room targetRoom = rooms.get(exitNumber);
+                if (targetRoom != null) {
+                  room.setExit(dir, targetRoom);
+                }
+              } else {
+                room.setExit(dir, null);
+              }
+            }
+          }
+
+          // Load items in room
+          if (roomData.containsKey("items")) {
+            JSONArray roomsItemsData = (JSONArray) roomData.get("items");
+            room.clearItems();
+            for (Object itemObj : roomsItemsData) {
+              String itemName = (String) itemObj;
+              Item item = items.get(itemName.toUpperCase());
+              if (item != null) {
+                room.addItem(item);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
