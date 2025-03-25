@@ -3,7 +3,6 @@ package model;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileWriter;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +11,7 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import javax.swing.*;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -64,7 +62,8 @@ public class GameWorld {
    * @throws IOException
    * @throws ParseException
    */
-  private void loadGameData(String gameFileName) throws IOException, ParseException {
+  private void loadGameData(String gameFileName) throws IOException,
+          org.json.simple.parser.ParseException {
     JSONParser parser = new JSONParser();
 
     try (FileReader reader = new FileReader(gameFileName)) {
@@ -101,7 +100,9 @@ public class GameWorld {
         throw new IOException("No rooms defined in the game file.");
       }
 
-    } catch (IOException | ParseException e) {
+    } catch (IOException e) {
+      throw e;
+    } catch (org.json.simple.parser.ParseException e) {
       throw e;
     }
   }
@@ -435,7 +436,7 @@ public class GameWorld {
     JSONObject saveData = new JSONObject();
 
     // Save player data
-    JSONObject playerData = new JSONobject();
+    JSONObject playerData = new JSONObject(); // Fixed typo: JSONobject to JSONObject
     playerData.put("name", player.getName());
     playerData.put("health", player.getHealth());
     playerData.put("score", player.getScore());
@@ -495,7 +496,13 @@ public class GameWorld {
     }
   }
 
-  public void loadGame(String filename) throws IOException, ParseException {
+  /**
+   *
+   * @param filename
+   * @throws IOException
+   * @throws ParseException
+   */
+  public void loadGame(String filename) throws IOException, org.json.simple.parser.ParseException {
     JSONParser parser = new JSONParser();
 
     try (FileReader file = new FileReader(filename)) {
@@ -553,7 +560,7 @@ public class GameWorld {
           // Load room exits
           if (roomData.containsKey("exits")) {
             JSONObject exitsData = (JSONObject) roomData.get("exits");
-            for (Direction dir : Direction.value()) {
+            for (Direction dir : Direction.values()) {
               String exitNumber = (String) exitsData.get(dir.toString());
               room.setExitRoomNumber(dir, exitNumber);
 
@@ -586,4 +593,3 @@ public class GameWorld {
     }
   }
 }
-
