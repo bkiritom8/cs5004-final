@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,12 +14,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- * The main model class representing the game world.
- * This class is responsible for managing the game state, including rooms,
- * items, puzzles, monsters, and the player.
+ *
  */
 public class GameWorld {
-  // Game Metadata
+  // Game metadata
   private String gameName;
   private String version;
 
@@ -35,6 +32,7 @@ public class GameWorld {
   private Player player;
 
   /**
+   *
    * @param gameFileName
    * @throws IOException
    */
@@ -48,15 +46,15 @@ public class GameWorld {
     try {
       loadGameData(gameFileName);
     } catch (Exception e) {
-      throw new IOException("Error loading game data" + e.getMessage(), e);
+      throw new IOException("Error loading game data: " + e.getMessage(), e);
     }
 
     // Initialize player in the first room
     if (!rooms.isEmpty()) {
-      Room startRoom = rooms.values().iterator().next();
+      Room startRoom = rooms.values().iterator().next(); // Get the first room
       this.player = new Player(startRoom);
     } else {
-      throw new IOException("No rooms defined in the game file");
+      throw new IOException("No rooms defined in the game file.");
     }
   }
 
@@ -77,7 +75,7 @@ public class GameWorld {
       this.version = (String) gameData.get("version");
 
       // Load items first so they can be referenced by rooms
-      if (gameData.containsKey("rooms")) {
+      if (gameData.containsKey("items")) {
         loadItems((JSONArray) gameData.get("items"));
       }
 
@@ -100,7 +98,7 @@ public class GameWorld {
       if (gameData.containsKey("rooms")) {
         loadRooms((JSONArray) gameData.get("rooms"));
       } else {
-        throw new IOException("No rooms defined in the game file");
+        throw new IOException("No rooms defined in the game file.");
       }
 
     } catch (IOException | ParseException e) {
@@ -141,7 +139,7 @@ public class GameWorld {
         }
       }
 
-      // Add Fixtures to room if present
+      // Add fixtures to room if present
       String fixturesList = (String) roomData.get("fixtures");
       if (fixturesList != null && !fixturesList.isEmpty()) {
         for (String fixtureName : fixturesList.split(",")) {
@@ -152,105 +150,179 @@ public class GameWorld {
         }
       }
 
-      // Add Puzzle to room if present
-      String puzzlesList = (String) roomData.get("puzzles");
-      if (puzzlesList != null && !puzzlesList.isEmpty()) {
-        for (String puzzleName : puzzlesList.split(",")) {
-          Puzzle puzzle = puzzles.get(puzzleName.trim().toLowerCase());
-          if (puzzle != null) {
-            room.addPuzzle(puzzle);
-          }
+      // Add puzzle to room if present
+      String puzzleName = (String) roomData.get("puzzle");
+      if (puzzleName != null && !puzzleName.isEmpty()) {
+        Puzzle puzzle = puzzles.get(puzzleName.trim().toUpperCase());
+        if (puzzle != null) {
+          room.setPuzzle(puzzle);
         }
       }
 
-      // Add Monster to room if present
-      String monstersList = (String) roomData.get("monsters");
-      if (monstersList != null && !monstersList.isEmpty()) {
-        for (String monsterName : monstersList.split(",")) {
-          Monster monster = monsters.get(monsterName.trim().toUpperCase());
-          if (monster != null) {
-            room.addMonster(monster);
-          }
+      // Add monster to room if present
+      String monsterName = (String) roomData.get("monster");
+      if (monsterName != null && !monsterName.isEmpty()) {
+        Monster monster = monsters.get(monsterName.trim().toUpperCase());
+        if (monster != null) {
+          room.setMonster(monster);
         }
-
-        // Add room to map
-        rooms.put(roomName, room);
       }
 
-      // Connect rooms after all rooms are loaded
-      connectRooms();
+      // Add room to map
+      rooms.put(roomNumber, room);
     }
 
-    /**
-     *
-     */
-    private void loadItems(JSONArray itemsArray) {
-      if (itemsArray == null) {
-        return;
-      }
-
-      for (Object obj : itemsArray) {
-        JSONObject itemData = (JSONObject) obj;
-
-        String name = (String) itemData.get("item_name");
-        int weight = parseIntOrDefault(itemData.get("weight"), 1);
-        int maxUses = parseIntOrDefault(itemData.get("max_uses"), 1);
-        int usesRemaining = parseIntOrDefault(itemData.get("uses_remaining"), 1);
-        int value = parseIntOrDefault(itemData.get("value"), 0);
-        String whenUsed = (String) itemData.get("when_used");
-        String description = (String) itemData.get("description");
-
-        Item item = new Item(name, weight, maxUses,usesRemaining, value, whenUsed, description);
-        items.put(name.toUpperCase(), item);
-      }
-    }
-
-    /**
-     *
-     */
-    private void loadFixtures(JSONArray fixturesArray) {
-      if (fixtures == null) {
-        return;
-      }
-
-      for (Object obj : fixturesArray) {
-        JSONObject fixtureData = (JSONObject) obj;
-
-        String name = (String) fixtureData.get("fixture_name");
-        int weight = parseIntOrDefault(fixtureData.get("weight"), 1000);
-        String description = (String) fixtureData.get("description");
-
-        Fixture fixture = new Fixture(name, weight, description);
-        fixtures.put(name.toUpperCase(), fixture);
-      }
-    }
-
-    /**
-     *
-     */
-    private void loadPuzzles(JSONArray puzzleArray) {
-      if (puzzles == null) {
-        return;
-      }
-
-      for (Object obj : puzzlesArray) {
-        JSONObject puzzleData = (JSONObject) obj;
-
-        String name = (String) puzzleData.get("puzzle_name");
-        boolean active = Boolean.parseBoolean((String) puzzleData.get("active"));
-        boolean affectsTarget = Boolean.parseBoolean((String) puzzleData.get("affect_target"));
-        boolean affectsPlayer = Boolean.parseBoolean((String) puzzleData.get("affect_player"));
-        String solution = (String) puzzleData.get("solution");
-        int value = parseIntOrDefualt(puzzleData.get("value"), 0);
-        String description = (String) puzzleData.get("description");
-        String effects = (String) puzzleData.get("effects");
-        String target = (String) puzzleData.get("target");
-
-        Puzzle puzzle = new Puzzle(name, active, affectsTarget,affectsPlayer,solution,value,
-                description,effects,target);
-        puzzles.put(name.toUpperCase(), puzzle);
-      }
-    }
-
+    // Connect rooms after all rooms are loaded
+    connectRooms();
   }
-}
+
+  /**
+   *
+   * @param itemsArray
+   */
+  private void loadItems(JSONArray itemsArray) {
+    if (itemsArray == null) {
+      return;
+    }
+
+    for (Object obj : itemsArray) {
+      JSONObject itemData = (JSONObject) obj;
+
+      String name = (String) itemData.get("name");
+      int weight = parseIntOrDefault(itemData.get("weight"), 1);
+      int maxUses = parseIntOrDefault(itemData.get("max_uses"), 1);
+      int usesRemaining = parseIntOrDefault(itemData.get("uses_remaining"), 1);
+      int value = parseIntOrDefault(itemData.get("value"), 0);
+      String whenUsed = (String) itemData.get("when_used");
+      String description = (String) itemData.get("description");
+
+      Item item = new Item(name, weight, maxUses, usesRemaining, value, whenUsed, description);
+      items.put(name.toUpperCase(), item);
+    }
+  }
+
+  /**
+   *
+   * @param fixturesArray
+   */
+  private void loadFixtures(JSONArray fixturesArray) {
+    if (fixturesArray == null) {
+      return;
+    }
+
+    for (Object obj : fixturesArray) {
+      JSONObject fixtureData = (JSONObject) obj;
+
+      String name = (String) fixtureData.get("name");
+      int weight = parseIntOrDefault(fixtureData.get("weight"), 1000);
+      String description = (String) fixtureData.get("description");
+
+      Fixture fixture = new Fixture(name, weight, description);
+      fixtures.put(name.toUpperCase(), fixture);
+    }
+  }
+
+  /**
+   *
+   * @param puzzlesArray
+   */
+  private void loadPuzzles(JSONArray puzzlesArray) {
+    if (puzzlesArray == null) {
+      return;
+    }
+
+    for (Object obj : puzzlesArray) {
+      JSONObject puzzleData = (JSONObject) obj;
+
+      String name = (String) puzzleData.get("name");
+      boolean active = Boolean.parseBoolean((String) puzzleData.get("active"));
+      boolean affectsTarget = Boolean.parseBoolean((String) puzzleData.get("affects_target"));
+      boolean affectsPlayer = Boolean.parseBoolean((String) puzzleData.get("affects_player"));
+      String solution = (String) puzzleData.get("solution");
+      int value = parseIntOrDefault(puzzleData.get("value"), 0);
+      String description = (String) puzzleData.get("description");
+      String effects = (String) puzzleData.get("effects");
+      String target = (String) puzzleData.get("target");
+
+      Puzzle puzzle = new Puzzle(name, active, affectsTarget, affectsPlayer, solution, value, description, effects, target);
+      puzzles.put(name.toUpperCase(), puzzle);
+    }
+  }
+
+  /**
+   *
+   * @param monstersArray
+   */
+  private void loadMonsters(JSONArray monstersArray) {
+    if (monstersArray == null) {
+      return;
+    }
+
+    for (Object obj : monstersArray) {
+      JSONObject monsterData = (JSONObject) obj;
+
+      String name = (String) monsterData.get("name");
+      boolean active = Boolean.parseBoolean((String) monsterData.get("active"));
+      int damage = parseIntOrDefault(monsterData.get("damage"), 5);
+      boolean canAttack = Boolean.parseBoolean((String) monsterData.get("can_attack"));
+      String attackDescription = (String) monsterData.get("attack");
+      String description = (String) monsterData.get("description");
+      String effects = (String) monsterData.get("effects");
+      int value = parseIntOrDefault(monsterData.get("value"), 0);
+      String solution = (String) monsterData.get("solution");
+      String target = (String) monsterData.get("target");
+
+      Monster monster = new Monster(name, active, damage, canAttack, attackDescription, description, effects, value, solution, target);
+      monsters.put(name.toUpperCase(), monster);
+    }
+  }
+
+  /**
+   *
+   */
+  private void connectRooms() {
+    for (Room room : rooms.values()) {
+      for (Direction dir : Direction.values()) {
+        String targetRoomNumber = room.getExitRoomNumber(dir);
+
+        // Skip if no exit in this direction (0) or if there's a puzzle/monster blocking (-n)
+        if (targetRoomNumber.equals("0")) {
+          continue;
+        }
+
+        // If positive, direct connection to another room
+        if (Integer.parseInt(targetRoomNumber) > 0) {
+          Room targetRoom = rooms.get(targetRoomNumber);
+          if (targetRoom != null) {
+            room.setExit(dir, targetRoom);
+          }
+        }
+        // If negative, there's a puzzle or monster blocking; will handle this during gameplay
+      }
+    }
+  }
+
+  /**
+   *
+   * @param value
+   * @param defaultValue
+   * @return
+   */
+  private int parseIntOrDefault(Object value, int defaultValue) {
+    if (value == null) {
+      return defaultValue;
+    }
+
+    try {
+      if (value instanceof String) {
+        return Integer.parseInt((String) value);
+      } else if (value instanceof Number) {
+        return ((Number) value).intValue();
+      }
+    } catch (NumberFormatException e) {
+      // Ignore and return default
+    }
+
+    return defaultValue;
+  }
+
