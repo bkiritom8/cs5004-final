@@ -71,4 +71,11 @@ public class GameWorldIntegrationTest {
     assertTrue(startRoom.getItems().contains(notebook));
   }
 
+  @Test
+  void testPuzzleSolvingScenario() throws IOException {
+    GameWorld gameWorld = new GameWorld("./resources/simple_hallway.json");
+    Player player = gameWorld.getPlayer();
+
+    //
+  }
 }
