@@ -6,10 +6,17 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *  Integration test for the game world.
+ * Integration test for the GameWorld class.
+ * Tests various game scenarios to ensure proper interaction between game components.
  */
 public class GameWorldIntegrationTest {
 
+  /**
+   * Tests loading a game with empty rooms.
+   * Verifies that basic game information and starting room are correctly initialized.
+   *
+   * @throws IOException If there is an error reading the test game file
+   */
   @Test
   void testLoadEmptyRoomsGame() throws IOException {
     GameWorld gameWorld = new GameWorld("./resources/empty_rooms.json");
@@ -20,6 +27,12 @@ public class GameWorldIntegrationTest {
     assertEquals("Hallway 1", startRoom.getName());
   }
 
+  /**
+   * Tests player navigation between rooms.
+   * Verifies that player movement and room connections work correctly.
+   *
+   * @throws IOException If there is an error reading the test game file
+   */
   @Test
   void testPlayerNavigationScenario() throws IOException {
     GameWorld gameWorld = new GameWorld("./resources/empty_rooms.json");
@@ -47,6 +60,12 @@ public class GameWorldIntegrationTest {
     assertEquals("2", player.getCurrentRoom().getRoomNumber());
   }
 
+  /**
+   * Tests item interactions including picking up and dropping items.
+   * Verifies that item transfers between room and player inventory work correctly.
+   *
+   * @throws IOException If there is an error reading the test game file
+   */
   @Test
   void testItemInteractionScenario() throws IOException {
     GameWorld gameWorld = new GameWorld("./resources/simple_hallway.json");
@@ -71,6 +90,12 @@ public class GameWorldIntegrationTest {
     assertTrue(startRoom.getItems().contains(notebook));
   }
 
+  /**
+   * Tests puzzle solving mechanics.
+   * Verifies that puzzles can be properly identified and solved.
+   *
+   * @throws IOException If there is an error reading the test game file
+   */
   @Test
   void testPuzzleSolvingScenario() throws IOException {
     GameWorld gameWorld = new GameWorld("./resources/simple_hallway.json");
@@ -83,6 +108,6 @@ public class GameWorldIntegrationTest {
 
     // Room 2 has lock puzzle
     Puzzle lockPuzzle = player.getCurrentRoom().getPuzzle();
-    assertNotNull();
+    assertNotNull(lockPuzzle);
   }
 }
