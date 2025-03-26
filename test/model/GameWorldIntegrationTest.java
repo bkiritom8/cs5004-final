@@ -109,5 +109,27 @@ public class GameWorldIntegrationTest {
     // Room 2 has lock puzzle
     Puzzle lockPuzzle = player.getCurrentRoom().getPuzzle();
     assertNotNull(lockPuzzle);
+    assertEquals("LOCK", lockPuzzle.getName());
+    assertTrue(lockPuzzle.isActive());
+
+    // The exit to the north is blocked
+    assertEquals("-3", player.getCurrentRoom().getExitRoomNumber(Direction.NORTH));
+
+    // Take the key from room 2
+    Item key = player.getCurrentRoom().getItem("Key");
+    assertNotNull(key);
+    player.addToInventory(key);
+    player.getCurrentRoom().removeItem(key);
+
+    // Use the key to solve the puzzle
+    boolean solved = gameWorld.applySolution("Key");
+    assertTrue(solved);
+    assertFalse(lockPuzzle.isActive());
+
+    // Now the path should be unlocked
+    assertEquals("3", player.getCurrentRoom().getExitRoomNumber(Direction.NORTH));
+    assertNotNull(player.getCurrentRoom().getExit(Direction.NORTH));
+    }
+
   }
 }
