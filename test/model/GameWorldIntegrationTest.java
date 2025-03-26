@@ -131,5 +131,56 @@ public class GameWorldIntegrationTest {
     assertNotNull(player.getCurrentRoom().getExit(Direction.NORTH));
     }
 
+  /**
+   *
+   * @throws IOException
+   */
+  @Test
+  void testMonsterDefeatScenario() throws IOException {
+    GameWorld gameWorld = new GameWorld("./resources/simple_hallway.json");
+    Player player = gameWorld.getPlayer();
+
+    // Navigate to room 3 (containing Teddy Bear monster)
+    // First to room 2
+    Room startRoom = player.getCurrentRoom();
+    Room room2 = startRoom.getExit(Direction.NORTH);
+    player.setCurrentRoom(room2);
+
+    // Take the key and solve the lock puzzle
+    Item key = player.getCurrentRoom().getItem("Key");
+    player.addToInventory(key);
+    player.getCurrentRoom().removeItem(key);
+    gameWorld.applySolution("Key");
+
+    // Now to room 3
+    Room room3 = player.getCurrentRoom().getExit(Direction.NORTH);
+    player.setCurrentRoom(room3);
+
+    // Room 3 has a Teddy Bear monster
+    Monster teddyBear = player.getCurrentRoom().getMonster();
+    assertNotNull(teddyBear);
+    assertEquals("Teddy Bear", teddyBear.getName());
+    assertTrue(teddyBear.isActive());
+
+    // The exit to the north is blocked
+    assertEquals("4", player.getCurrentRoom().getExitRoomNumber(Direction.NORTH));
+
+    // Take hair clippers from room 2
+    player.setCurrentRoom(room2);
+    Item hairClippers = player.getCurrentRoom().getItem("Hair Clippers");
+    assertNotNull(hairClippers);
+    player.addToInventory(hairClippers);
+    player.getCurrentRoom().removeItem(hairClippers);
+
+    // Return to room 3
+    player.setCurrentRoom(room3);
+
+    // Use the hair clippers to defeat the monster
+    boolean defeated = gameWorld.applySolution("Hair Clippers");
+    assertTrue(defeated);
+    assertFalse(teddyBear.isActive());
+
+    // Player should get points for defeating the monster
+    assertEquals(200, player.getScore());
   }
 }
