@@ -76,6 +76,13 @@ public class GameWorldIntegrationTest {
     GameWorld gameWorld = new GameWorld("./resources/simple_hallway.json");
     Player player = gameWorld.getPlayer();
 
-    //
+    // Move to room 2 (containing Lock puzzle)
+    Room startRoom = player.getCurrentRoom();
+    Room northRoom = startRoom.getExit(Direction.NORTH);
+    player.setCurrentRoom(northRoom);
+
+    // Room 2 has lock puzzle
+    Puzzle lockPuzzle = player.getCurrentRoom().getPuzzle();
+    assertNotNull();
   }
 }
