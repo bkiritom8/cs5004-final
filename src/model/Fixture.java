@@ -1,85 +1,82 @@
 package model;
 
+import java.util.Objects;
+
 /**
- * Represents an immovable fixture in the game.
- * For example, a computer, painting, or desk found in a room.
+ * Represents a fixture element in the game (e.g., a computer, desk, painting, etc.).
+ * Fields are designed to match the JSON structure. Note that some fields (such as puzzle or states)
+ * may be null.
  */
 public class Fixture {
   private String name;
-  private int weight;
+  private int weight;       // Stored as an integer (JSON weight is provided as a string)
+  private String puzzle;    // Optional: puzzle associated with the fixture
+  private String states;    // Optional: state model (not used in HW8)
   private String description;
-  private String picture; // Optional picture file path or URL
+  private String picture;   // Optional: path or URL to a picture
 
-  /**
-   * Constructor for Fixture with picture.
-   *
-   * @param name        the fixture name
-   * @param weight      the weight (should be high for immovable objects)
-   * @param description the description shown to the player
-   * @param picture     an optional picture associated with the fixture
-   */
-  public Fixture(String name, int weight, String description, String picture) {
+  // Default constructor required for JSON deserialization
+  public Fixture() {}
+
+  public Fixture(String name, int weight, String puzzle, String states, String description, String picture) {
     this.name = name;
     this.weight = weight;
+    this.puzzle = puzzle;
+    this.states = states;
     this.description = description;
     this.picture = picture;
   }
 
   /**
-   * Constructor for Fixture without picture.
-   *
-   * @param name        the fixture name
-   * @param weight      the weight of the fixture
-   * @param description the description shown to the player
+   * Overloaded constructor for convenience.
+   * Initializes puzzle, states, and picture to null.
    */
   public Fixture(String name, int weight, String description) {
-    this(name, weight, description, null);
+    this(name, weight, null, null, description, null);
   }
 
+  // Getters
   public String getName() {
-
     return name;
   }
 
   public int getWeight() {
-
     return weight;
   }
 
-  public String getDescription() {
+  public String getPuzzle() {
+    return puzzle;
+  }
 
+  public String getStates() {
+    return states;
+  }
+
+  public String getDescription() {
     return description;
   }
 
   public String getPicture() {
-
     return picture;
   }
 
   @Override
   public String toString() {
-    return "Fixture [name="
-            + name
-            + ", weight="
-            + weight
-            + ", description="
-            + description + "]";
+    return "Fixture [name=" + name + ", weight=" + weight + ", description=" + description + "]";
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
+    if (!(o instanceof Fixture)) return false;
     Fixture fixture = (Fixture) o;
-    return weight == fixture.weight
-            && name.equals(fixture.name)
-            && description.equals(fixture.description);
+    return weight == fixture.weight &&
+            Objects.equals(name, fixture.name) &&
+            Objects.equals(description, fixture.description);
   }
 
   @Override
   public int hashCode() {
-    return java.util.Objects.hash(name, weight, description);
+    return Objects.hash(name, weight, description);
   }
 }
-
