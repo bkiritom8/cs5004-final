@@ -1,8 +1,10 @@
 package model;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.*;
 
 @DisplayName("Room Test Suite")
 class RoomTest {
@@ -18,7 +20,6 @@ class RoomTest {
     assertEquals(0, room.getSouth());
     assertEquals(0, room.getEast());
     assertEquals(0, room.getWest());
-    // Check that the runtime fixture list is initially empty.
     assertTrue(room.getFixtureList().isEmpty());
   }
 
@@ -45,5 +46,159 @@ class RoomTest {
     room.addFixture(fixture1);
     room.addFixture(fixture2);
     assertEquals(2, room.getFixtureList().size());
+  }
+
+  @Test
+  @DisplayName("Test Adding and Removing Items")
+  void testAddRemoveItems() {
+    Room room = new Room("Storage", 5, "A dusty storage room.", 0, 0, 0, 0);
+    Item item = new Item("Lantern", 2, 3, 3, 10, "Shines bright", "An old lantern.");
+
+    room.addItem(item);
+    assertEquals(1, room.getItems().size());
+    assertEquals(item, room.getItem("Lantern"));
+
+    room.removeItem(item);
+    assertTrue(room.getItems().isEmpty());
+  }
+
+  @Test
+  @DisplayName("Test Puzzle and Monster Assignment")
+  void testPuzzleAndMonsterAssignment() {
+    Room room = new Room("Chamber", 8, "A sealed chamber", 0, 0, 0, 0);
+    Puzzle puzzle = new Puzzle("Lock", true, true, false, "key", 25, "A tricky lock.", "", "");
+    Monster monster = new Monster("Goblin", true, 15, true, "Slash!", "Tiny and aggressive", "", 50, "Sword", "");
+
+    room.setPuzzle(puzzle);
+    room.setMonster(monster);
+
+    assertEquals(puzzle, room.getPuzzle());
+    assertEquals(monster, room.getMonster());
+  }
+
+  @Test
+  @DisplayName("Test Room Exit Assignment with setExit and getExit")
+  void testSetAndGetExit() {
+    Room room1 = new Room("One", 1, "Room One", 0, 0, 0, 0);
+    Room room2 = new Room("Two", 2, "Room Two", 0, 0, 0, 0);
+
+    room1.setExit(Direction.EAST, room2);
+    assertEquals(room2, room1.getExit(Direction.EAST));
+  }
+
+  @Test
+  void getRoomName() {
+  }
+
+  @Test
+  void getRoomNumber() {
+  }
+
+  @Test
+  void getDescription() {
+  }
+
+  @Test
+  void getNorth() {
+  }
+
+  @Test
+  void getSouth() {
+  }
+
+  @Test
+  void getEast() {
+  }
+
+  @Test
+  void getWest() {
+  }
+
+  @Test
+  void getPuzzle() {
+  }
+
+  @Test
+  void getMonster() {
+  }
+
+  @Test
+  void getItemsField() {
+  }
+
+  @Test
+  void getFixtureNames() {
+  }
+
+  @Test
+  void getPicture() {
+  }
+
+  @Test
+  void getFixtureList() {
+  }
+
+  @Test
+  void addFixture() {
+  }
+
+  @Test
+  void removeFixture() {
+  }
+
+  @Test
+  void addItem() {
+  }
+
+  @Test
+  void removeItem() {
+  }
+
+  @Test
+  void getItem() {
+  }
+
+  @Test
+  void clearItems() {
+  }
+
+  @Test
+  void getItems() {
+  }
+
+  @Test
+  void setPuzzle() {
+  }
+
+  @Test
+  void testGetPuzzle() {
+  }
+
+  @Test
+  void setMonster() {
+  }
+
+  @Test
+  void testGetMonster() {
+  }
+
+  @Test
+  void setExit() {
+  }
+
+  @Test
+  void getExit() {
+  }
+
+  @Test
+  void testToString() {
+  }
+
+  @Test
+  void testEquals() {
+  }
+
+  @Test
+  void testHashCode() {
   }
 }
