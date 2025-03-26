@@ -153,13 +153,13 @@ public class Room {
     if (this == o) return true;
     if (!(o instanceof Room)) return false;
     Room room = (Room) o;
-    return room_number == room.room_number &&
-            N == room.N &&
-            S == room.S &&
-            E == room.E &&
-            W == room.W &&
-            Objects.equals(room_name, room.room_name) &&
-            Objects.equals(description, room.description);
+    return room_number == room.room_number
+            && N == room.N
+            && S == room.S
+            && E == room.E
+            && W == room.W
+            && Objects.equals(room_name, room.room_name)
+            && Objects.equals(description, room.description);
   }
 
   @Override
