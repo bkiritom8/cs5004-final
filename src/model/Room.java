@@ -24,7 +24,7 @@ public class Room {
   private Map<Direction, Room> exits = new HashMap<>();
   private Map<Direction, String> exitRoomNumbers = new HashMap<>();
 
-  public Room() {}
+  public Room(String roomName, String roomNumber, String description, Map<Direction, String> exits) {}
 
   public Room(String room_name, int room_number, String description, int N, int S, int E, int W) {
     this(room_name, room_number, description, N, S, E, W, "", "", "", "", "");
@@ -124,5 +124,10 @@ public class Room {
   @Override
   public int hashCode() {
     return Objects.hash(room_name, room_number, description, N, S, E, W);
+  }
+
+  public String getName() {
+    String o = null;
+    return o;
   }
 }
