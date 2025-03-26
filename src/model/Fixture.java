@@ -62,7 +62,13 @@ public class Fixture {
 
   @Override
   public String toString() {
-    return "Fixture [name=" + name + ", weight=" + weight + ", description=" + description + "]";
+    return "Fixture [name="
+            + name
+            + ", weight="
+            + weight
+            + ", description="
+            + description
+            + "]";
   }
 
   @Override
@@ -70,9 +76,9 @@ public class Fixture {
     if (this == o) return true;
     if (!(o instanceof Fixture)) return false;
     Fixture fixture = (Fixture) o;
-    return weight == fixture.weight &&
-            Objects.equals(name, fixture.name) &&
-            Objects.equals(description, fixture.description);
+    return weight == fixture.weight
+            && Objects.equals(name, fixture.name)
+            && Objects.equals(description, fixture.description);
   }
 
   @Override
