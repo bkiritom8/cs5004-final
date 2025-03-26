@@ -127,7 +127,6 @@ public class Room {
   }
 
   public String getName() {
-    String o = null;
-    return o;
+    return null;
   }
 }
