@@ -11,8 +11,8 @@ public class Room {
   private int room_number;
   private String description;
   private int N, S, E, W;
-  private String puzzle;     // puzzle name from JSON
-  private String monster;    // monster name from JSON
+  private String puzzle;    // puzzle name from JSON
+  private String monster;   // monster name from JSON
   private String items;
   private String fixtures;
   private String picture;
