@@ -129,11 +129,19 @@ public class GameWorldIntegrationTest {
     // Now the path should be unlocked
     assertEquals("3", player.getCurrentRoom().getExitRoomNumber(Direction.NORTH));
     assertNotNull(player.getCurrentRoom().getExit(Direction.NORTH));
-    }
+  }
 
   /**
+   * Tests the scenario where a player defeats a monster.
+   * This test verifies that:
+   * 1. The player can navigate through rooms
+   * 2. The player can solve puzzles to unlock paths
+   * 3. The player can collect and use items
+   * 4. The player can defeat monsters using appropriate items
+   * 5. The player's score increases appropriately
+   * 6. Blocked paths become unblocked after defeating monsters
    *
-   * @throws IOException
+   * @throws IOException If there is an error reading the test game file
    */
   @Test
   void testMonsterDefeatScenario() throws IOException {
