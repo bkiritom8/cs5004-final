@@ -10,7 +10,9 @@ import enginedriver.GameEngineApp;
 import model.*;
 
 /**
- * Scenario 3: Player Encounters and Defeats a Monster
+ * Scenario 3: Implements a test scenario where a player encounters and defeats a monster.
+ * This class creates a temporary game file with a troll encounter scenario, runs the game
+ * with predefined commands, and verifies the expected outcomes.
  */
 public class TrollDefeatScenario {
   private final String jsonData = "{\n"
@@ -82,7 +84,11 @@ public class TrollDefeatScenario {
           + "}";
 
   /**
-   * Runs the monster encounter scenario
+   * Runs the monster encounter scenario with predefined commands.
+   * Creates a temporary JSON game file, executes the commands through the game engine,
+   * and verifies the expected outcomes.
+   *
+   * @throws IOException If there is an error creating or writing to the temporary file
    */
   public void run() throws IOException {
     // Write the scenario data to a temporary file
@@ -122,7 +128,10 @@ public class TrollDefeatScenario {
   }
 
   /**
-   * Verifies that the scenario played out as expected
+   * Verifies that the scenario played out as expected by checking the output text.
+   * Looks for specific indicators of success or failure in the game output.
+   *
+   * @param output The text output from the game run
    */
   private void verifyScenarioOutcomes(String output) {
     boolean success = true;
@@ -151,7 +160,9 @@ public class TrollDefeatScenario {
   }
 
   /**
-   * Main method to run this scenario independently
+   * Main method to run this scenario independently for testing purposes.
+   *
+   * @param args Command line arguments (not used)
    */
   public static void main(String[] args) {
     try {
@@ -160,4 +171,3 @@ public class TrollDefeatScenario {
       System.out.println("Error running monster scenario: " + e.getMessage());
     }
   }
-}

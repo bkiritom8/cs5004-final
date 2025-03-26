@@ -5,18 +5,21 @@ import model.GameWorld;
 import controller.GameController;
 
 /**
- *
+ * The main application class that initializes and runs the text-based adventure game.
+ * This class serves as the entry point for the game, connecting the model (GameWorld)
+ * with the controller (GameController) and handling I/O operations.
  */
 public class GameEngineApp {
   private final String gameFileName;
   private final Readable input;
-  private final  Appendable output;
+  private final Appendable output;
 
   /**
+   * Constructs a new GameEngineApp with the specified game file and I/O interfaces.
    *
-   * @param gameFileName
-   * @param input
-   * @param output
+   * @param gameFileName The path to the JSON file containing game data
+   * @param input The input source for reading player commands
+   * @param output The output destination for displaying game text
    */
   public GameEngineApp(String gameFileName, Readable input, Appendable output) {
     this.gameFileName = gameFileName;
@@ -25,10 +28,13 @@ public class GameEngineApp {
   }
 
   /**
+   * Initializes and starts the game.
+   * This method loads the game data from the specified JSON file,
+   * creates the game world and controller, and begins the main game loop.
    *
-   * @throws IOException
+   * @throws IOException If there is an error reading the game file or during I/O operations
    */
-  public void  start() throws IOException {
+  public void start() throws IOException {
     try {
       // Create the game model by loading the specified JSON
       GameWorld gameWorld = new GameWorld(gameFileName);

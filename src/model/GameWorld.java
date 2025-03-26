@@ -14,7 +14,9 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- *
+ * Represents the game world model containing all game elements and state.
+ * This class manages rooms, items, fixtures, puzzles, monsters, and the player.
+ * It handles game data loading, saving, and various game mechanics.
  */
 public class GameWorld {
   // Game metadata
@@ -32,8 +34,11 @@ public class GameWorld {
   private Player player;
 
   /**
-   * @param gameFileName
-   * @throws IOException
+   * Constructs a new GameWorld by loading game data from the specified JSON file.
+   * Initializes all game elements and places the player in the first defined room.
+   *
+   * @param gameFileName Path to the JSON file containing game data
+   * @throws IOException If there is an error reading or parsing the game file
    */
   public GameWorld(String gameFileName) throws IOException {
     this.rooms = new HashMap<>();
@@ -58,9 +63,12 @@ public class GameWorld {
   }
 
   /**
-   * @param gameFileName
-   * @throws IOException
-   * @throws ParseException
+   * Loads and parses game data from the specified JSON file.
+   * Initializes game elements including items, fixtures, puzzles, monsters, and rooms.
+   *
+   * @param gameFileName Path to the JSON file containing game data
+   * @throws IOException If there is an error reading the file
+   * @throws ParseException If there is an error parsing the JSON data
    */
   private void loadGameData(String gameFileName) throws IOException,
           org.json.simple.parser.ParseException {
@@ -108,7 +116,10 @@ public class GameWorld {
   }
 
   /**
-   * @param roomsArray
+   * Loads room data from the JSON array and creates Room objects.
+   * Links rooms with items, fixtures, puzzles, and monsters as specified.
+   *
+   * @param roomsArray The JSON array containing room data
    */
   private void loadRooms(JSONArray roomsArray) {
     for (Object obj : roomsArray) {
@@ -177,7 +188,9 @@ public class GameWorld {
   }
 
   /**
-   * @param itemsArray
+   * Loads item data from the JSON array and creates Item objects.
+   *
+   * @param itemsArray The JSON array containing item data
    */
   private void loadItems(JSONArray itemsArray) {
     if (itemsArray == null) {
@@ -201,7 +214,9 @@ public class GameWorld {
   }
 
   /**
-   * @param fixturesArray
+   * Loads fixture data from the JSON array and creates Fixture objects.
+   *
+   * @param fixturesArray The JSON array containing fixture data
    */
   private void loadFixtures(JSONArray fixturesArray) {
     if (fixturesArray == null) {
@@ -221,7 +236,9 @@ public class GameWorld {
   }
 
   /**
-   * @param puzzlesArray
+   * Loads puzzle data from the JSON array and creates Puzzle objects.
+   *
+   * @param puzzlesArray The JSON array containing puzzle data
    */
   private void loadPuzzles(JSONArray puzzlesArray) {
     if (puzzlesArray == null) {
@@ -248,7 +265,9 @@ public class GameWorld {
   }
 
   /**
-   * @param monstersArray
+   * Loads monster data from the JSON array and creates Monster objects.
+   *
+   * @param monstersArray The JSON array containing monster data
    */
   private void loadMonsters(JSONArray monstersArray) {
     if (monstersArray == null) {
@@ -276,7 +295,8 @@ public class GameWorld {
   }
 
   /**
-   *
+   * Establishes connections between rooms based on exit information.
+   * This is called after all rooms are loaded to ensure all room references exist.
    */
   private void connectRooms() {
     for (Room room : rooms.values()) {
@@ -301,9 +321,11 @@ public class GameWorld {
   }
 
   /**
-   * @param value
-   * @param defaultValue
-   * @return
+   * Utility method to parse integer values from JSON, providing a default if parsing fails.
+   *
+   * @param value The value to parse
+   * @param defaultValue The default value to return if parsing fails
+   * @return The parsed integer value or the default value
    */
   private int parseIntOrDefault(Object value, int defaultValue) {
     if (value == null) {
@@ -324,51 +346,59 @@ public class GameWorld {
   }
 
   /**
+   * Gets the player object representing the user in the game world.
    *
-   * @return
+   * @return The Player object
    */
   public Player getPlayer() {
     return player;
   }
 
   /**
+   * Sets the player's name.
    *
-   * @param name
+   * @param name The name to set for the player
    */
   public void setPlayerName(String name) {
     player.setName(name);
   }
 
   /**
+   * Gets a room by its unique room number.
    *
-   * @param roomNumber
-   * @return
+   * @param roomNumber The unique identifier for the room
+   * @return The Room object with the specified number, or null if not found
    */
   public Room getRoom(String roomNumber) {
     return rooms.get(roomNumber);
   }
 
   /**
+   * Retrieves a puzzle by its name.
    *
-   * @param name
-   * @return
+   * @param name The name of the puzzle to retrieve
+   * @return The Puzzle object with the specified name, or null if not found
    */
   public Puzzle getPuzzleByName(String name) {
     return puzzles.get(name.toUpperCase());
   }
 
   /**
+   * Gets the name of the game.
    *
-   * @return
+   * @return The game name as defined in the game data
    */
   public String getGameName() {
     return gameName;
   }
 
   /**
+   * Attempts to solve a puzzle or defeat a monster in the player's current room
+   * by applying the provided solution.
+   * If successful, updates the player's score and unblocks any paths that were blocked.
    *
-   * @param solution
-   * @return
+   * @param solution The solution to apply
+   * @return true if the solution was successful, false otherwise
    */
   public boolean applySolution(String solution) {
     Room currentRoom = player.getCurrentRoom();
@@ -428,9 +458,11 @@ public class GameWorld {
   }
 
   /**
+   * Saves the current game state to a JSON file.
+   * Includes player data, inventory, room states, and other game elements.
    *
-   * @param filename
-   * @throws IOException
+   * @param filename The path where the save file will be created
+   * @throws IOException If there is an error writing to the file
    */
   public void saveGame(String filename) throws IOException {
     JSONObject saveData = new JSONObject();
@@ -497,10 +529,12 @@ public class GameWorld {
   }
 
   /**
+   * Loads a previously saved game state from a JSON file.
+   * Restores player data, inventory, room states, and other game elements.
    *
-   * @param filename
-   * @throws IOException
-   * @throws ParseException
+   * @param filename The path to the save file to load
+   * @throws IOException If there is an error reading the file
+   * @throws ParseException If there is an error parsing the JSON data
    */
   public void loadGame(String filename) throws IOException, org.json.simple.parser.ParseException {
     JSONParser parser = new JSONParser();
@@ -592,4 +626,3 @@ public class GameWorld {
       }
     }
   }
-}

@@ -10,7 +10,9 @@ import enginedriver.GameEngineApp;
 import model.*;
 
 /**
- * Scenario 4: Player Solves a Puzzle to Access a Hidden Room
+ * Scenario 4: Implements a test scenario where a player solves a puzzle to access a hidden room.
+ * This class creates a temporary game file with a library puzzle scenario, runs the game
+ * with predefined commands, and verifies the expected outcomes.
  */
 public class LibraryRiddleScenario {
   private final String jsonData = "{\n"
@@ -67,7 +69,11 @@ public class LibraryRiddleScenario {
           + "}";
 
   /**
-   * Runs the puzzle solving scenario
+   * Runs the puzzle solving scenario with predefined commands.
+   * Creates a temporary JSON game file, executes the commands through the game engine,
+   * and verifies the expected outcomes.
+   *
+   * @throws IOException If there is an error creating or writing to the temporary file
    */
   public void run() throws IOException {
     // Write the scenario data to a temporary file
@@ -105,7 +111,10 @@ public class LibraryRiddleScenario {
   }
 
   /**
-   * Verifies that the scenario played out as expected
+   * Verifies that the scenario played out as expected by checking the output text.
+   * Looks for specific indicators of success or failure in the game output.
+   *
+   * @param output The text output from the game run
    */
   private void verifyScenarioOutcomes(String output) {
     boolean success = true;
@@ -140,7 +149,9 @@ public class LibraryRiddleScenario {
   }
 
   /**
-   * Main method to run this scenario independently
+   * Main method to run this scenario independently for testing purposes.
+   *
+   * @param args Command line arguments (not used)
    */
   public static void main(String[] args) {
     try {
