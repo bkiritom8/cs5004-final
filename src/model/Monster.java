@@ -3,7 +3,8 @@ package model;
 import static java.lang.Math.abs;
 
 /**
- * A Monster class.
+ * A Monster class with various attributes like name, description, health, attack and its related
+ * descriptions, surrounding effects, and target object.
  */
 public class Monster {
   private String name;
