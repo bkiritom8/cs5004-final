@@ -42,7 +42,7 @@ public class Monster {
     this.health = maxHealth;
   }
 
-  // Methods (Qt: 3)
+  // Methods (Qt: 5)
   /**
    * This method is used to attack the player if the Monster is active and is able to attack.
    * If the Monster is unable to attack, 0 damage will be displayed.
@@ -98,6 +98,22 @@ public class Monster {
             + "critical: " + isCritical + ",\n"
             + "defeated: " + false + ",\n"
             + "healthRemaining: " + this.health + "\n\n";
+  }
+
+  /**
+   * This method lets the user know if the Monster is active.
+   */
+  public boolean isActive() {
+    return active;
+  }
+
+  /**
+   * This method lets the user know if the Monster is able to attack.
+   *
+   * @return can attack or cannot attack (true or false)
+   */
+  public boolean canAttack() {
+    return canAttack;
   }
 
   // Getters (Qt: 9) and Setters (Qt: 1)
@@ -188,21 +204,5 @@ public class Monster {
    */
   public void setActive(boolean active) {
     this.active = active;
-  }
-
-  /**
-   * This method lets the user know if the Monster is active.
-   */
-  public boolean isActive() {
-    return active;
-  }
-
-  /**
-   * This method lets the user know if the Monster is able to attack.
-   *
-   * @return can attack or cannot attack (true or false)
-   */
-  public boolean canAttack() {
-    return canAttack;
   }
 }
