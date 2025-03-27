@@ -28,6 +28,7 @@ class MonsterTest {
             monsterAttackDescription, monsterEffects, 3000, monsterSolution, "lucas");
   }
 
+  // Tests (Qt: 14)
   @Test
   public void testAttack() {
     orc.setActive(false);

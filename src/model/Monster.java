@@ -20,7 +20,7 @@ public class Monster {
   private int health;
   private int maxHealth;
 
-  // Constructor
+  // Constructor (Qt: 1)
   /**
    * A constructor that instantiates the Monster class by taking in 10 different arguments.
    *
@@ -42,7 +42,7 @@ public class Monster {
     this.health = maxHealth;
   }
 
-  // Methods
+  // Methods (Qt: 3)
   /**
    * This method is used to attack the player if the Monster is active and is able to attack.
    * If the Monster is unable to attack, 0 damage will be displayed.
@@ -100,51 +100,108 @@ public class Monster {
             + "healthRemaining: " + this.health + "\n\n";
   }
 
-  // Getters and Setters
+  // Getters (Qt: 9) and Setters (Qt: 1)
+  /**
+   * This method will get the Monster's name.
+   *
+   * @return Monster's name
+   */
   public String getName() {
     return name;
   }
 
-  public int getHealthPercentage() {
-    return (this.health / this.maxHealth) * 100;
-  }
-
-  public int getDamage() {
-    return damage;
-  }
-
-  public String getAttackDescription() {
-    return attackDescription;
-  }
-
+  /**
+   * This method provides the Monster's description.
+   *
+   * @return Monster's description
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * This method will get the Monster's current health percentage.
+   *
+   * @return Monster's current health
+   */
+  public int getHealthPercentage() {
+    return (this.health / this.maxHealth) * 100;
+  }
+
+  /**
+   * This method will get the Monster's damage output.
+   *
+   * @return Monster's damage output.
+   */
+  public int getDamage() {
+    return damage;
+  }
+
+  /**
+   * This method provides the Monster's attack description.
+   *
+   * @return Monster's attack description
+   */
+  public String getAttackDescription() {
+    return attackDescription;
+  }
+
+  /**
+   * This method provides the effects the Monster has on its surroundings.
+   *
+   * @return Monster's effects on its environment
+   */
   public String getEffects() {
     return effects;
   }
 
+  /**
+   * This method provides the points the player achieves from defeating this Monster.
+   *
+   * @return Points from defeating the Monster
+   */
   public int getValue() {
     return value;
   }
 
+  /**
+   * This method provides the solution to defeat the Monster.
+   *
+   * @return Solution to defeat the Monster
+   */
   public String getSolution() {
     return solution;
   }
 
+  /**
+   * This method provides the target that the Monster will attack.
+   * @return Monster's target
+   */
   public String getTarget() {
     return target;
   }
 
+  /**
+   * This method lets the user set the Monster to active or inactive.
+   *
+   * @param active active or inactive (true or false)
+   */
   public void setActive(boolean active) {
     this.active = active;
   }
 
+  /**
+   * This method lets the user know if the Monster is active.
+   */
   public boolean isActive() {
     return active;
   }
 
+  /**
+   * This method lets the user know if the Monster is able to attack.
+   *
+   * @return can attack or cannot attack (true or false)
+   */
   public boolean canAttack() {
     return canAttack;
   }

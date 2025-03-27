@@ -6,6 +6,7 @@ package model;
 public enum Direction {
   NORTH, SOUTH, EAST, WEST;
 
+  // Method
   /**
    * This method provides the direction opposite to the current direction.
    *
