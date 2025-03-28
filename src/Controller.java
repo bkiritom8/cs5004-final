@@ -7,8 +7,8 @@ import java.util.Scanner;
 /**
  * handles player commands and game display
  */
-public class GameController {
-  // what we need to run the game
+public class Controller {
+    // what we need to run the game
     private GameWorld game;
     private Scanner scanner;
     private Appendable output;
@@ -456,5 +456,4 @@ public class GameController {
     private void print(String message) throws IOException {
         output.append(message);
     }
-}
 }
