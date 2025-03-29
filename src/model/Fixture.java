@@ -15,8 +15,9 @@ public class Fixture {
   private String picture;   // Optional: path or URL to a picture
 
   /**
-   * Default constructor required for JSON deserialization.
+   * Default constructor for JSON deserialization.
    */
+
   public Fixture() {}
 
   /**
@@ -45,7 +46,7 @@ public class Fixture {
    *
    * @param name the name of the fixture
    * @param weight the weight of the fixture
-   * @param description description of the fixture
+   * @param description of the fixture
    */
   public Fixture(String name, int weight, String description) {
     this(name, weight, null, null, description, null);
@@ -66,7 +67,7 @@ public class Fixture {
   }
 
   /**
-   * Returns the name of the puzzle associated with this fixture, if any.
+   * Returns the puzzle name if this fixture has an associated puzzle.
    */
   public String getPuzzle() {
     return puzzle;
@@ -101,12 +102,15 @@ public class Fixture {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Fixture)) return false;
-    Fixture fixture = (Fixture) o;
-    return weight == fixture.weight &&
-            Objects.equals(name, fixture.name) &&
-            Objects.equals(description, fixture.description);
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Fixture fixture)) {
+      return false;
+    }
+    return weight == fixture.weight
+            && Objects.equals(name, fixture.name)
+            && Objects.equals(description, fixture.description);
   }
 
   @Override
@@ -115,13 +119,11 @@ public class Fixture {
   }
 
   /**
-   * Defines an interaction between the fixture and a player.
-   * By default, this returns false. Can be overridden in subclasses.
+   * Handles player interaction; default does nothing and returns false.
    *
-   * @param player the player interacting with the fixture
    * @return true if interaction succeeds; false otherwise
    */
-  public boolean interact(Player player) {
+  public boolean interact(Player ignoredPlayer) {
     return false;
   }
 }
