@@ -1,6 +1,8 @@
 package model;
 
 public class Item {
+  public static final Item IRON = null;
+  public static final Item DIAMOND = null;
   private String name;
   private int weight;
   private int maxUses;
