@@ -179,6 +179,11 @@ public class Player {
     return this.currentRoom;
   }
 
+  /**
+   * Gets the maximum weight the player can carry.
+   *
+   * @return The maximum weight
+   */
   public int getMaxWeight() {
     return MAX_HEALTH;
   }
@@ -232,6 +237,19 @@ public class Player {
       throw new IllegalArgumentException("Score cannot be negative");
     }
     this.score = score;
+  }
+
+  /**
+   * Sets the player's health.
+   *
+   * @param health The new health value
+   * @throws IllegalArgumentException if health is negative
+   */
+  public void setHealth(int health) {
+    if (health < 0) {
+      throw new IllegalArgumentException("Health cannot be negative");
+    }
+    this.health = Math.min(health, MAX_HEALTH);
   }
 
   /**
