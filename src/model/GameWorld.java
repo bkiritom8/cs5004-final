@@ -67,7 +67,7 @@ public class GameWorld {
    * Initializes game elements including items, fixtures, puzzles, monsters, and rooms.
    *
    * @param gameFileName Path to the JSON file containing game data
-   * @throws IOException If there is an error reading the file
+   * @throws IOException    If there is an error reading the file
    * @throws ParseException If there is an error parsing the JSON data
    */
   private void loadGameData(String gameFileName) throws IOException,
@@ -278,18 +278,18 @@ public class GameWorld {
       JSONObject monsterData = (JSONObject) obj;
 
       String name = (String) monsterData.get("name");
+      String description = (String) monsterData.get("description");
       boolean active = Boolean.parseBoolean((String) monsterData.get("active"));
       int damage = parseIntOrDefault(monsterData.get("damage"), 5);
       boolean canAttack = Boolean.parseBoolean((String) monsterData.get("can_attack"));
       String attackDescription = (String) monsterData.get("attack");
-      String description = (String) monsterData.get("description");
       String effects = (String) monsterData.get("effects");
       int value = parseIntOrDefault(monsterData.get("value"), 0);
       String solution = (String) monsterData.get("solution");
       String target = (String) monsterData.get("target");
 
-      Monster monster = new Monster(name, active, damage, canAttack, attackDescription,
-              description, effects, value, solution, target);
+      Monster monster = new Monster(name, description, active, damage, canAttack,
+              attackDescription, effects, value, solution, target);
       monsters.put(name.toUpperCase(), monster);
     }
   }
@@ -323,7 +323,7 @@ public class GameWorld {
   /**
    * Utility method to parse integer values from JSON, providing a default if parsing fails.
    *
-   * @param value The value to parse
+   * @param value        The value to parse
    * @param defaultValue The default value to return if parsing fails
    * @return The parsed integer value or the default value
    */
@@ -533,7 +533,7 @@ public class GameWorld {
    * Restores player data, inventory, room states, and other game elements.
    *
    * @param filename The path to the save file to load
-   * @throws IOException If there is an error reading the file
+   * @throws IOException    If there is an error reading the file
    * @throws ParseException If there is an error parsing the JSON data
    */
   public void loadGame(String filename) throws IOException, org.json.simple.parser.ParseException {
@@ -626,3 +626,4 @@ public class GameWorld {
       }
     }
   }
+}

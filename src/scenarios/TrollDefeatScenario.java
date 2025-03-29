@@ -171,3 +171,4 @@ public class TrollDefeatScenario {
       System.out.println("Error running monster scenario: " + e.getMessage());
     }
   }
+}
