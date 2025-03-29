@@ -4,130 +4,107 @@ import model.*;
 import java.io.IOException;
 import java.util.Scanner;
 
-/**
- * handles player commands and game display
- */
+/*
+controller commands:
+(n)orth, (s)outh, (e)ast, (w)est, (t)ake, (d)rop, e(x)amine, attac(k), (l)ook, (u)se, (i)nventory, (a)nswer, sa(v)e, (r)estore, (q)uit.
+*/
 public class GameController {
-  // what we need to run the game
-    private GameWorld game;
+    private GameWorld gameWorld;
     private Scanner scanner;
     private Appendable output;
-    private boolean running;
+    private boolean gameOver;
     
-    /**
-     * set up the controller
-     */
-    public Controller(GameWorld game, Readable input, Appendable output) {
-        // connect to game and input/output
-        this.game = game;
+    // set up the game environment, input and output
+    public GameController(GameWorld gameWorld, Readable input, Appendable output) {
+        this.gameWorld = gameWorld;
         this.scanner = new Scanner(input);
         this.output = output;
-        this.running = false;
+        this.gameOver = false;
     }
     
-    /**
-     * start the game
-     */
+    // main game loop
     public void play() throws IOException {
-        // start running
-        running = true;
-        
-        // get player name
-        print("Welcome to " + game.getGameName() + "!\n");
-        print("Enter your name: ");
-        String name = scanner.nextLine().trim();
-        game.setPlayerName(name);
-        print("Hello, " + name + "! Your adventure begins.\n\n");
-        
-        // main game loop
-        while (running && scanner.hasNextLine()) {
-            // show the room
-            showRoom();
-            
-            // check if player died
-            if (game.getPlayer().getHealth() <= 0) {
-                print("\nYou've fallen asleep. Game over!\n");
-                running = false;
+        displayWelcome();
+        promptForPlayerName();
+        while (!gameOver && scanner.hasNextLine()) {
+            lookAround();
+            if (gameWorld.getPlayer().getHealth() <= 0) {
+                displayGameOver();
+                endGame();
                 return;
             }
-            
-            // show commands and get input
-            showCommands();
+            displayMenu();
             String command = scanner.nextLine().trim().toLowerCase();
-            
-            // handle the command
-            handleCommand(command);
+            processCommand(command);
         }
     }
     
-    /**
-     * show the current room
-     */
-    public void showRoom() throws IOException {
-        // get player and room
-        Player player = game.getPlayer();
-        Room room = player.getCurrentRoom();
-        
-        // show health
-        print("Health: " + player.getHealth() + " (" + player.getHealthStatus() + ")\n");
-        
-        // show room name
-        print("You are in the " + room.getName().toUpperCase() + "\n");
-        
-        // show description based on what's in the room
-        Puzzle puzzle = room.getPuzzle();
-        Monster monster = room.getMonster();
-        
+    // show welcome message
+    private void displayWelcome() throws IOException {
+        output.append("welcome to " + gameWorld.getGameName() + "!\n\n");
+    }
+    
+    // prompt for player's name
+    private void promptForPlayerName() throws IOException {
+        output.append("enter your name: ");
+        String name = scanner.nextLine().trim();
+        gameWorld.setPlayerName(name);
+        output.append("hello, " + name + "! let's start your adventure.\n\n");
+    }
+    
+    // show current room and health status
+    private void lookAround() throws IOException {
+        Player player = gameWorld.getPlayer();
+        Room currentRoom = player.getCurrentRoom();
+        output.append("health: " + player.getHealth() + " (" + player.getHealthStatus() + ")\n");
+        output.append("you are in the " + currentRoom.getName().toLowerCase() + "\n");
+        Puzzle puzzle = currentRoom.getPuzzle();
+        Monster monster = currentRoom.getMonster();
         if (puzzle != null && puzzle.isActive() && puzzle.affectsTarget()) {
-            // puzzle is affecting the room
-            print(puzzle.getEffects() + "\n");
+            output.append(puzzle.getEffects() + "\n");
         } else if (monster != null && monster.isActive()) {
-            // monster is in the room
-            print("A monster " + monster.getName() + " is here!\n");
-            
-            // monster attacks if it can
-            if (monster.canAttack()) {
-                int damage = monster.attack(player);
-                if (damage > 0) {
-                    print("The monster attacks! You take " + damage + " damage!\n");
-                }
-            }
+            output.append(monster.getEffects() + "\n");
+            monsterAttacksPlayer();
         } else {
-            // normal room
-            print(room.getDescription() + "\n");
+            output.append(currentRoom.getDescription() + "\n");
         }
-        
-        // list items in the room
-        if (!room.getItems().isEmpty()) {
-            print("Items here: ");
-            for (Item item : room.getItems()) {
-                print(item.getName().toUpperCase() + " ");
+        displayRoomItems();
+    }
+    
+    // list items in the room
+    private void displayRoomItems() throws IOException {
+        Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
+        if (!currentRoom.getItems().isEmpty()) {
+            output.append("items here: ");
+            for (Item item : currentRoom.getItems()) {
+                output.append(item.getName().toLowerCase() + " ");
             }
-            print("\n");
+            output.append("\n");
         }
     }
     
-    /**
-     * show available commands
-     */
-    private void showCommands() throws IOException {
-        print("\nCommands: (N)orth, (S)outh, (E)ast, (W)est\n");
-        print("          (I)nventory, (L)ook, (U)se [item]\n");
-        print("          (T)ake [item], (D)rop [item], e(X)amine [thing]\n");
-        print("          (A)nswer [text], (Q)uit\n");
-        print("What do you want to do? ");
+    // let monster counterattack
+    private void monsterAttacksPlayer() throws IOException {
+        Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
+        Monster monster = currentRoom.getMonster();
+        if (monster != null && monster.isActive() && monster.canAttack()) {
+            int damage = monster.attack(gameWorld.getPlayer());
+            if (damage > 0) {
+                output.append(monster.getName().toLowerCase() + " " + monster.getAttackDescription() + "\n");
+                output.append("you take -" + damage + " damage!\n");
+            }
+        }
     }
     
-    /**
-     * handle a player command
-     */
-    public void handleCommand(String command) throws IOException {
-        // ignore empty commands
-        if (command.isEmpty()) {
-            return;
-        }
-        
-        // movement
+    // show available commands
+    private void displayMenu() throws IOException {
+        output.append("\ncommands: (n)orth, (s)outh, (e)ast, (w)est, (t)ake, (d)rop, e(x)amine, attac(k), (l)ook, (u)se, (i)nventory, (a)nswer, sa(v)e, (r)estore, (q)uit\n");
+        output.append("your choice: ");
+    }
+    
+    // process a player's command
+    private void processCommand(String command) throws IOException {
+        if (command.isEmpty()) return;
         if (command.equals("n") || command.equals("north")) {
             move(Direction.NORTH);
         } else if (command.equals("s") || command.equals("south")) {
@@ -136,325 +113,235 @@ public class GameController {
             move(Direction.EAST);
         } else if (command.equals("w") || command.equals("west")) {
             move(Direction.WEST);
-        } 
-        // other commands
-        else if (command.equals("i") || command.equals("inventory")) {
-            showInventory();
         } else if (command.equals("l") || command.equals("look")) {
-            showRoom();
+            lookAround();
+        } else if (command.equals("i") || command.equals("inventory")) {
+            showInventory();
+        } else if (command.equals("k") || command.equals("attack")) {
+            attackMonster();
         } else if (command.startsWith("t ") || command.startsWith("take ")) {
-            // get item name after "take "
-            String itemName = command.contains(" ") ? command.substring(command.indexOf(" ") + 1) : "";
+            String itemName = command.startsWith("t ") ? command.substring(2) : command.substring(5);
             takeItem(itemName);
         } else if (command.startsWith("d ") || command.startsWith("drop ")) {
-            // get item name after "drop "
-            String itemName = command.contains(" ") ? command.substring(command.indexOf(" ") + 1) : "";
+            String itemName = command.startsWith("d ") ? command.substring(2) : command.substring(5);
             dropItem(itemName);
         } else if (command.startsWith("x ") || command.startsWith("examine ")) {
-            // get target name after "examine "
-            String target = command.contains(" ") ? command.substring(command.indexOf(" ") + 1) : "";
+            String target = command.startsWith("x ") ? command.substring(2) : command.substring(8);
             examine(target);
         } else if (command.startsWith("u ") || command.startsWith("use ")) {
-            // get item name after "use "
-            String itemName = command.contains(" ") ? command.substring(command.indexOf(" ") + 1) : "";
+            String itemName = command.startsWith("u ") ? command.substring(2) : command.substring(4);
             useItem(itemName);
         } else if (command.startsWith("a ") || command.startsWith("answer ")) {
-            // get answer after "answer "
-            String answer = command.contains(" ") ? command.substring(command.indexOf(" ") + 1) : "";
-            answer(answer);
-        } else if (command.equals("save")) {
+            String answer = command.startsWith("a ") ? command.substring(2) : command.substring(7);
+            provideAnswer(answer);
+        } else if (command.equals("v") || command.equals("save")) {
             saveGame();
-        } else if (command.equals("restore")) {
-            loadGame();
+        } else if (command.equals("r") || command.equals("restore")) {
+            restoreGame();
         } else if (command.equals("q") || command.equals("quit")) {
-            print("Thanks for playing!\n");
-            running = false;
+            showFinalScore();
+            endGame();
         } else {
-            print("I don't understand that command.\n");
+            output.append("i don't understand that command.\n");
         }
     }
     
-    /**
-     * try to move in a direction
-     */
-    public void move(Direction direction) throws IOException {
-        // get current room
-        Room currentRoom = game.getPlayer().getCurrentRoom();
+    // move the player in the given direction
+    private void move(Direction direction) throws IOException {
+        Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         String exitNumber = currentRoom.getExitRoomNumber(direction);
-        
-        // check for wall (0)
         if (exitNumber.equals("0")) {
-            print("You can't go that way.\n");
+            output.append("you can't go that way. there's a wall.\n");
             return;
         }
-        
-        // check for blocked path (negative number)
         if (Integer.parseInt(exitNumber) < 0) {
-            // find what's blocking the path
             if (currentRoom.getPuzzle() != null && currentRoom.getPuzzle().isActive()) {
-                print("A puzzle blocks your way: " + currentRoom.getPuzzle().getDescription() + "\n");
+                output.append("blocked by puzzle: " + currentRoom.getPuzzle().getDescription() + "\n");
             } else if (currentRoom.getMonster() != null && currentRoom.getMonster().isActive()) {
-                print("A monster blocks your way!\n");
-                // monster may attack
-                Monster monster = currentRoom.getMonster();
-                if (monster.canAttack()) {
-                    int damage = monster.attack(game.getPlayer());
-                    if (damage > 0) {
-                        print("The monster attacks! You take " + damage + " damage!\n");
-                    }
-                }
+                output.append("blocked by monster: " + currentRoom.getMonster().getDescription() + "\n");
+                monsterAttacksPlayer();
             } else {
-                print("Something blocks your way.\n");
+                output.append("the path is blocked.\n");
             }
             return;
         }
-        
-        // move to the new room
         Room nextRoom = currentRoom.getExit(direction);
         if (nextRoom != null) {
-            game.getPlayer().setCurrentRoom(nextRoom);
-            print("You move " + direction.toString().toLowerCase() + ".\n");
+            gameWorld.getPlayer().setCurrentRoom(nextRoom);
+            output.append("you move " + direction.toString().toLowerCase() + ".\n");
         } else {
-            print("You can't go that way right now.\n");
+            output.append("exit error. can't move there.\n");
         }
     }
     
-    /**
-     * show what's in inventory
-     */
-    public void showInventory() throws IOException {
-        // get inventory
-        Player player = game.getPlayer();
-        
-        // show header with weight
-        print("Your inventory (" + player.getInventoryWeight() + "/" + player.getMaxWeight() + "):\n");
-        
-        // check if empty
+    // show the player's inventory
+    private void showInventory() throws IOException {
+        Player player = gameWorld.getPlayer();
+        output.append("inventory (weight: " + player.getInventoryWeight() + "/" + player.getMaxWeight() + "):\n");
         if (player.getInventory().isEmpty()) {
-            print("You're not carrying anything.\n");
-            return;
-        }
-        
-        // list all items
-        for (Item item : player.getInventory()) {
-            print("- " + item.getName() + " (uses left: " + item.getUsesRemaining() + ")\n");
-        }
-    }
-    
-    /**
-     * take an item from the room
-     */
-    public void takeItem(String itemName) throws IOException {
-        // check if item name is empty
-        if (itemName.isEmpty()) {
-            print("What do you want to take?\n");
-            return;
-        }
-        
-        // find the item in the room
-        Room currentRoom = game.getPlayer().getCurrentRoom();
-        Item item = currentRoom.getItem(itemName);
-        
-        // check if item exists
-        if (item == null) {
-            print("There's no " + itemName + " here.\n");
-            return;
-        }
-        
-        // try to pick it up
-        if (game.getPlayer().addToInventory(item)) {
-            currentRoom.removeItem(item);
-            print("You pick up the " + item.getName() + ".\n");
+            output.append("your inventory is empty.\n");
         } else {
-            print("You can't carry any more.\n");
+            for (Item item : player.getInventory()) {
+                output.append("- " + item.getName().toLowerCase() + " (weight: " + item.getWeight() +
+                            ", uses: " + item.getUsesRemaining() + ")\n");
+            }
         }
     }
     
-    /**
-     * drop an item from inventory
-     */
-    public void dropItem(String itemName) throws IOException {
-        // check if item name is empty
-        if (itemName.isEmpty()) {
-            print("What do you want to drop?\n");
+    // attack the monster in the room
+    private void attackMonster() throws IOException {
+        Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
+        Monster monster = currentRoom.getMonster();
+        if (monster == null || !monster.isActive()) {
+            output.append("there's nothing here to attack.\n");
             return;
         }
-        
-        // find the item in inventory
-        Player player = game.getPlayer();
-        Item item = player.getItemFromInventory(itemName);
-        
-        // check if player has the item
+        output.append("you attack the " + monster.getName().toLowerCase() + ", but it's not very effective.\n");
+        monsterAttacksPlayer();
+    }
+    
+    // pick up an item
+    private void takeItem(String itemName) throws IOException {
+        Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
+        Item item = currentRoom.getItem(itemName);
         if (item == null) {
-            print("You don't have a " + itemName + ".\n");
+            output.append("there's no " + itemName + " here to take.\n");
             return;
         }
-        
-        // try to drop it
+        if (gameWorld.getPlayer().addToInventory(item)) {
+            currentRoom.removeItem(item);
+            output.append("you pick up the " + item.getName().toLowerCase() + ".\n");
+        } else {
+            output.append("you can't carry any more; your inventory is too heavy.\n");
+        }
+    }
+    
+    // drop an item from inventory
+    private void dropItem(String itemName) throws IOException {
+        Player player = gameWorld.getPlayer();
+        Item item = player.getItemFromInventory(itemName);
+        if (item == null) {
+            output.append("you don't have a " + itemName + " in your inventory.\n");
+            return;
+        }
         if (player.removeFromInventory(item)) {
             player.getCurrentRoom().addItem(item);
-            print("You drop the " + item.getName() + ".\n");
+            output.append("you drop the " + item.getName().toLowerCase() + ".\n");
         } else {
-            print("You can't drop that for some reason.\n");
+            output.append("can't drop the " + item.getName().toLowerCase() + ".\n");
         }
     }
     
-    /**
-     * examine something
-     */
-    public void examine(String target) throws IOException {
-        // check if target is empty
-        if (target.isEmpty()) {
-            print("What do you want to examine?\n");
+    // examine an object in inventory, room, or fixture
+    private void examine(String target) throws IOException {
+        Player player = gameWorld.getPlayer();
+        Item invItem = player.getItemFromInventory(target);
+        if (invItem != null) {
+            output.append(invItem.getDescription() + "\n");
             return;
         }
-        
-        // check inventory first
-        Player player = game.getPlayer();
-        Item inventoryItem = player.getItemFromInventory(target);
-        
-        if (inventoryItem != null) {
-            print(inventoryItem.getDescription() + "\n");
-            return;
-        }
-        
-        // check room items
         Room currentRoom = player.getCurrentRoom();
         Item roomItem = currentRoom.getItem(target);
-        
         if (roomItem != null) {
-            print(roomItem.getDescription() + "\n");
+            output.append(roomItem.getDescription() + "\n");
             return;
         }
-        
-        // check fixtures
         Fixture fixture = currentRoom.getFixture(target);
-        
         if (fixture != null) {
-            print(fixture.getDescription() + "\n");
+            output.append(fixture.getDescription() + "\n");
             return;
         }
-        
-        // nothing found
-        print("You don't see a " + target + " here.\n");
+        output.append("you don't see a " + target + " here.\n");
     }
     
-    /**
-     * use an item
-     */
-    public void useItem(String itemName) throws IOException {
-        // check if item name is empty
-        if (itemName.isEmpty()) {
-            print("What do you want to use?\n");
-            return;
-        }
-        
-        // find item in inventory
-        Player player = game.getPlayer();
+    // use an item to solve a puzzle or defeat a monster
+    private void useItem(String itemName) throws IOException {
+        Player player = gameWorld.getPlayer();
         Item item = player.getItemFromInventory(itemName);
-        
-        // check if player has the item
         if (item == null) {
-            print("You don't have a " + itemName + ".\n");
+            output.append("you don't have a " + itemName + " in your inventory.\n");
             return;
         }
-        
-        // check if it has uses left
         if (item.getUsesRemaining() <= 0) {
-            print("The " + item.getName() + " can't be used anymore.\n");
+            output.append("the " + item.getName().toLowerCase() + " has no uses left.\n");
             return;
         }
-        
-        // try to solve puzzle or defeat monster with it
         Room currentRoom = player.getCurrentRoom();
-        boolean solved = game.applySolution(item.getName());
-        
-        // handle result
+        boolean solved = gameWorld.applySolution(item.getName());
         if (solved) {
             if (currentRoom.getPuzzle() != null && !currentRoom.getPuzzle().isActive()) {
-                print("You used the " + item.getName() + " to solve the puzzle!\n");
-                print(currentRoom.getPuzzle().getEffects() + "\n");
-                print("You earned " + currentRoom.getPuzzle().getValue() + " points!\n");
+                output.append("you used the " + item.getName().toLowerCase() + " to solve the puzzle!\n");
+                output.append(currentRoom.getPuzzle().getEffects() + "\n");
+                output.append("you gain " + currentRoom.getPuzzle().getValue() + " points!\n");
             } else if (currentRoom.getMonster() != null && !currentRoom.getMonster().isActive()) {
-                print("You used the " + item.getName() + " to defeat the monster!\n");
-                print("You earned " + currentRoom.getMonster().getValue() + " points!\n");
+                output.append("you used the " + item.getName().toLowerCase() + " to defeat the monster!\n");
+                output.append("you gain " + currentRoom.getMonster().getValue() + " points!\n");
             }
+            item.use();
         } else {
-            // just use it normally
-            print("You use the " + item.getName() + ".\n");
-            print(item.getWhenUsed() + "\n");
+            output.append("you use the " + item.getName().toLowerCase() + ".\n");
+            output.append(item.getWhenUsed() + "\n");
+            item.use();
         }
-        
-        // reduce uses left
-        item.use();
     }
     
-    /**
-     * answer a puzzle
-     */
-    public void answer(String answer) throws IOException {
-        // check if answer is empty
-        if (answer.isEmpty()) {
-            print("What's your answer?\n");
+    // provide an answer to a puzzle
+    private void provideAnswer(String answer) throws IOException {
+        Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
+        if (currentRoom.getPuzzle() == null || !currentRoom.getPuzzle().isActive()) {
+            output.append("there's no active puzzle here.\n");
             return;
         }
-        
-        // check if there's a puzzle to solve
-        Room currentRoom = game.getPlayer().getCurrentRoom();
         Puzzle puzzle = currentRoom.getPuzzle();
-        
-        if (puzzle == null || !puzzle.isActive()) {
-            print("There's no puzzle here to solve.\n");
-            return;
-        }
-        
-        // check if it's a text puzzle
         if (!puzzle.getSolution().startsWith("'")) {
-            print("This puzzle needs an item, not an answer.\n");
+            output.append("this puzzle requires using an item, not answering.\n");
             return;
         }
-        
-        // try to solve it
-        boolean solved = game.applySolution(answer);
-        
-        // handle result
+        boolean solved = gameWorld.applySolution(answer);
         if (solved) {
-            print("Correct! " + puzzle.getEffects() + "\n");
-            print("You earned " + puzzle.getValue() + " points!\n");
+            output.append("correct! " + puzzle.getEffects() + "\n");
+            output.append("you gain " + puzzle.getValue() + " points!\n");
         } else {
-            print("That's not right. Try something else.\n");
+            output.append("that's not right. the puzzle is still unsolved.\n");
         }
     }
     
-    /**
-     * save the game
-     */
-    public void saveGame() throws IOException {
+    // save the game state
+    private void saveGame() throws IOException {
         try {
-            game.saveGame("saved_game.json");
-            print("Game saved!\n");
+            gameWorld.saveGame("saved_game.json");
+            output.append("game saved successfully!\n");
         } catch (IOException e) {
-            print("Couldn't save the game: " + e.getMessage() + "\n");
+            output.append("error saving game: " + e.getMessage() + "\n");
         }
     }
     
-    /**
-     * load a saved game
-     */
-    public void loadGame() throws IOException {
+    // restore the game state
+    private void restoreGame() throws IOException {
         try {
-            game.loadGame("saved_game.json");
-            print("Game loaded!\n");
+            gameWorld.loadGame("saved_game.json");
+            output.append("game restored successfully!\n");
         } catch (Exception e) {
-            print("Couldn't load the game: " + e.getMessage() + "\n");
+            output.append("error restoring game: " + e.getMessage() + "\n");
         }
     }
     
-    /**
-     * print a message
-     */
-    private void print(String message) throws IOException {
-        output.append(message);
+    // show final score and rank
+    private void showFinalScore() throws IOException {
+        Player player = gameWorld.getPlayer();
+        output.append("\ngame over!\n");
+        output.append("final score: " + player.getScore() + "\n");
+        output.append("rank: " + player.getRank() + "\n");
     }
-}
+    
+    // display game over message
+    private void displayGameOver() throws IOException {
+        output.append("\nyour health is depleted. you fall into a deep sleep.\n");
+        output.append("game over\n");
+    }
+    
+    // end the game loop
+    private void endGame() {
+        gameOver = true;
+    }
 }
