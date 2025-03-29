@@ -24,7 +24,7 @@ public class Room {
   private Map<Direction, Room> exits = new HashMap<>();
   private Map<Direction, String> exitRoomNumbers = new HashMap<>();
 
-  public Room(String roomName, String roomNumber, String description, Map<Direction, String> exits) {}
+  public Room(String roomName, String roomNumber, String description, Map<Direction, String> exits, int field1, int field2, int itemsField, String field3, String picture) {}
 
   public Room(String room_name, int room_number, String description, int N, int S, int E, int W) {
     this(room_name, room_number, description, N, S, E, W, "", "", "", "", "");
@@ -44,6 +44,9 @@ public class Room {
     this.items = items;
     this.fixtures = fixtures;
     this.picture = picture;
+  }
+
+  public Room(String roomName, String roomNumber, String description, Map<Direction, String> exits, int field1, int field2, int itemsField, int field3, int picture) {
   }
 
   // Getters
@@ -129,4 +132,7 @@ public class Room {
   public String getName() {
     return null;
   }
+
+  public Fixture getFixture(String target) {
+ return null; }
 }
