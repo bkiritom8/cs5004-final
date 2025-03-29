@@ -3,17 +3,27 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Objects;
 
+/**
+ * Represents a player in the game world.
+ * The player can move between rooms, carry items, engage in combat,
+ * and accumulate score.
+ */
 public class Player {
-  private String name;
+  private final String name;
   private int health;
-  private List<Item> inventory;
+  private final List<Item> inventory;
   private Room currentRoom;
   private int score;
   private static final int MAX_WEIGHT = 13;
-  private int attackPower;
-  private int criticalChance;
+  private static final int MAX_HEALTH = 100;
+  private final int attackPower;
+  private final int criticalChance;
 
+  /**
+   * Represents the result of an attack on a monster.
+   */
   public static class AttackResult {
     private final boolean success;
     private final int damage;
@@ -50,9 +60,17 @@ public class Player {
     }
   }
 
+  /**
+   * Creates a new player in the specified starting room.
+   * @param startRoom The room where the player starts
+   * @throws IllegalArgumentException if startRoom is null
+   */
   public Player(Room startRoom) {
+    if (startRoom == null) {
+      throw new IllegalArgumentException("Start room cannot be null");
+    }
     this.name = "Player";
-    this.health = 100;
+    this.health = MAX_HEALTH;
     this.inventory = new ArrayList<>();
     this.currentRoom = startRoom;
     this.score = 0;
@@ -60,32 +78,47 @@ public class Player {
     this.criticalChance = 15;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
+  /**
+   * Gets the player's name.
+   * @return The player's name
+   */
   public String getName() {
-    return name;
+    return this.name;
   }
 
+  /**
+   * Gets the player's current health.
+   * @return The player's health value
+   */
   public int getHealth() {
-    return health;
+    return this.health;
   }
 
+  /**
+   * Sets the player's health to the specified value.
+   * Health cannot be negative.
+   * @param health The new health value
+   */
   public void setHealth(int health) {
-    this.health = health;
-    if (this.health < 0) {
-      this.health = 0;
-    }
+    this.health = Math.max(0, Math.min(health, MAX_HEALTH));
   }
 
+  /**
+   * Reduces the player's health by the specified amount.
+   * Health cannot go below 0.
+   * @param amount The amount of damage to take
+   */
   public void takeDamage(int amount) {
-    health -= amount;
-    if (health < 0) {
-      health = 0;
+    if (amount < 0) {
+      throw new IllegalArgumentException("Damage amount cannot be negative");
     }
+    this.health = Math.max(0, this.health - amount);
   }
 
+  /**
+   * Gets a description of the player's health status.
+   * @return A string describing the player's health status
+   */
   public String getHealthStatus() {
     if (health <= 0) {
       return "ASLEEP";
@@ -99,7 +132,24 @@ public class Player {
     return "AWAKE";
   }
 
+  /**
+   * Gets the player's current health.
+   * @return The player's health
+   */
+  public int getHealth() {
+    return this.health;
+  }
+
+  /**
+   * Attempts to add an item to the player's inventory.
+   * @param item The item to add
+   * @return true if the item was added, false if it would exceed weight limit
+   * @throws IllegalArgumentException if item is null
+   */
   public boolean addToInventory(Item item) {
+    if (item == null) {
+      throw new IllegalArgumentException("Item cannot be null");
+    }
     if (getInventoryWeight() + item.getWeight() <= MAX_WEIGHT) {
       inventory.add(item);
       return true;
@@ -107,55 +157,137 @@ public class Player {
     return false;
   }
 
+  /**
+   * Removes an item from the player's inventory.
+   * @param item The item to remove
+   * @return true if the item was removed, false otherwise
+   * @throws IllegalArgumentException if item is null
+   */
   public boolean removeFromInventory(Item item) {
+    if (item == null) {
+      throw new IllegalArgumentException("Item cannot be null");
+    }
     return inventory.remove(item);
   }
 
+  /**
+   * Gets an item from the inventory by name.
+   * @param itemName The name of the item to find
+   * @return The item if found, null otherwise
+   * @throws IllegalArgumentException if itemName is null or empty
+   */
   public Item getItemFromInventory(String itemName) {
-    for (Item item : inventory) {
-      if (item.getName().equalsIgnoreCase(itemName)) {
-        return item;
-      }
+    if (itemName == null || itemName.trim().isEmpty()) {
+      throw new IllegalArgumentException("Item name cannot be null or empty");
     }
-    return null;
+    return inventory.stream()
+            .filter(item -> item.getName().equalsIgnoreCase(itemName))
+            .findFirst()
+            .orElse(null);
   }
 
+  /**
+   * Gets the total weight of all items in the inventory.
+   * @return The total weight of the inventory
+   */
   public int getInventoryWeight() {
-    int totalWeight = 0;
-    for (Item item : inventory) {
-      totalWeight += item.getWeight();
-    }
-    return totalWeight;
+    return inventory.stream()
+            .mapToInt(Item::getWeight)
+            .sum();
   }
 
+  /**
+   * Gets a copy of the player's inventory.
+   * @return A new list containing all items in the inventory
+   */
   public List<Item> getInventory() {
     return new ArrayList<>(inventory);
   }
 
-  public void setInventory(List<Item> inventory) {
-    this.inventory = new ArrayList<>(inventory);
-  }
-
   public Room getCurrentRoom() {
-    return currentRoom;
+    return this.currentRoom;
   }
 
+  /**
+   * Sets the player's inventory to the specified list.
+   * @param inventory The new inventory list
+   * @throws IllegalArgumentException if inventory is null
+   */
+  public void setInventory(List<Item> inventory) {
+    if (inventory == null) {
+      throw new IllegalArgumentException("Inventory cannot be null");
+    }
+    this.inventory.clear();
+    this.inventory.addAll(inventory);
+  }
+
+  /**
+   * Gets the player's current room.
+   * @return The current room
+   */
+  public Room getCurrentRoom() {
+    return this.currentRoom;
+  }
+
+  /**
+   * Sets the player's current room.
+   * @param room The new room
+   * @throws IllegalArgumentException if room is null
+   */
   public void setCurrentRoom(Room room) {
+    if (room == null) {
+      throw new IllegalArgumentException("Room cannot be null");
+    }
     this.currentRoom = room;
   }
 
+  /**
+   * Adds points to the player's score.
+   * @param points The points to add
+   * @throws IllegalArgumentException if points is negative
+   */
   public void addScore(int points) {
+    if (points < 0) {
+      throw new IllegalArgumentException("Points cannot be negative");
+    }
     this.score += points;
   }
 
+  /**
+   * Sets the player's name.
+   * @param name The name to set for the player
+   */
+  public void setName(String name) {
+    if (name == null || name.trim().isEmpty()) {
+      throw new IllegalArgumentException("Name cannot be null or empty");
+    }
+    this.name = name;
+  }
+
+  /**
+   * Sets the player's score.
+   * @param score The new score
+   * @throws IllegalArgumentException if score is negative
+   */
   public void setScore(int score) {
+    if (score < 0) {
+      throw new IllegalArgumentException("Score cannot be negative");
+    }
     this.score = score;
   }
 
+  /**
+   * Gets the player's current score.
+   * @return The current score
+   */
   public int getScore() {
-    return score;
+    return this.score;
   }
 
+  /**
+   * Gets the player's rank based on their score.
+   * @return A string representing the player's rank
+   */
   public String getRank() {
     if (score >= 1000) {
       return "Adventure Master";
@@ -172,19 +304,70 @@ public class Player {
     return "Beginner";
   }
 
+  /**
+   * Attacks a monster with a chance for critical hits.
+   * @param monster The monster to attack
+   * @return The result of the attack
+   */
   public AttackResult attack(Monster monster) {
-    Random random = new Random();
-    boolean isCritical = random.nextInt(100) < criticalChance;
-
-    int damage = attackPower;
-    if (isCritical) {
-      damage = attackPower * 2;
+    if (monster == null || !monster.isActive()) {
+      return new AttackResult(false, 0, "No valid target to attack.");
     }
 
-    int monsterHealth = monster.getHealth();
-    monster.takeDamage(damage);
-    boolean defeated = monster.getHealth() <= 0;
+    int damage = calculateDamage();
+    boolean isCritical = isCriticalHit();
+    if (isCritical) {
+      damage *= 2;
+    }
 
-    return new AttackResult(true, damage, isCritical, defeated, monster.getHealth());
+    monster.takeDamage(damage);
+    return new AttackResult(true, damage, isCritical ? "Critical hit!" : "Hit!");
+  }
+
+  /**
+   * Calculates the base damage for an attack.
+   * @return The calculated damage
+   */
+  private int calculateDamage() {
+    return attackPower + (int)(Math.random() * 5); // Random variation of 0-4
+  }
+
+  /**
+   * Determines if the attack is a critical hit.
+   * @return true if the attack is a critical hit
+   */
+  private boolean isCriticalHit() {
+    return Math.random() < criticalChance;
+  }
+
+  /**
+   * Checks if the player can move in a given direction.
+   * @param direction The direction to check
+   * @return true if the player can move in that direction, false otherwise
+   * @throws IllegalArgumentException if direction is null
+   */
+  public boolean canMove(Direction direction) {
+    if (direction == null) {
+      throw new IllegalArgumentException("Direction cannot be null");
+    }
+    return currentRoom.getExit(direction) != null;
+  }
+
+  /**
+   * Moves the player in a given direction.
+   * @param direction The direction to move
+   * @return true if the move was successful, false otherwise
+   * @throws IllegalArgumentException if direction is null
+   */
+  public boolean move(Direction direction) {
+    if (direction == null) {
+      throw new IllegalArgumentException("Direction cannot be null");
+    }
+    Room nextRoom = currentRoom.getExit(direction);
+    if (nextRoom != null) {
+      currentRoom = nextRoom;
+      return true;
+    }
+    return false;
   }
 }
