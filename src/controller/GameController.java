@@ -14,7 +14,7 @@ public class GameController {
     private Appendable output;
     private boolean gameOver;
     
-    // set up the game environment, input and output
+    // set up game world environment, input, and output
     public GameController(GameWorld gameWorld, Readable input, Appendable output) {
         this.gameWorld = gameWorld;
         this.scanner = new Scanner(input);
@@ -22,7 +22,7 @@ public class GameController {
         this.gameOver = false;
     }
     
-    // main game loop
+    // run main game loop
     public void play() throws IOException {
         displayWelcome();
         promptForPlayerName();
@@ -39,7 +39,7 @@ public class GameController {
         }
     }
     
-    // show welcome message
+    // display welcome message
     private void displayWelcome() throws IOException {
         output.append("welcome to " + gameWorld.getGameName() + "!\n\n");
     }
@@ -52,7 +52,7 @@ public class GameController {
         output.append("hello, " + name + "! let's start your adventure.\n\n");
     }
     
-    // show current room and health status
+    // display current room and health status
     private void lookAround() throws IOException {
         Player player = gameWorld.getPlayer();
         Room currentRoom = player.getCurrentRoom();
@@ -71,7 +71,7 @@ public class GameController {
         displayRoomItems();
     }
     
-    // list items in the room
+    // display items in the room
     private void displayRoomItems() throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         if (!currentRoom.getItems().isEmpty()) {
@@ -96,13 +96,13 @@ public class GameController {
         }
     }
     
-    // show available commands
+    // display list of available commands
     private void displayMenu() throws IOException {
         output.append("\ncommands: (n)orth, (s)outh, (e)ast, (w)est, (t)ake, (d)rop, e(x)amine, attac(k), (l)ook, (u)se, (i)nventory, (a)nswer, sa(v)e, (r)estore, (q)uit\n");
         output.append("your choice: ");
     }
     
-    // process a player's command
+    // process player's command
     private void processCommand(String command) throws IOException {
         if (command.isEmpty()) return;
         if (command.equals("n") || command.equals("north")) {
@@ -142,11 +142,11 @@ public class GameController {
             showFinalScore();
             endGame();
         } else {
-            output.append("i don't understand that command.\n");
+            output.append("I don't understand that command.\n");
         }
     }
     
-    // move the player in the given direction
+    // move player in the given direction
     private void move(Direction direction) throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         String exitNumber = currentRoom.getExitRoomNumber(direction);
@@ -174,7 +174,7 @@ public class GameController {
         }
     }
     
-    // show the player's inventory
+    // display player's inventory
     private void showInventory() throws IOException {
         Player player = gameWorld.getPlayer();
         output.append("inventory (weight: " + player.getInventoryWeight() + "/" + player.getMaxWeight() + "):\n");
@@ -188,7 +188,7 @@ public class GameController {
         }
     }
     
-    // attack the monster in the room
+    // attack monster in the room
     private void attackMonster() throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         Monster monster = currentRoom.getMonster();
@@ -306,7 +306,7 @@ public class GameController {
         }
     }
     
-    // save the game state
+    // save game state
     private void saveGame() throws IOException {
         try {
             gameWorld.saveGame("saved_game.json");
@@ -316,7 +316,7 @@ public class GameController {
         }
     }
     
-    // restore the game state
+    // restore game state
     private void restoreGame() throws IOException {
         try {
             gameWorld.loadGame("saved_game.json");
@@ -326,7 +326,7 @@ public class GameController {
         }
     }
     
-    // show final score and rank
+    // display final score and rank
     private void showFinalScore() throws IOException {
         Player player = gameWorld.getPlayer();
         output.append("\ngame over!\n");
@@ -340,7 +340,7 @@ public class GameController {
         output.append("game over\n");
     }
     
-    // end the game loop
+    // end game loop
     private void endGame() {
         gameOver = true;
     }
