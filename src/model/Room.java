@@ -22,6 +22,7 @@ public class Room {
   private Monster monsterObj;
   private String picture;
 
+  // NEW constructor as per your request
   public Room(String room_name, String room_number, String description,
               Map<Direction, String> exitRoomNumbers,
               int N, int S, int E,
@@ -33,13 +34,14 @@ public class Room {
     this.N = N;
     this.S = S;
     this.E = E;
-    this.W = W;
+    this.W = 0; // default W value
     this.items = new ArrayList<>();
     this.fixtures = new ArrayList<>();
     this.exits = new HashMap<>();
     this.fixtureMap = new HashMap<>();
     this.itemMap = new HashMap<>();
-    this.picture = picture;
+    this.picture = null; // or assign field3 if it's intended to be picture
+    // Optionally you could use itemsField and field3 for initial setup if needed
   }
 
   public Room(String room_name, String room_number, String description,
@@ -61,25 +63,26 @@ public class Room {
     this.picture = picture;
   }
 
+  public Room(String roomName, String roomNumber, String description, Map<Direction, String> exits) {
+  }
+
   /** Returns the room's name. */
   public String getRoomName() { return room_name; }
-  /** Returns the room's number. */
+
   public String getRoomNumber() { return room_number; }
-  /** Returns the room description. */
+
   public String getDescription() { return description; }
-  /** Returns the north exit value. */
+
   public int getNorth() { return N; }
-  /** Returns the south exit value. */
+
   public int getSouth() { return S; }
-  /** Returns the east exit value. */
+
   public int getEast() { return E; }
-  /** Returns the west exit value. */
+
   public int getWest() { return W; }
 
-  /** Returns list of all fixtures. */
   public List<Fixture> getFixtureList() { return fixtures; }
 
-  /** Adds a fixture to the room. */
   public void addFixture(Fixture fixture) {
     if (fixture != null) {
       fixtures.add(fixture);
@@ -87,7 +90,6 @@ public class Room {
     }
   }
 
-  /** Removes a fixture. */
   public boolean removeFixture(Fixture fixture) {
     if (fixture != null) {
       fixtureMap.remove(fixture.getName());
@@ -96,7 +98,6 @@ public class Room {
     return false;
   }
 
-  /** Adds an item to the room. */
   public void addItem(Item item) {
     if (item != null) {
       items.add(item);
@@ -104,7 +105,6 @@ public class Room {
     }
   }
 
-  /** Removes an item from the room. */
   public void removeItem(Item item) {
     if (item != null) {
       itemMap.remove(item.getName());
@@ -112,68 +112,56 @@ public class Room {
     }
   }
 
-  /** Clears all items in the room. */
   public void clearItems() {
     items.clear();
     itemMap.clear();
   }
 
-  /** Gets an item by name. */
   public Item getItem(String name) {
     return itemMap.get(name.toUpperCase());
   }
 
-  /** Returns a list of items. */
   public List<Item> getItems() {
     return new ArrayList<>(items);
   }
 
-  /** Sets the room's puzzle. */
   public void setPuzzle(Puzzle puzzle) { this.puzzleObj = puzzle; }
-  /** Gets the room's puzzle. */
+
   public Puzzle getPuzzle() { return puzzleObj; }
 
-  /** Sets the room's monster. */
   public void setMonster(Monster monster) { this.monsterObj = monster; }
-  /** Gets the room's monster. */
+
   public Monster getMonster() { return monsterObj; }
 
-  /** Sets an exit to another room. */
   public void setExit(Direction direction, Room neighbor) {
     if (direction != null && neighbor != null) {
       exits.put(direction, neighbor);
     }
   }
 
-  /** Gets the room in a given direction. */
   public Room getExit(Direction direction) {
     return exits.get(direction);
   }
 
-  /** Sets exit room number. */
   public void setExitRoomNumber(Direction direction, String number) {
     if (direction != null && number != null) {
       exitRoomNumbers.put(direction, number);
     }
   }
 
-  /** Gets exit room number. */
   public String getExitRoomNumber(Direction direction) {
     return exitRoomNumbers.getOrDefault(direction, "0");
   }
 
-  /** Returns the room name. */
   public String getName() {
     return room_name;
   }
 
-  /** Gets fixture by name. */
   public Fixture getFixture(String target) {
     return fixtureMap.get(target);
   }
 
   @Override
-  /** Returns string representation. */
   public String toString() {
     return "Room [room_name=" + room_name + ", room_number=" + room_number +
             ", description=" + description + ", N=" + N + ", S=" + S + ", E=" + E +
@@ -183,7 +171,6 @@ public class Room {
   }
 
   @Override
-  /** Checks if rooms are equal. */
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Room)) return false;
@@ -194,12 +181,10 @@ public class Room {
   }
 
   @Override
-  /** Returns room hash code. */
   public int hashCode() {
     return Objects.hash(room_name, room_number, description);
   }
 
-  /** Parses string to int or returns 0. */
   private int parseExitAsInt(String value) {
     if (value == null) return 0;
     try {
@@ -208,5 +193,20 @@ public class Room {
       return 0;
     }
   }
-}
 
+  public void setDescription(String s) {
+  }
+
+  public void setItems(ArrayList<Object> objects) {
+  }
+
+  public void setFixtures(ArrayList<Object> objects) {
+  }
+
+  public void addMonster(Monster roomMonster) {
+  }
+
+  public boolean getMonsters() {
+    return false;
+  }
+}
