@@ -38,6 +38,16 @@ public class Monster {
   public Monster(String name, String description, boolean active, int damage, boolean canAttack,
                  String attackDescription, String effects, int value,
                  String solution, String target) {
+    this.name = name;
+    this.description = description;
+    this.active = active;
+    this.damage = damage;
+    this.canAttack = canAttack;
+    this.attackDescription = attackDescription;
+    this.effects = effects;
+    this.value = value;
+    this.solution = solution;
+    this.target = target;
     this.maxHealth = 100;  // Default value, can be adjusted per monster
     this.health = maxHealth;
   }
