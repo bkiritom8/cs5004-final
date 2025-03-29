@@ -95,8 +95,8 @@ public class Fixture {
 
   @Override
   public String toString() {
-    return "Fixture [name=" + name + ", weight=" + weight +
-            ", description=" + description + "]";
+    return "Fixture [name=" + name + ", weight=" + weight
+            + ", description=" + description + "]";
   }
 
   @Override

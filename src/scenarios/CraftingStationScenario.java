@@ -1,8 +1,13 @@
 package scenarios;
 
-import model.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import model.Direction;
+import model.Fixture;
+import model.Item;
+import model.Player;
+import model.Room;
 
 /**
  * Scenario 4: Activating a Crafting Station.
@@ -65,8 +70,10 @@ public class CraftingStationScenario {
     System.out.println(craftingStation.interact(player));
 
     // Step 6: Add required items to the player's inventory
-    player.addToInventory(Item.IRON);
-    player.addToInventory(Item.DIAMOND);
+    Item iron = new Item("Iron", 1, 1, 1, 10, "Shiny and metallic.", "Useful for crafting.");
+    player.addToInventory(iron);
+    Item diamond = new Item("Diamond", 1, 1, 1, 100, "A sparkling gem.", "Valuable and sharp.");
+    player.addToInventory(diamond);
     System.out.println("\nYou found Iron and Diamond!");
 
     // Step 7: Show updated inventory

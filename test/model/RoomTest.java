@@ -1,11 +1,15 @@
 package model;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test suite for the Room class.
@@ -27,8 +31,15 @@ class RoomTest {
     exits.put(Direction.SOUTH, south);
     exits.put(Direction.EAST, east);
     exits.put(Direction.WEST, west);
-    return new Room(name, roomNumber, description, exits, field1, field2,
-            itemsField, field3, picture);
+    return new Room(name,
+            roomNumber,
+            description,
+            exits,
+            field1,
+            field2,
+            itemsField,
+            field3,
+            picture);
   }
 
   /**
@@ -100,9 +111,25 @@ class RoomTest {
   @Test
   @DisplayName("Test Adding and Removing Items")
   void testAddRemoveItems() {
-    Room room = createRoom("Storage", "5", "A dusty storage room.",
-            "0", "0", "0", "0", "", "", "", "", "");
-    Item item = new Item("Lantern", 2, 3, 3, 10, "Shines bright", "An old lantern.");
+    Room room = createRoom("Storage",
+            "5",
+            "A dusty storage room.",
+            "0",
+            "0",
+            "0",
+            "0",
+            "",
+            "",
+            "",
+            "",
+            "");
+    Item item = new Item("Lantern",
+            2,
+            3,
+            3,
+            10,
+            "Shines bright",
+            "An old lantern.");
     room.addItem(item);
     assertEquals(item, room.getItem("Lantern"));
     room.removeItem(item);
@@ -115,12 +142,37 @@ class RoomTest {
   @Test
   @DisplayName("Test Puzzle and Monster Assignment")
   void testPuzzleAndMonsterAssignment() {
-    Room room = createRoom("Chamber", "8", "A sealed chamber",
-            "0", "0", "0", "0", "", "", "", "", "");
-    Puzzle puzzle = new Puzzle("Lock", true, true, false,
-            "key", 25, "A tricky lock.", "", "");
-    Monster monster = new Monster("Goblin", true, 15, true,
-            "Slash!", "Tiny and aggressive", "", 50, "Sword", "");
+    Room room = createRoom("Chamber",
+            "8",
+            "A sealed chamber",
+            "0",
+            "0",
+            "0",
+            "0",
+            "",
+            "",
+            "",
+            "",
+            "");
+    Puzzle puzzle = new Puzzle("Lock",
+            true,
+            true,
+            false,
+            "key",
+            25,
+            "A tricky lock.",
+            "",
+            "");
+    Monster monster = new Monster("Goblin",
+            "Tiny and aggressive",
+            true,
+            15,
+            true,
+            "Slash!",
+            "",
+            50,
+            "Sword",
+            "");
     room.setPuzzle(puzzle);
     room.setMonster(monster);
     assertEquals(puzzle, room.getPuzzle());
