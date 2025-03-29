@@ -2,8 +2,6 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.Objects;
 
 /**
  * Represents a player in the game world.
@@ -11,7 +9,7 @@ import java.util.Objects;
  * and accumulate score.
  */
 public class Player {
-  private final String name;
+  private String name;
   private int health;
   private final List<Item> inventory;
   private Room currentRoom;
@@ -22,46 +20,8 @@ public class Player {
   private final int criticalChance;
 
   /**
-   * Represents the result of an attack on a monster.
-   */
-  public static class AttackResult {
-    private final boolean success;
-    private final int damage;
-    private final boolean critical;
-    private final boolean defeated;
-    private final int healthRemaining;
-
-    public AttackResult(boolean success, int damage, boolean critical, boolean defeated, int healthRemaining) {
-      this.success = success;
-      this.damage = damage;
-      this.critical = critical;
-      this.defeated = defeated;
-      this.healthRemaining = healthRemaining;
-    }
-
-    public boolean isSuccess() {
-      return success;
-    }
-
-    public int getDamage() {
-      return damage;
-    }
-
-    public boolean isCritical() {
-      return critical;
-    }
-
-    public boolean isDefeated() {
-      return defeated;
-    }
-
-    public int getHealthRemaining() {
-      return healthRemaining;
-    }
-  }
-
-  /**
    * Creates a new player in the specified starting room.
+   *
    * @param startRoom The room where the player starts
    * @throws IllegalArgumentException if startRoom is null
    */
@@ -80,6 +40,7 @@ public class Player {
 
   /**
    * Gets the player's name.
+   *
    * @return The player's name
    */
   public String getName() {
@@ -87,25 +48,9 @@ public class Player {
   }
 
   /**
-   * Gets the player's current health.
-   * @return The player's health value
-   */
-  public int getHealth() {
-    return this.health;
-  }
-
-  /**
-   * Sets the player's health to the specified value.
-   * Health cannot be negative.
-   * @param health The new health value
-   */
-  public void setHealth(int health) {
-    this.health = Math.max(0, Math.min(health, MAX_HEALTH));
-  }
-
-  /**
    * Reduces the player's health by the specified amount.
    * Health cannot go below 0.
+   *
    * @param amount The amount of damage to take
    */
   public void takeDamage(int amount) {
@@ -117,6 +62,7 @@ public class Player {
 
   /**
    * Gets a description of the player's health status.
+   *
    * @return A string describing the player's health status
    */
   public String getHealthStatus() {
@@ -134,6 +80,7 @@ public class Player {
 
   /**
    * Gets the player's current health.
+   *
    * @return The player's health
    */
   public int getHealth() {
@@ -142,6 +89,7 @@ public class Player {
 
   /**
    * Attempts to add an item to the player's inventory.
+   *
    * @param item The item to add
    * @return true if the item was added, false if it would exceed weight limit
    * @throws IllegalArgumentException if item is null
@@ -159,6 +107,7 @@ public class Player {
 
   /**
    * Removes an item from the player's inventory.
+   *
    * @param item The item to remove
    * @return true if the item was removed, false otherwise
    * @throws IllegalArgumentException if item is null
@@ -172,6 +121,7 @@ public class Player {
 
   /**
    * Gets an item from the inventory by name.
+   *
    * @param itemName The name of the item to find
    * @return The item if found, null otherwise
    * @throws IllegalArgumentException if itemName is null or empty
@@ -188,6 +138,7 @@ public class Player {
 
   /**
    * Gets the total weight of all items in the inventory.
+   *
    * @return The total weight of the inventory
    */
   public int getInventoryWeight() {
@@ -198,18 +149,16 @@ public class Player {
 
   /**
    * Gets a copy of the player's inventory.
+   *
    * @return A new list containing all items in the inventory
    */
   public List<Item> getInventory() {
     return new ArrayList<>(inventory);
   }
 
-  public Room getCurrentRoom() {
-    return this.currentRoom;
-  }
-
   /**
    * Sets the player's inventory to the specified list.
+   *
    * @param inventory The new inventory list
    * @throws IllegalArgumentException if inventory is null
    */
@@ -223,14 +172,20 @@ public class Player {
 
   /**
    * Gets the player's current room.
+   *
    * @return The current room
    */
   public Room getCurrentRoom() {
     return this.currentRoom;
   }
 
+  public int getMaxWeight() {
+    return MAX_HEALTH;
+  }
+
   /**
    * Sets the player's current room.
+   *
    * @param room The new room
    * @throws IllegalArgumentException if room is null
    */
@@ -243,6 +198,7 @@ public class Player {
 
   /**
    * Adds points to the player's score.
+   *
    * @param points The points to add
    * @throws IllegalArgumentException if points is negative
    */
@@ -255,6 +211,7 @@ public class Player {
 
   /**
    * Sets the player's name.
+   *
    * @param name The name to set for the player
    */
   public void setName(String name) {
@@ -266,6 +223,7 @@ public class Player {
 
   /**
    * Sets the player's score.
+   *
    * @param score The new score
    * @throws IllegalArgumentException if score is negative
    */
@@ -278,6 +236,7 @@ public class Player {
 
   /**
    * Gets the player's current score.
+   *
    * @return The current score
    */
   public int getScore() {
@@ -286,6 +245,7 @@ public class Player {
 
   /**
    * Gets the player's rank based on their score.
+   *
    * @return A string representing the player's rank
    */
   public String getRank() {
@@ -306,34 +266,33 @@ public class Player {
 
   /**
    * Attacks a monster with a chance for critical hits.
+   *
    * @param monster The monster to attack
-   * @return The result of the attack
+   * @return The damage dealt to the monster, or 0 if the attack was unsuccessful
+   * @throws IllegalArgumentException if monster is null
    */
-  public AttackResult attack(Monster monster) {
-    if (monster == null || !monster.isActive()) {
-      return new AttackResult(false, 0, "No valid target to attack.");
+  public int attack(Monster monster) {
+    if (monster == null) {
+      throw new IllegalArgumentException("Monster cannot be null");
     }
 
-    int damage = calculateDamage();
+    if (!monster.isActive()) {
+      return 0;
+    }
+
+    int damage = this.attackPower;
     boolean isCritical = isCriticalHit();
     if (isCritical) {
       damage *= 2;
     }
 
-    monster.takeDamage(damage);
-    return new AttackResult(true, damage, isCritical ? "Critical hit!" : "Hit!");
-  }
-
-  /**
-   * Calculates the base damage for an attack.
-   * @return The calculated damage
-   */
-  private int calculateDamage() {
-    return attackPower + (int)(Math.random() * 5); // Random variation of 0-4
+    monster.takeDamage(damage, isCritical);
+    return damage;
   }
 
   /**
    * Determines if the attack is a critical hit.
+   *
    * @return true if the attack is a critical hit
    */
   private boolean isCriticalHit() {
@@ -342,6 +301,7 @@ public class Player {
 
   /**
    * Checks if the player can move in a given direction.
+   *
    * @param direction The direction to check
    * @return true if the player can move in that direction, false otherwise
    * @throws IllegalArgumentException if direction is null
@@ -355,6 +315,7 @@ public class Player {
 
   /**
    * Moves the player in a given direction.
+   *
    * @param direction The direction to move
    * @return true if the move was successful, false otherwise
    * @throws IllegalArgumentException if direction is null
