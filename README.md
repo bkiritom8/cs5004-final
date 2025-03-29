@@ -45,7 +45,7 @@ Our design for HW8 is an implementation of the analysis and high-level architect
     - Players can save their current state to a file and resume later, supporting extended play sessions and testing.
 
 7. **Game Engine and Controller Layering**:
-    - `GameEngineApp` and `GameController` coordinate model behavior and user interaction, isolating the logic from direct I/O operations.
+    - `GameEngineApp` and `GameController` coordinate model behavior and user interaction, isolating the logic from direct I/O operations. They serve as the main interface for processing user commands and integrating the game model (including puzzles, items, and rooms).
 
 8. **Scenario Support**:
     - Each of the design scenarios described in HW7 (monster drops, puzzle unlocking, crafting, etc.) has a concrete implementation in HW8.
