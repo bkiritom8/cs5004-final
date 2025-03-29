@@ -85,4 +85,8 @@ public class Fixture {
   public int hashCode() {
     return Objects.hash(name, weight, description);
   }
+
+  public boolean interact(Player player) {
+  return false;
+  }
 }
