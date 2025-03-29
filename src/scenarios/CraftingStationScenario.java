@@ -14,6 +14,12 @@ import java.util.Map;
  */
 public class CraftingStationScenario {
 
+  public static int field1;
+  public static int field2;
+  public static int itemsField;
+  public static String field3;
+  public static String picture;
+
   public static void main(String[] args) {
     // Since Player now requires a starting Room, create a dummy room for the player.
     Map<Direction, String> defaultExits = new HashMap<>();
