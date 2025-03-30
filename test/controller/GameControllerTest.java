@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /*
 dummy environment for testing game.
@@ -15,20 +16,22 @@ dummy environment for testing game.
 class TestGameWorld extends GameWorld {
     private Player player;
     private Room room;
-    
-    public TestGameWorld() {
-        room = new Room("test room", "1", "a simple test room", new HashMap<>());
-        room.setExitRoomNumber(Direction.NORTH, "0");
-        room.setExitRoomNumber(Direction.SOUTH, "0");
-        room.setExitRoomNumber(Direction.EAST, "0");
-        room.setExitRoomNumber(Direction.WEST, "0");
-        room.setPuzzle(null);
-        room.setMonster(null);
-        room.setItems(new ArrayList<>());
-        room.setFixtures(new ArrayList<>());
-        player = new Player(room);
+
+    public TestGameWorld() throws IOException {
+        super("./resources/empty_rooms.json"); // Call the actual constructor
+
+        // Then override what we need
+        Map<Direction, String> exits = new HashMap<>();
+        exits.put(Direction.NORTH, "0");
+        exits.put(Direction.SOUTH, "0");
+        exits.put(Direction.EAST, "0");
+        exits.put(Direction.WEST, "0");
+
+        Room room = new Room("test room", "1", "a simple test room", exits);
+        this.player = new Player(room);
     }
-    
+
+
     @Override
     public String getGameName() {
         return "integration test game";
