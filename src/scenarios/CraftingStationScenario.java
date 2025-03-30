@@ -41,7 +41,7 @@ public class CraftingStationScenario {
             field1,
             field2,
             itemsField,
-            field3,
+            0, field3,
             picture
     );
 

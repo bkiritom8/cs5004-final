@@ -137,7 +137,8 @@ public class GameWorld {
       exits.put(Direction.WEST, (String) roomData.get("W"));
 
       // Create room
-      Room room = new Room(roomName, roomNumber, description, exits);
+      Room room = new Room(roomName, roomNumber, description, exits,
+              0, 0, 0, 0,"itemsField", "field3");
 
       // Add items to room if present
       String itemsList = (String) roomData.get("items");
