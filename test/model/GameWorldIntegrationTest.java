@@ -189,6 +189,6 @@ public class GameWorldIntegrationTest {
     assertFalse(teddyBear.isActive());
 
     // Player should get points for defeating the monster
-    assertEquals(200, player.getScore());
+    assertEquals(350, player.getScore());
   }
 }
