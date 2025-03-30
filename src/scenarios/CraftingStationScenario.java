@@ -1,17 +1,11 @@
 package scenarios;
 
+import model.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import model.Direction;
-import model.Fixture;
-import model.Item;
-import model.Player;
-import model.Room;
-
 /**
  * Scenario 4: Activating a Crafting Station.
- *
  * The player enters a cave and discovers a Crafting Station made of wood and stones.
  * The station is inactive until the player has both Iron and Diamond.
  * When the player interacts with the station while holding both items,

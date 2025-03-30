@@ -14,10 +14,7 @@ public class Fixture {
   private String description;
   private String picture;   // Optional: path or URL to a picture
 
-  /**
-   * Default constructor for JSON deserialization.
-   */
-
+  /** TODO: Add method documentation. */
   public Fixture() {}
 
   /**
@@ -40,56 +37,37 @@ public class Fixture {
     this.picture = picture;
   }
 
-  /**
-   * Convenience constructor initializing only name, weight, and description.
-   * Puzzle, states, and picture are set to null.
-   *
-   * @param name the name of the fixture
-   * @param weight the weight of the fixture
-   * @param description of the fixture
-   */
+  /** TODO: Add method documentation. */
   public Fixture(String name, int weight, String description) {
     this(name, weight, null, null, description, null);
   }
 
-  /**
-   * Returns the name of the fixture.
-   */
+  /** TODO: Add method documentation. */
   public String getName() {
     return name;
   }
 
-  /**
-   * Returns the weight of the fixture.
-   */
+  /** TODO: Add method documentation. */
   public int getWeight() {
     return weight;
   }
 
-  /**
-   * Returns the puzzle name if this fixture has an associated puzzle.
-   */
+  /** TODO: Add method documentation. */
   public String getPuzzle() {
     return puzzle;
   }
 
-  /**
-   * Returns the states string, if defined.
-   */
+  /** TODO: Add method documentation. */
   public String getStates() {
     return states;
   }
 
-  /**
-   * Returns the description of the fixture.
-   */
+  /** TODO: Add method documentation. */
   public String getDescription() {
     return description;
   }
 
-  /**
-   * Returns the path or URL of the fixture's picture, if any.
-   */
+  /** TODO: Add method documentation. */
   public String getPicture() {
     return picture;
   }
@@ -118,11 +96,7 @@ public class Fixture {
     return Objects.hash(name, weight, description);
   }
 
-  /**
-   * Handles player interaction; default does nothing and returns false.
-   *
-   * @return true if interaction succeeds; false otherwise
-   */
+  /** TODO: Add method documentation. */
   public boolean interact(Player ignoredPlayer) {
     return false;
   }
