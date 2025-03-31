@@ -1,1253 +1,869 @@
-// GAME ENGINE APP - Entry point for the application
+// VIEW INTERFACES - Define common interface for all views
+interface GameView:
+    function displayRoom(room: Room): void
+    function displayHealth(health: int, status: String): void
+    function displayInventory(items: List<Item>): void
+    function displayMessage(message: String): void
+    function close(): void
+
+// CONSOLE VIEW - Implements text-based view
+class ConsoleView implements GameView:
+    properties:
+        output: Appendable
+
+    constructor(output: Appendable):
+        this.output = output
+
+    function displayRoom(room):
+        // Display room details to text console
+        output.append("You are in " + room.getName() + "\n")
+        // Handle puzzle/monster effects or description
+        // Display items in room
+
+    function displayHealth(health, status):
+        output.append("Health: " + health + " (" + status + ")\n")
+
+    function displayInventory(items):
+        // Format and display inventory items
+
+    function displayMessage(message):
+        output.append(message + "\n")
+
+    function close():
+        // Close any resources
+
+// SWING COMPONENTS - GUI view implementation
+class GameWindow extends JFrame implements GameView:
+    properties:
+        roomPanel: RoomPanel
+        inventoryPanel: InventoryPanel
+        navigationPanel: NavigationPanel
+        actionPanel: ActionPanel
+        controller: SwingController
+
+    constructor(title: String, controller: SwingController):
+        // Set up main window
+        super(title)
+        this.controller = controller
+
+        // Initialize UI components
+        initComponents()
+        createMenuBar()
+
+    function initComponents():
+        // Create main layout
+        mainPanel = new JPanel(new BorderLayout())
+
+        // Initialize panels
+        roomPanel = new RoomPanel()
+        inventoryPanel = new InventoryPanel()
+        navigationPanel = new NavigationPanel(controller)
+        actionPanel = new ActionPanel(controller)
+
+        // Add panels to window
+        mainPanel.add(roomPanel, BorderLayout.CENTER)
+        mainPanel.add(inventoryPanel, BorderLayout.EAST)
+
+        bottomPanel = new JPanel(new BorderLayout())
+        bottomPanel.add(navigationPanel, BorderLayout.NORTH)
+        bottomPanel.add(actionPanel, BorderLayout.SOUTH)
+
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH)
+
+        this.add(mainPanel)
+
+    function createMenuBar():
+        menuBar = new JMenuBar()
+
+        gameMenu = new JMenu("Game")
+        saveItem = new JMenuItem("Save Game")
+        loadItem = new JMenuItem("Load Game")
+        exitItem = new JMenuItem("Exit")
+
+        // Add action listeners
+        saveItem.addActionListener(e -> controller.saveGame())
+        loadItem.addActionListener(e -> controller.loadGame())
+        exitItem.addActionListener(e -> controller.quitGame())
+
+        // Add items to menu
+        gameMenu.add(saveItem)
+        gameMenu.add(loadItem)
+        gameMenu.addSeparator()
+        gameMenu.add(exitItem)
+
+        helpMenu = new JMenu("Help")
+        aboutItem = new JMenuItem("About")
+        aboutItem.addActionListener(e -> showAboutDialog())
+        helpMenu.add(aboutItem)
+
+        menuBar.add(gameMenu)
+        menuBar.add(helpMenu)
+
+        setJMenuBar(menuBar)
+
+    function displayRoom(room):
+        roomPanel.updateRoom(room)
+        navigationPanel.updateAvailableDirections(room)
+
+    function displayHealth(health, status):
+        roomPanel.updateHealth(health, status)
+
+    function displayInventory(items):
+        inventoryPanel.updateInventory(items)
+
+    function displayMessage(message):
+        roomPanel.addMessage(message)
+
+    function close():
+        dispose()
+
+    function showAboutDialog():
+        aboutDialog = new AboutDialog(this)
+        aboutDialog.setVisible(true)
+
+// ROOM PANEL - Display room information
+class RoomPanel extends JPanel:
+    properties:
+        roomImageLabel: JLabel
+        descriptionArea: JTextArea
+        healthLabel: JLabel
+        messageArea: JTextArea
+
+    constructor():
+        // Set layout
+        setLayout(new BorderLayout())
+
+        // Initialize components
+        roomImageLabel = new JLabel()
+        descriptionArea = new JTextArea()
+        descriptionArea.setEditable(false)
+        messageArea = new JTextArea()
+        messageArea.setEditable(false)
+        healthLabel = new JLabel()
+
+        // Add components
+        add(roomImageLabel, BorderLayout.NORTH)
+        add(new JScrollPane(descriptionArea), BorderLayout.CENTER)
+
+        bottomPanel = new JPanel(new BorderLayout())
+        bottomPanel.add(healthLabel, BorderLayout.NORTH)
+        bottomPanel.add(new JScrollPane(messageArea), BorderLayout.CENTER)
+
+        add(bottomPanel, BorderLayout.SOUTH)
+
+    function updateRoom(room):
+        // Get image for room
+        image = ImageLoader.getRoomImage(room)
+        roomImageLabel.setIcon(image)
+
+        // Update description
+        if (room has active puzzle that affects target):
+            descriptionArea.setText(room.getPuzzle().getEffects())
+        else if (room has active monster):
+            descriptionArea.setText("A " + room.getMonster().getName() + " is here!\n" + room.getMonster().getEffects())
+        else:
+            descriptionArea.setText(room.getDescription())
+
+        // Add items in room
+        if (room has items):
+            itemsText = "Items here: "
+            for each item in room.getItems():
+                itemsText += item.getName() + " "
+            descriptionArea.append("\n" + itemsText)
+
+    function updateHealth(health, status):
+        healthLabel.setText("Health: " + health + " (" + status + ")")
+
+    function addMessage(message):
+        messageArea.append(message + "\n")
+        // Auto-scroll to bottom
+        messageArea.setCaretPosition(messageArea.getDocument().getLength())
+
+// INVENTORY PANEL - Display and interact with inventory
+class InventoryPanel extends JPanel:
+    properties:
+        inventoryList: JList<String>
+        inventoryListModel: DefaultListModel<String>
+        controller: SwingController
+
+    constructor(controller):
+        this.controller = controller
+
+        // Set layout and border
+        setLayout(new BorderLayout())
+        setBorder(BorderFactory.createTitledBorder("Inventory"))
+
+        // Initialize list model and list
+        inventoryListModel = new DefaultListModel<>()
+        inventoryList = new JList<>(inventoryListModel)
+
+        // Add components
+        add(new JScrollPane(inventoryList), BorderLayout.CENTER)
+
+        // Add buttons
+        buttonPanel = new JPanel()
+        useButton = new JButton("Use")
+        dropButton = new JButton("Drop")
+        examineButton = new JButton("Examine")
+
+        useButton.addActionListener(e -> useSelectedItem())
+        dropButton.addActionListener(e -> dropSelectedItem())
+        examineButton.addActionListener(e -> examineSelectedItem())
+
+        buttonPanel.add(useButton)
+        buttonPanel.add(dropButton)
+        buttonPanel.add(examineButton)
+
+        add(buttonPanel, BorderLayout.SOUTH)
+
+    function updateInventory(items):
+        inventoryListModel.clear()
+        for each item in items:
+            inventoryListModel.addElement(item.getName() + " (" + item.getUsesRemaining() + " uses)")
+
+    function useSelectedItem():
+        selected = inventoryList.getSelectedValue()
+        if (selected is not null):
+            // Extract item name from display string
+            itemName = selected.split(" ")[0]
+            controller.executeCommand("use " + itemName)
+
+    function dropSelectedItem():
+        selected = inventoryList.getSelectedValue()
+        if (selected is not null):
+            itemName = selected.split(" ")[0]
+            controller.executeCommand("drop " + itemName)
+
+    function examineSelectedItem():
+        selected = inventoryList.getSelectedValue()
+        if (selected is not null):
+            itemName = selected.split(" ")[0]
+            controller.executeCommand("examine " + itemName)
+
+// NAVIGATION PANEL - Directional movement buttons
+class NavigationPanel extends JPanel:
+    properties:
+        directionButtons: Map<Direction, JButton>
+        controller: SwingController
+
+    constructor(controller):
+        this.controller = controller
+
+        // Set layout and border
+        setLayout(new GridLayout(3, 3))
+        setBorder(BorderFactory.createTitledBorder("Navigation"))
+
+        // Initialize buttons
+        directionButtons = new HashMap<>()
+
+        // Create 3x3 grid with direction buttons in cardinal positions
+        for (int i = 0; i < 9; i++):
+            if (i == 1): // North
+                button = new JButton("North")
+                button.addActionListener(e -> controller.move(Direction.NORTH))
+                directionButtons.put(Direction.NORTH, button)
+                add(button)
+            else if (i == 3): // West
+                button = new JButton("West")
+                button.addActionListener(e -> controller.move(Direction.WEST))
+                directionButtons.put(Direction.WEST, button)
+                add(button)
+            else if (i == 5): // East
+                button = new JButton("East")
+                button.addActionListener(e -> controller.move(Direction.EAST))
+                directionButtons.put(Direction.EAST, button)
+                add(button)
+            else if (i == 7): // South
+                button = new JButton("South")
+                button.addActionListener(e -> controller.move(Direction.SOUTH))
+                directionButtons.put(Direction.SOUTH, button)
+                add(button)
+            else:
+                add(new JPanel()) // Empty cell
+
+    function updateAvailableDirections(room):
+        // Enable/disable buttons based on available exits
+        for each direction in Direction.values():
+            button = directionButtons.get(direction)
+            exitNumber = room.getExitRoomNumber(direction)
+
+            // Enable if exit exists and is not blocked
+            button.setEnabled(!exitNumber.equals("0") && Integer.parseInt(exitNumber) > 0)
+
+// ACTION PANEL - Game action buttons
+class ActionPanel extends JPanel:
+    properties:
+        controller: SwingController
+
+    constructor(controller):
+        this.controller = controller
+
+        // Set layout and border
+        setLayout(new FlowLayout())
+        setBorder(BorderFactory.createTitledBorder("Actions"))
+
+        // Create buttons
+        lookButton = new JButton("Look")
+        takeButton = new JButton("Take")
+        attackButton = new JButton("Attack")
+        answerButton = new JButton("Answer")
+
+        // Add action listeners
+        lookButton.addActionListener(e -> controller.executeCommand("look"))
+        takeButton.addActionListener(e -> showTakeDialog())
+        attackButton.addActionListener(e -> controller.executeCommand("attack"))
+        answerButton.addActionListener(e -> showAnswerDialog())
+
+        // Add buttons to panel
+        add(lookButton)
+        add(takeButton)
+        add(attackButton)
+        add(answerButton)
+
+    function showTakeDialog():
+        // Display dialog to select item to take
+        itemName = JOptionPane.showInputDialog(this, "What would you like to take?")
+        if (itemName is not null and not empty):
+            controller.executeCommand("take " + itemName)
+
+    function showAnswerDialog():
+        // Display dialog to input puzzle answer
+        answer = JOptionPane.showInputDialog(this, "Enter your answer:")
+        if (answer is not null and not empty):
+            controller.executeCommand("answer " + answer)
+
+// ABOUT DIALOG - Display game information
+class AboutDialog extends JDialog:
+    constructor(parent):
+        super(parent, "About Adventure Game", true)
+
+        // Set size and location
+        setSize(400, 300)
+        setLocationRelativeTo(parent)
+
+        // Create components
+        panel = new JPanel(new BorderLayout())
+
+        // Title and logo
+        titleLabel = new JLabel("Adventure Game Engine", SwingConstants.CENTER)
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18))
+
+        // Description
+        descriptionArea = new JTextArea(
+            "A text and graphical adventure game engine.\n" +
+            "Navigate through rooms, solve puzzles, defeat monsters, and collect items.\n\n" +
+            "Created for CS5004 - Object Oriented Design"
+        )
+        descriptionArea.setEditable(false)
+
+        // Close button
+        closeButton = new JButton("Close")
+        closeButton.addActionListener(e -> dispose())
+
+        // Add components
+        panel.add(titleLabel, BorderLayout.NORTH)
+        panel.add(descriptionArea, BorderLayout.CENTER)
+        panel.add(closeButton, BorderLayout.SOUTH)
+
+        add(panel)
+
+// END GAME DIALOG - Display win/lose message
+class EndGameDialog extends JDialog:
+    constructor(parent, isWin, message):
+        super(parent, isWin ? "Victory!" : "Game Over", true)
+
+        // Set size and location
+        setSize(400, 300)
+        setLocationRelativeTo(parent)
+
+        // Create components
+        panel = new JPanel(new BorderLayout())
+
+        // Title
+        titleLabel = new JLabel(isWin ? "Congratulations!" : "Game Over", SwingConstants.CENTER)
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18))
+
+        // Message
+        messageArea = new JTextArea(message)
+        messageArea.setEditable(false)
+
+        // Close button
+        closeButton = new JButton("Close")
+        closeButton.addActionListener(e -> dispose())
+
+        // Add components
+        panel.add(titleLabel, BorderLayout.NORTH)
+        panel.add(messageArea, BorderLayout.CENTER)
+        panel.add(closeButton, BorderLayout.SOUTH)
+
+        add(panel)
+
+// UTILITY - IMAGE LOADER
+class ImageLoader:
+    properties:
+        static imageCache: Map<String, ImageIcon>
+        static RESOURCE_PATH: String = "./resources/images/"
+        static DEFAULT_ROOM_IMAGE: String = RESOURCE_PATH + "rooms/default.png"
+        static DEFAULT_ITEM_IMAGE: String = RESOURCE_PATH + "items/default.png"
+        static DEFAULT_MONSTER_IMAGE: String = RESOURCE_PATH + "monsters/default.png"
+        static DEFAULT_FIXTURE_IMAGE: String = RESOURCE_PATH + "fixtures/default.png"
+
+    static function initialize():
+        imageCache = new HashMap<>()
+        // Load default images
+        loadImage(DEFAULT_ROOM_IMAGE)
+        loadImage(DEFAULT_ITEM_IMAGE)
+        loadImage(DEFAULT_MONSTER_IMAGE)
+        loadImage(DEFAULT_FIXTURE_IMAGE)
+
+    static function loadImage(path):
+        try:
+            // Check if image is in cache
+            if (imageCache.containsKey(path)):
+                return imageCache.get(path)
+
+            // Load image from file
+            image = new ImageIcon(path)
+            imageCache.put(path, image)
+            return image
+        catch Exception:
+            System.err.println("Error loading image: " + path)
+            return null
+
+    static function getRoomImage(room):
+        imagePath = RESOURCE_PATH + "rooms/" + room.getRoomNumber() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_ROOM_IMAGE)
+        return image
+
+    static function getItemImage(item):
+        imagePath = RESOURCE_PATH + "items/" + item.getName().replaceAll(" ", "_").toLowerCase() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_ITEM_IMAGE)
+        return image
+
+    static function getMonsterImage(monster):
+        imagePath = RESOURCE_PATH + "monsters/" + monster.getName().replaceAll(" ", "_").toLowerCase() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_MONSTER_IMAGE)
+        return image
+
+    static function getFixtureImage(fixture):
+        imagePath = RESOURCE_PATH + "fixtures/" + fixture.getName().replaceAll(" ", "_").toLowerCase() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_FIXTURE_IMAGE)
+        return image
+
+// COMMAND PATTERN - INTERFACE
+interface Command:
+    function execute(): void
+
+// COMMAND FACTORY
+class CommandFactory:
+    static function createCommand(controller, commandString):
+        // Parse command string
+        parts = commandString.trim().toLowerCase().split(" ", 2)
+        command = parts[0]
+        argument = parts.length > 1 ? parts[1] : ""
+
+        // Create appropriate command object
+        if (command equals "n" or command equals "north"):
+            return new MoveCommand(controller, Direction.NORTH)
+        else if (command equals "s" or command equals "south"):
+            return new MoveCommand(controller, Direction.SOUTH)
+        else if (command equals "e" or command equals "east"):
+            return new MoveCommand(controller, Direction.EAST)
+        else if (command equals "w" or command equals "west"):
+            return new MoveCommand(controller, Direction.WEST)
+        else if (command equals "l" or command equals "look"):
+            return new LookCommand(controller)
+        else if (command equals "i" or command equals "inventory"):
+            return new InventoryCommand(controller)
+        else if (command equals "t" or command equals "take"):
+            return new TakeCommand(controller, argument)
+        else if (command equals "d" or command equals "drop"):
+            return new DropCommand(controller, argument)
+        else if (command equals "x" or command equals "examine"):
+            return new ExamineCommand(controller, argument)
+        else if (command equals "u" or command equals "use"):
+            return new UseCommand(controller, argument)
+        else if (command equals "a" or command equals "answer"):
+            return new AnswerCommand(controller, argument)
+        else if (command equals "k" or command equals "attack"):
+            return new AttackCommand(controller)
+        else if (command equals "save"):
+            return new SaveCommand(controller)
+        else if (command equals "restore" or command equals "load"):
+            return new LoadCommand(controller)
+        else if (command equals "q" or command equals "quit"):
+            return new QuitCommand(controller)
+        else:
+            return new UnknownCommand(controller, commandString)
+
+// COMMAND IMPLEMENTATIONS (examples)
+class MoveCommand implements Command:
+    properties:
+        controller: GameController
+        direction: Direction
+
+    constructor(controller, direction):
+        this.controller = controller
+        this.direction = direction
+
+    function execute():
+        controller.move(direction)
+
+class TakeCommand implements Command:
+    properties:
+        controller: GameController
+        itemName: String
+
+    constructor(controller, itemName):
+        this.controller = controller
+        this.itemName = itemName
+
+    function execute():
+        controller.takeItem(itemName)
+
+// (Other command implementations follow same pattern)
+
+// ABSTRACT CONTROLLER - Base for all controllers
+abstract class GameController:
+    properties:
+        gameWorld: GameWorld
+        view: GameView
+
+    constructor(gameWorld, view):
+        this.gameWorld = gameWorld
+        this.view = view
+
+    // Abstract methods to be implemented by subclasses
+    abstract function processInput(): void
+    abstract function start(): void
+
+    // Common controller methods (shared by all controllers)
+    function move(direction):
+        currentRoom = gameWorld.getPlayer().getCurrentRoom()
+        exitNumber = currentRoom.getExitRoomNumber(direction)
+
+        // Check for wall (0)
+        if (exitNumber equals "0"):
+            view.displayMessage("You can't go that way.")
+            return
+
+        // Check for blocked path (negative)
+        if (parseInt(exitNumber) < 0):
+            if (currentRoom has active puzzle):
+                view.displayMessage("A puzzle blocks your way.")
+            else if (currentRoom has active monster):
+                view.displayMessage("A monster blocks your way!")
+                // Monster may attack
+                if (monster.canAttack()):
+                    damage = monster.attack(gameWorld.getPlayer())
+                    if (damage > 0):
+                        view.displayMessage("The monster attacks!")
+                        view.displayHealth(gameWorld.getPlayer().getHealth(), gameWorld.getPlayer().getHealthStatus())
+            else:
+                view.displayMessage("Something blocks your way.")
+            return
+
+        // Move to new room
+        nextRoom = currentRoom.getExit(direction)
+        if (nextRoom not null):
+            gameWorld.getPlayer().setCurrentRoom(nextRoom)
+            view.displayMessage("You move " + direction.toString())
+            updateView()
+        else:
+            view.displayMessage("You can't go that way right now.")
+
+    function takeItem(itemName):
+        if (itemName is empty):
+            view.displayMessage("What do you want to take?")
+            return
+
+        currentRoom = gameWorld.getPlayer().getCurrentRoom()
+        item = currentRoom.getItem(itemName)
+
+        if (item is null):
+            view.displayMessage("There's no " + itemName + " here.")
+            return
+
+        if (gameWorld.getPlayer().addToInventory(item)):
+            currentRoom.removeItem(item)
+            view.displayMessage("You pick up the " + item.getName() + ".")
+            updateView()
+        else:
+            view.displayMessage("You can't carry any more. Drop something first.")
+
+    // (Similar implementations for other game actions)
+
+    function updateView():
+        // Update the view with current game state
+        view.displayRoom(gameWorld.getPlayer().getCurrentRoom())
+        view.displayHealth(gameWorld.getPlayer().getHealth(), gameWorld.getPlayer().getHealthStatus())
+        view.displayInventory(gameWorld.getPlayer().getInventory())
+
+// TEXT CONTROLLER - Handles text-based interface
+class TextController extends GameController:
+    properties:
+        scanner: Scanner
+        output: Appendable
+        running: Boolean
+
+    constructor(gameWorld, input, output):
+        this.scanner = new Scanner(input)
+        this.output = output
+        this.view = new ConsoleView(output)
+        super(gameWorld, view)
+        this.running = false
+
+    function start():
+        // Start the game
+        running = true
+
+        // Get player name
+        view.displayMessage("Welcome to " + gameWorld.getGameName())
+        view.displayMessage("Enter your name: ")
+        name = scanner.nextLine()
+        gameWorld.setPlayerName(name)
+
+        // Show initial state
+        updateView()
+
+        // Main game loop
+        while (running and scanner.hasNextLine()):
+            processInput()
+
+    function processInput():
+        // Show commands and get input
+        view.displayMessage("\nWhat do you want to do? ")
+        commandString = scanner.nextLine().toLowerCase()
+
+        // Create and execute command
+        command = CommandFactory.createCommand(this, commandString)
+        command.execute()
+
+        // Check if player died
+        if (gameWorld.getPlayer().getHealth() <= 0):
+            view.displayMessage("Game over!")
+            running = false
+
+    function quitGame():
+        view.displayMessage("Thanks for playing!")
+        running = false
+
+// SWING CONTROLLER - Handles GUI interface
+class SwingController extends GameController:
+    properties:
+        gameWindow: GameWindow
+
+    constructor(gameWorld):
+        this.gameWindow = new GameWindow("Adventure Game", this)
+        super(gameWorld, gameWindow)
+
+    function start():
+        // Initialize window and display
+        gameWindow.setSize(800, 600)
+        gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+        gameWindow.setVisible(true)
+
+        // Get player name via dialog
+        name = JOptionPane.showInputDialog(gameWindow, "Enter your name:")
+        if (name is null or name.isEmpty()):
+            name = "Player"
+        gameWorld.setPlayerName(name)
+
+        // Show initial state
+        updateView()
+
+    function processInput():
+        // Not used in Swing controller (event-driven)
+
+    function executeCommand(commandString):
+        // Create and execute command
+        command = CommandFactory.createCommand(this, commandString)
+        command.execute()
+
+        // Check if player died
+        if (gameWorld.getPlayer().getHealth() <= 0):
+            showGameOverDialog("You have died!")
+
+    function quitGame():
+        int option = JOptionPane.showConfirmDialog(
+            gameWindow,
+            "Are you sure you want to quit?",
+            "Confirm Exit",
+            JOptionPane.YES_NO_OPTION
+        )
+
+        if (option == JOptionPane.YES_OPTION):
+            gameWindow.dispose()
+            System.exit(0)
+
+    function showGameOverDialog(message):
+        dialog = new EndGameDialog(gameWindow, false, message)
+        dialog.setVisible(true)
+
+        // Exit after dialog is closed
+        gameWindow.dispose()
+        System.exit(0)
+
+// BATCH CONTROLLER - Processes batch commands
+class BatchController extends GameController:
+    properties:
+        commands: List<String>
+        outputFile: String
+        stringBuilder: StringBuilder
+
+    constructor(gameWorld, commandFile, outputFile):
+        this.view = new ConsoleView(new StringBuilder())
+        super(gameWorld, view)
+        this.commands = FileIOManager.readCommandsFromFile(commandFile)
+        this.outputFile = outputFile
+        this.stringBuilder = new StringBuilder()
+
+    function start():
+        // Process welcome message
+        stringBuilder.append("Welcome to " + gameWorld.getGameName() + "\n")
+
+        // Set player name (first command or default)
+        if (!commands.isEmpty()):
+            name = commands.remove(0)
+        else:
+            name = "Player"
+        gameWorld.setPlayerName(name)
+
+        // Process all commands
+        for (String commandString : commands):
+            // Skip empty lines and comments
+            if (commandString.isEmpty() or commandString.startsWith("//"))
+                continue
+
+            // Execute command
+            Command command = CommandFactory.createCommand(this, commandString)
+            command.execute()
+
+            // Check if player died
+            if (gameWorld.getPlayer().getHealth() <= 0):
+                stringBuilder.append("Game over!\n")
+                break
+
+        // Write output
+        if (outputFile != null):
+            FileIOManager.writeToFile(outputFile, stringBuilder.toString())
+        else:
+            System.out.println(stringBuilder.toString())
+
+    function processInput():
+        // Not used in batch controller
+
+    function displayMessage(message):
+        stringBuilder.append(message + "\n")
+
+// FILE I/O MANAGER - Handles file operations
+class FileIOManager:
+    static function readCommandsFromFile(filename):
+        commands = new ArrayList<String>()
+        try:
+            File file = new File(filename)
+            Scanner scanner = new Scanner(file)
+
+            while (scanner.hasNextLine()):
+                line = scanner.nextLine().trim()
+                if (!line.isEmpty()):
+                    commands.add(line)
+
+            scanner.close()
+        catch Exception:
+            System.err.println("Error reading command file: " + filename)
+
+        return commands
+
+    static function writeToFile(filename, content):
+        try:
+            FileWriter writer = new FileWriter(filename)
+            writer.write(content)
+            writer.close()
+        catch Exception:
+            System.err.println("Error writing to file: " + filename)
+
+// GAME ENGINE APP - Main application class (updated)
 class GameEngineApp:
     properties:
         gameFileName: String
-        input: Readable
-        output: Appendable
+        mode: String
+        inputFile: String
+        outputFile: String
 
-    constructor(gameFileName, input, output):
+    constructor(gameFileName, mode, inputFile, outputFile):
         this.gameFileName = gameFileName
-        this.input = input
-        this.output = output
+        this.mode = mode
+        this.inputFile = inputFile
+        this.outputFile = outputFile
 
     function start():
         try:
             // Create model from game file
             gameWorld = new GameWorld(gameFileName)
 
-            // Create controller with model and I/O
-            controller = new GameController(gameWorld, input, output)
+            // Create appropriate controller based on mode
+            if (mode equals "text"):
+                // Text mode with console I/O
+                controller = new TextController(gameWorld, System.in, System.out)
+            else if (mode equals "graphics"):
+                // Graphical mode with Swing
+                controller = new SwingController(gameWorld)
+            else if (mode equals "batch"):
+                // Batch mode with file I/O
+                controller = new BatchController(gameWorld, inputFile, outputFile)
+            else:
+                throw new IllegalArgumentException("Invalid mode: " + mode)
 
-            // Start the game
-            controller.play()
+            // Start the game with chosen controller
+            controller.start()
         catch Exception:
-            throw IOException("Error starting game")
-
-// GAME WORLD - Main model class that holds all game elements
-class GameWorld:
-    properties:
-        gameName: String
-        version: String
-        rooms: Map<String, Room>
-        items: Map<String, Item>
-        fixtures: Map<String, Fixture>
-        puzzles: Map<String, Puzzle>
-        monsters: Map<String, Monster>
-        player: Player
-
-    constructor(gameFileName):
-        // Initialize collections
-        this.rooms = new HashMap()
-        this.items = new HashMap()
-        this.fixtures = new HashMap()
-        this.puzzles = new HashMap()
-        this.monsters = new HashMap()
-
-        // Load game data from JSON file
-        loadGameData(gameFileName)
-
-        // Create player in the first room
-        if (rooms not empty):
-            this.player = new Player(first room in rooms)
-        else:
-            throw IOException("No rooms defined")
-
-    function loadGameData(gameFileName):
-        // Parse JSON file
-        gameData = parse JSON from gameFileName
-
-        // Load game metadata
-        this.gameName = gameData.get("name")
-        this.version = gameData.get("version")
-
-        // Load game elements in order (some depend on others)
-        if (gameData contains "items"):
-            loadItems(gameData.get("items"))
-
-        if (gameData contains "fixtures"):
-            loadFixtures(gameData.get("fixtures"))
-
-        if (gameData contains "puzzles"):
-            loadPuzzles(gameData.get("puzzles"))
-
-        if (gameData contains "monsters"):
-            loadMonsters(gameData.get("monsters"))
-
-        if (gameData contains "rooms"):
-            loadRooms(gameData.get("rooms"))
-        else:
-            throw IOException("No rooms defined")
-
-        // Connect rooms after all loaded
-        connectRooms()
-
-    function loadItems(itemsArray):
-        for each item in itemsArray:
-            name = item.get("name")
-            weight = parseInt(item.get("weight"))
-            maxUses = parseInt(item.get("max_uses"))
-            usesRemaining = parseInt(item.get("uses_remaining"))
-            value = parseInt(item.get("value"))
-            whenUsed = item.get("when_used")
-            description = item.get("description")
-
-            newItem = new Item(name, weight, maxUses, usesRemaining, value, whenUsed, description)
-            items.put(name.toUpperCase(), newItem)
-
-    function loadFixtures(fixturesArray):
-        for each fixture in fixturesArray:
-            name = fixture.get("name")
-            weight = parseInt(fixture.get("weight"))
-            description = fixture.get("description")
-
-            newFixture = new Fixture(name, weight, description)
-            fixtures.put(name.toUpperCase(), newFixture)
-
-    function loadPuzzles(puzzlesArray):
-        for each puzzle in puzzlesArray:
-            name = puzzle.get("name")
-            active = parseBoolean(puzzle.get("active"))
-            affectsTarget = parseBoolean(puzzle.get("affects_target"))
-            affectsPlayer = parseBoolean(puzzle.get("affects_player"))
-            solution = puzzle.get("solution")
-            value = parseInt(puzzle.get("value"))
-            description = puzzle.get("description")
-            effects = puzzle.get("effects")
-            target = puzzle.get("target")
-
-            newPuzzle = new Puzzle(name, active, affectsTarget, affectsPlayer, solution, value, description, effects, target)
-            puzzles.put(name.toUpperCase(), newPuzzle)
-
-    function loadMonsters(monstersArray):
-        for each monster in monstersArray:
-            name = monster.get("name")
-            description = monster.get("description")
-            active = parseBoolean(monster.get("active"))
-            damage = parseInt(monster.get("damage"))
-            canAttack = parseBoolean(monster.get("can_attack"))
-            attackDescription = monster.get("attack")
-            effects = monster.get("effects")
-            value = parseInt(monster.get("value"))
-            solution = monster.get("solution")
-            target = monster.get("target")
-
-            newMonster = new Monster(name, description, active, damage, canAttack, attackDescription, effects, value, solution, target)
-            monsters.put(name.toUpperCase(), newMonster)
-
-    function loadRooms(roomsArray):
-        for each room in roomsArray:
-            roomName = room.get("room_name")
-            roomNumber = room.get("room_number")
-            description = room.get("description")
-
-            // Parse exits
-            exits = new HashMap()
-            exits.put(Direction.NORTH, room.get("N"))
-            exits.put(Direction.SOUTH, room.get("S"))
-            exits.put(Direction.EAST, room.get("E"))
-            exits.put(Direction.WEST, room.get("W"))
-
-            // Create room
-            newRoom = new Room(roomName, roomNumber, description, exits)
-
-            // Add items to room if present
-            itemsList = room.get("items")
-            if itemsList is not null and not empty:
-                for each itemName in split(itemsList, ","):
-                    item = items.get(trim(itemName).toUpperCase())
-                    if item is not null:
-                        newRoom.addItem(item)
-
-            // Add fixtures to room if present
-            fixturesList = room.get("fixtures")
-            if fixturesList is not null and not empty:
-                for each fixtureName in split(fixturesList, ","):
-                    fixture = fixtures.get(trim(fixtureName).toUpperCase())
-                    if fixture is not null:
-                        newRoom.addFixture(fixture)
-
-            // Add puzzle to room if present
-            puzzleName = room.get("puzzle")
-            if puzzleName is not null and not empty:
-                puzzle = puzzles.get(trim(puzzleName).toUpperCase())
-                if puzzle is not null:
-                    newRoom.setPuzzle(puzzle)
-
-            // Add monster to room if present
-            monsterName = room.get("monster")
-            if monsterName is not null and not empty:
-                monster = monsters.get(trim(monsterName).toUpperCase())
-                if monster is not null:
-                    newRoom.setMonster(monster)
-
-            // Add room to map
-            rooms.put(roomNumber, newRoom)
-
-    function connectRooms():
-        for each room in rooms:
-            for each direction in Direction.values():
-                targetRoomNumber = room.getExitRoomNumber(direction)
-
-                // Skip if no exit in this direction (0) or blocked (-n)
-                if (targetRoomNumber equals "0"):
-                    continue
-
-                // If positive number, connect to that room
-                if (parseInt(targetRoomNumber) > 0):
-                    targetRoom = rooms.get(targetRoomNumber)
-                    if (targetRoom not null):
-                        room.setExit(direction, targetRoom)
-
-    function applySolution(solution):
-        currentRoom = player.getCurrentRoom()
-
-        // Check for puzzle in current room
-        if (currentRoom has active puzzle):
-            if (puzzle.solve(solution)):
-                // Update player score
-                player.addScore(puzzle.getValue())
-
-                // Unblock paths
-                unblockPaths(currentRoom)
-                return true
-
-        // Check for monster in current room
-        if (currentRoom has active monster):
-            if (monster.getSolution() equalsIgnoreCase solution):
-                monster.defeat()
-
-                // Update player score
-                player.addScore(monster.getValue())
-
-                // Unblock paths
-                unblockPaths(currentRoom)
-                return true
-
-        return false
-
-    function unblockPaths(room):
-        for each direction in Direction.values():
-            exitNumber = room.getExitRoomNumber(direction)
-
-            if (parseInt(exitNumber) < 0):
-                // Convert negative to positive to unblock
-                newExitNumber = String.valueOf(Math.abs(parseInt(exitNumber)))
-                room.setExitRoomNumber(direction, newExitNumber)
-
-                // Set the actual exit
-                targetRoom = rooms.get(newExitNumber)
-                if (targetRoom not null):
-                    room.setExit(direction, targetRoom)
-
-    function getPlayer():
-        return player
-
-    function getGameName():
-        return gameName
-
-    function setPlayerName(name):
-        player.setName(name)
-
-    function saveGame(filename):
-        // Create JSON object for game state
-        saveData = new JSONObject()
-
-        // Save player data
-        playerData = new JSONObject()
-        playerData.put("name", player.getName())
-        playerData.put("health", player.getHealth())
-        playerData.put("score", player.getScore())
-        playerData.put("current_room", player.getCurrentRoom().getRoomNumber())
-
-        // Save inventory
-        inventoryData = new JSONArray()
-        for each item in player.getInventory():
-            itemData = new JSONObject()
-            itemData.put("name", item.getName())
-            itemData.put("uses_remaining", item.getUsesRemaining())
-            inventoryData.add(itemData)
-        playerData.put("inventory", inventoryData)
-
-        saveData.put("player", playerData)
-
-        // Save room states
-        roomsData = new JSONArray()
-        for each room in rooms.values():
-            roomData = new JSONObject()
-            roomData.put("room_number", room.getRoomNumber())
-
-            // Save puzzle state
-            if room.getPuzzle() is not null:
-                roomData.put("puzzle_active", room.getPuzzle().isActive())
-
-            // Save monster state
-            if room.getMonster() is not null:
-                roomData.put("monster_active", room.getMonster().isActive())
-
-            // Save room exits
-            exitsData = new JSONObject()
-            for each direction in Direction.values():
-                exitsData.put(direction.toString(), room.getExitRoomNumber(direction))
-            roomData.put("exits", exitsData)
-
-            // Save items in room
-            roomItemsData = new JSONArray()
-            for each item in room.getItems():
-                roomItemsData.add(item.getName())
-            roomData.put("items", roomItemsData)
-
-            roomsData.add(roomData)
-
-        saveData.put("rooms", roomsData)
-        saveData.put("game_name", gameName)
-        saveData.put("version", version)
-
-        // Write to file
-        write saveData to filename
-
-    function loadGame(filename):
-        // Read JSON from file
-        saveData = parse JSON from filename
-
-        // Load player data
-        playerData = saveData.get("player")
-        playerName = playerData.get("name")
-        health = playerData.get("health")
-        score = playerData.get("score")
-        currentRoomNumber = playerData.get("current_room")
-
-        // Load inventory
-        inventoryData = playerData.get("inventory")
-        inventory = new ArrayList()
-
-        for each itemData in inventoryData:
-            itemName = itemData.get("name")
-            usesRemaining = itemData.get("uses_remaining")
-
-            item = items.get(itemName.toUpperCase())
-            if item is not null:
-                item.setUsesRemaining(usesRemaining)
-                inventory.add(item)
-
-        // Set player state
-        player.setName(playerName)
-        player.setHealth(health)
-        player.setScore(score)
-        player.setCurrentRoom(rooms.get(currentRoomNumber))
-        player.setInventory(inventory)
-
-        // Load room states
-        roomsData = saveData.get("rooms")
-
-        for each roomData in roomsData:
-            roomNumber = roomData.get("room_number")
-            room = rooms.get(roomNumber)
-
-            if room is not null:
-                // Load puzzle state
-                if roomData contains "puzzle_active" and room.getPuzzle() is not null:
-                    puzzleActive = roomData.get("puzzle_active")
-                    room.getPuzzle().setActive(puzzleActive)
-
-                // Load monster state
-                if roomData contains "monster_active" and room.getMonster() is not null:
-                    monsterActive = roomData.get("monster_active")
-                    room.getMonster().setActive(monsterActive)
-
-                // Load room exits
-                if roomData contains "exits":
-                    exitsData = roomData.get("exits")
-
-                    for each direction in Direction.values():
-                        exitNumber = exitsData.get(direction.toString())
-                        room.setExitRoomNumber(direction, exitNumber)
-
-                        // Update actual exit connections
-                        if exitNumber not equals "0" and parseInt(exitNumber) > 0:
-                            targetRoom = rooms.get(exitNumber)
-                            if targetRoom is not null:
-                                room.setExit(direction, targetRoom)
-                        else:
-                            room.setExit(direction, null)
-
-                // Load items in room
-                if roomData contains "items":
-                    roomItemsData = roomData.get("items")
-                    room.clearItems()
-
-                    for each itemName in roomItemsData:
-                        item = items.get(itemName.toUpperCase())
-                        if item is not null:
-                            room.addItem(item)
-
-// DIRECTION - Enum of possible movement directions
-enum Direction:
-    NORTH, SOUTH, EAST, WEST
-
-    function getOpposite():
-        if this == NORTH: return SOUTH
-        if this == SOUTH: return NORTH
-        if this == EAST: return WEST
-        if this == WEST: return EAST
-
-// ROOM - Represents a location in the game
-class Room:
-    properties:
-        name: String
-        roomNumber: String
-        description: String
-        puzzle: Puzzle
-        monster: Monster
-        items: List<Item>
-        fixtures: List<Fixture>
-        exits: Map<Direction, Room>
-        exitRoomNumbers: Map<Direction, String>
-
-    constructor(name, roomNumber, description, exits):
-        this.name = name
-        this.roomNumber = roomNumber
-        this.description = description
-        this.exitRoomNumbers = copy of exits
-        this.items = new ArrayList()
-        this.fixtures = new ArrayList()
-        this.exits = new HashMap()
-
-    function getName():
-        return name
-
-    function getRoomNumber():
-        return roomNumber
-
-    function getDescription():
-        return description
-
-    function addItem(item):
-        items.add(item)
-
-    function removeItem(item):
-        return items.remove(item)
-
-    function getItem(name):
-        for each item in items:
-            if item.getName() equalsIgnoreCase name:
-                return item
-        return null
-
-    function getItems():
-        return copy of items list
-
-    function clearItems():
-        items.clear()
-
-    function addFixture(fixture):
-        fixtures.add(fixture)
-
-    function getFixture(name):
-        for each fixture in fixtures:
-            if fixture.getName() equalsIgnoreCase name:
-                return fixture
-        return null
-
-    function getFixtures():
-        return copy of fixtures list
-
-    function setPuzzle(puzzle):
-        this.puzzle = puzzle
-
-    function getPuzzle():
-        return puzzle
-
-    function setMonster(monster):
-        this.monster = monster
-
-    function getMonster():
-        return monster
-
-    function setExit(direction, room):
-        exits.put(direction, room)
-
-    function getExit(direction):
-        return exits.get(direction)
-
-    function setExitRoomNumber(direction, number):
-        exitRoomNumbers.put(direction, number)
-
-    function getExitRoomNumber(direction):
-        return exitRoomNumbers.getOrDefault(direction, "0")
-
-// PLAYER - Represents the user's character
-class Player:
-    properties:
-        name: String
-        health: Integer
-        inventory: List<Item>
-        currentRoom: Room
-        score: Integer
-        MAX_WEIGHT: Integer (constant = 13)
-        MAX_HEALTH: Integer (constant = 100)
-        attackPower: Integer
-        criticalChance: Integer
-
-    constructor(startRoom):
-        this.name = "Player"
-        this.health = MAX_HEALTH
-        this.inventory = new ArrayList()
-        this.currentRoom = startRoom
-        this.score = 0
-        this.attackPower = 10
-        this.criticalChance = 15
-
-    function getName():
-        return name
-
-    function setName(name):
-        if name is null or empty:
-            throw IllegalArgumentException("Name cannot be null or empty")
-        this.name = name
-
-    function getHealth():
-        return health
-
-    function setHealth(health):
-        this.health = max(0, min(health, MAX_HEALTH))
-
-    function takeDamage(amount):
-        if amount < 0:
-            throw IllegalArgumentException("Damage amount cannot be negative")
-        health = max(0, health - amount)
-
-    function getHealthStatus():
-        if health <= 0: return "ASLEEP"
-        if health < 40: return "WOOZY"
-        if health < 70: return "FATIGUED"
-        return "AWAKE"
-
-    function addToInventory(item):
-        if item is null:
-            throw IllegalArgumentException("Item cannot be null")
-
-        if getInventoryWeight() + item.getWeight() <= MAX_WEIGHT:
-            inventory.add(item)
-            return true
-        return false
-
-    function removeFromInventory(item):
-        if item is null:
-            throw IllegalArgumentException("Item cannot be null")
-        return inventory.remove(item)
-
-    function getItemFromInventory(name):
-        if name is null or empty:
-            throw IllegalArgumentException("Item name cannot be null or empty")
-
-        for each item in inventory:
-            if item.getName() equalsIgnoreCase name:
-                return item
-        return null
-
-    function getInventory():
-        return copy of inventory list
-
-    function setInventory(inventory):
-        if inventory is null:
-            throw IllegalArgumentException("Inventory cannot be null")
-        this.inventory.clear()
-        this.inventory.addAll(inventory)
-
-    function getInventoryWeight():
-        totalWeight = 0
-        for each item in inventory:
-            totalWeight += item.getWeight()
-        return totalWeight
-
-    function getCurrentRoom():
-        return currentRoom
-
-    function setCurrentRoom(room):
-        if room is null:
-            throw IllegalArgumentException("Room cannot be null")
-        this.currentRoom = room
-
-    function addScore(points):
-        if points < 0:
-            throw IllegalArgumentException("Points cannot be negative")
-        this.score += points
-
-    function setScore(score):
-        if score < 0:
-            throw IllegalArgumentException("Score cannot be negative")
-        this.score = score
-
-    function getScore():
-        return score
-
-    function getRank():
-        if score >= 1000: return "Adventure Master"
-        if score >= 750: return "Expert Explorer"
-        if score >= 500: return "Seasoned Adventurer"
-        if score >= 250: return "Novice Explorer"
-        return "Beginner"
-
-    function getMaxWeight():
-        return MAX_WEIGHT
-
-    function attack(monster):
-        // Check if monster is valid target
-        if monster is null or not monster.isActive():
-            return new AttackResult(false, 0, "No valid target to attack")
-
-        // Calculate damage with random variation
-        damage = attackPower + random(0 to 4)
-
-        // Check for critical hit
-        isCritical = random(1 to 100) <= criticalChance
-        if isCritical:
-            damage *= 2
-
-        // Apply damage to monster
-        resultString = monster.takeDamage(damage, isCritical)
-
-        // Create result based on monster state
-        defeated = not monster.isActive()
-        remainingHealth = monster.getHealthPercentage()
-
-        return new AttackResult(true, damage, isCritical, defeated, remainingHealth)
-
-    // Inner class for attack result
-    class AttackResult:
-        properties:
-            success: Boolean
-            damage: Integer
-            critical: Boolean
-            defeated: Boolean
-            healthRemaining: Integer
-            message: String
-
-        constructor(success, damage, critical, defeated, healthRemaining):
-            this.success = success
-            this.damage = damage
-            this.critical = critical
-            this.defeated = defeated
-            this.healthRemaining = healthRemaining
-            this.message = ""
-
-        constructor(success, damage, message):
-            this.success = success
-            this.damage = damage
-            this.critical = false
-            this.defeated = false
-            this.healthRemaining = 0
-            this.message = message
-
-// ITEM - Represents an object that can be picked up and used
-class Item:
-    properties:
-        name: String
-        weight: Integer
-        maxUses: Integer
-        usesRemaining: Integer
-        value: Integer
-        whenUsed: String
-        description: String
-
-    constructor(name, weight, maxUses, usesRemaining, value, whenUsed, description):
-        this.name = name
-        this.weight = weight
-        this.maxUses = maxUses
-        this.usesRemaining = usesRemaining
-        this.value = value
-        this.whenUsed = whenUsed
-        this.description = description
-
-    function getName():
-        return name
-
-    function getWeight():
-        return weight
-
-    function getMaxUses():
-        return maxUses
-
-    function getUsesRemaining():
-        return usesRemaining
-
-    function setUsesRemaining(uses):
-        this.usesRemaining = uses
-
-    function getValue():
-        return value
-
-    function getDescription():
-        return description
-
-    function getWhenUsed():
-        return whenUsed
-
-    function use():
-        if usesRemaining > 0:
-            usesRemaining--
-            return true
-        return false
-
-// FIXTURE - Represents an immovable object in a room
-class Fixture:
-    properties:
-        name: String
-        weight: Integer  // Always > 200 to be immovable
-        description: String
-
-    constructor(name, weight, description):
-        this.name = name
-        this.weight = weight
-        this.description = description
-
-    function getName():
-        return name
-
-    function getWeight():
-        return weight
-
-    function getDescription():
-        return description
-
-// PUZZLE - Represents a challenge that blocks a path
-class Puzzle:
-    properties:
-        name: String
-        active: Boolean
-        affectsTarget: Boolean
-        affectsPlayer: Boolean
-        solution: String
-        value: Integer
-        description: String
-        effects: String
-        target: String
-
-    constructor(name, active, affectsTarget, affectsPlayer, solution, value, description, effects, target):
-        this.name = name
-        this.active = active
-        this.affectsTarget = affectsTarget
-        this.affectsPlayer = affectsPlayer
-        this.solution = solution
-        this.value = value
-        this.description = description
-        this.effects = effects
-        this.target = target
-
-    function getName():
-        return name
-
-    function isActive():
-        return active
-
-    function setActive(active):
-        this.active = active
-
-    function affectsTarget():
-        return affectsTarget
-
-    function affectsPlayer():
-        return affectsPlayer
-
-    function getValue():
-        return value
-
-    function getDescription():
-        return description
-
-    function getEffects():
-        return effects
-
-    function getTarget():
-        return target
-
-    function getSolution():
-        return solution
-
-    function solve(solution):
-        // Can't solve inactive puzzles
-        if not active:
-            return false
-
-        // Check for text answer (quoted)
-        if this.solution starts with "'" and ends with "'":
-            correctAnswer = this.solution without quotes
-            if solution equalsIgnoreCase correctAnswer:
-                active = false
-                return true
-        // Check for item solution
-        else if solution equalsIgnoreCase this.solution:
-            active = false
-            return true
-
-        return false
-
-// MONSTER - Represents an enemy that can attack the player
-class Monster:
-    properties:
-        name: String
-        description: String
-        active: Boolean
-        damage: Integer
-        canAttack: Boolean
-        attackDescription: String
-        effects: String
-        value: Integer
-        solution: String
-        target: String
-        health: Integer
-        maxHealth: Integer
-
-    constructor(name, description, active, damage, canAttack, attackDescription, effects, value, solution, target):
-        this.name = name
-        this.description = description
-        this.active = active
-        this.damage = damage
-        this.canAttack = canAttack
-        this.attackDescription = attackDescription
-        this.effects = effects
-        this.value = value
-        this.solution = solution
-        this.target = target
-        this.maxHealth = 100
-        this.health = maxHealth
-
-    function getName():
-        return name
-
-    function getDescription():
-        return description
-
-    function isActive():
-        return active
-
-    function setActive(active):
-        this.active = active
-
-    function getDamage():
-        return damage
-
-    function canAttack():
-        return canAttack
-
-    function getAttackDescription():
-        return attackDescription
-
-    function getEffects():
-        return effects
-
-    function getValue():
-        return value
-
-    function getSolution():
-        return solution
-
-    function getTarget():
-        return target
-
-    function getHealthPercentage():
-        return (health / maxHealth) * 100
-
-    function attack(player):
-        if active and canAttack:
-            player.takeDamage(abs(damage))
-            return abs(damage)
-        return 0
-
-    function defeat():
-        this.active = false
-        this.health = 0
-
-    function takeDamage(amount, isCritical):
-        if not active:
-            return "Monster is already defeated"
-
-        health -= amount
-
-        if health <= 0:
-            health = 0
-            defeat()
-            return "Monster has been defeated"
-
-        return "Monster took damage but is still active"
-
-// GAME CONTROLLER - Handles user input and game output
-class GameController:
-    properties:
-        game: GameWorld
-        scanner: Scanner
-        output: Appendable
-        running: Boolean
-
-    constructor(game, input, output):
-        this.game = game
-        this.scanner = new Scanner(input)
-        this.output = output
-        this.running = false
-
-    function play():
-        // Start the game
-        running = true
-
-        // Get player name
-        print("Welcome to " + game.getGameName())
-        print("Enter your name: ")
-        name = scanner.nextLine()
-        game.setPlayerName(name)
-
-        // Main game loop
-        while running and scanner has next line:
-            // Show current room
-            showRoom()
-
-            // Check if player died
-            if game.getPlayer().getHealth() <= 0:
-                print("Game over!")
-                running = false
-                return
-
-            // Show commands and get input
-            showCommands()
-            command = scanner.nextLine().toLowerCase()
-
-            // Process command
-            handleCommand(command)
-
-    function showRoom():
-        player = game.getPlayer()
-        room = player.getCurrentRoom()
-
-        // Show health
-        print("Health: " + player.getHealth() + " (" + player.getHealthStatus() + ")")
-
-        // Show room name
-        print("You are in " + room.getName())
-
-        // Show room description or puzzle/monster effects
-        if room has active puzzle that affects target:
-            print(puzzle.getEffects())
-        else if room has active monster:
-            print("A monster " + monster.getName() + " is here!")
-
-            // Monster may attack
-            if monster.canAttack():
-                damage = monster.attack(player)
-                if damage > 0:
-                    print("The monster attacks! You take " + damage + " damage!")
-        else:
-            print(room.getDescription())
-
-        // List items in room
-        if room has items:
-            print("Items here: " + join item names)
-
-    function showCommands():
-        print("\nCommands:")
-        print("- Movement: (N)orth, (S)outh, (E)ast, (W)est")
-        print("- Actions: (I)nventory, (L)ook, (T)ake [item], (D)rop [item]")
-        print("- Interaction: e(X)amine [target], (U)se [item], (A)nswer [text], attac(K)")
-        print("- Game: Save, Restore, (Q)uit")
-        print("What do you want to do? ")
-
-    function handleCommand(command):
-        if command is empty:
+            System.err.println("Error starting game: " + e.getMessage())
+            e.printStackTrace()
+
+// MAIN - Entry point with command line argument processing
+class Main:
+    function main(args):
+        if (args.length < 2):
+            printUsage()
             return
 
-        // Movement commands
-        if command is "n" or "north":
-            move(NORTH)
-        else if command is "s" or "south":
-            move(SOUTH)
-        else if command is "e" or "east":
-            move(EAST)
-        else if command is "w" or "west":
-            move(WEST)
+        gameFileName = args[0]
+        mode = args[1]
 
-        // Look command
-        else if command is "l" or "look":
-            showRoom()
+        if (mode equals "-text"):
+            app = new GameEngineApp(gameFileName, "text", null, null)
+            app.start()
+        else if (mode equals "-graphics"):
+            app = new GameEngineApp(gameFileName, "graphics", null, null)
+            app.start()
+        else if (mode equals "-batch"):
+            if (args.length < 3):
+                System.out.println("Error: Batch mode requires source file")
+                printUsage()
+                return
 
-        // Inventory command
-        else if command is "i" or "inventory":
-            showInventory()
+            inputFile = args[2]
+            outputFile = args.length >= 4 ? args[3] : null
 
-        // Take command
-        else if command starts with "t " or "take ":
-            itemName = extract item name from command
-            takeItem(itemName)
-
-        // Drop command
-        else if command starts with "d " or "drop ":
-            itemName = extract item name from command
-            dropItem(itemName)
-
-        // Examine command
-        else if command starts with "x " or "examine ":
-            target = extract target from command
-            examine(target)
-
-        // Use command
-        else if command starts with "u " or "use ":
-            itemName = extract item name from command
-            useItem(itemName)
-
-        // Answer command
-        else if command starts with "a " or "answer ":
-            answer = extract answer from command
-            answer(answer)
-
-        // Attack command
-        else if command is "k" or "attack":
-            attackMonster()
-
-        // Save/restore commands
-        else if command is "save":
-            saveGame()
-        else if command is "restore":
-            loadGame()
-
-        // Quit command
-        else if command is "q" or "quit":
-            print("Thanks for playing!")
-            running = false
-
+            app = new GameEngineApp(gameFileName, "batch", inputFile, outputFile)
+            app.start()
         else:
-            print("I don't understand that command.")
+            System.out.println("Error: Invalid mode: " + mode)
+            printUsage()
 
-    function move(direction):
-        currentRoom = game.getPlayer().getCurrentRoom()
-        exitNumber = currentRoom.getExitRoomNumber(direction)
-
-        // Check for wall (0)
-        if exitNumber equals "0":
-            print("You can't go that way.")
-            return
-
-        // Check for blocked path (negative)
-        if parseInt(exitNumber) < 0:
-            if currentRoom has active puzzle:
-                print("A puzzle blocks your way.")
-            else if currentRoom has active monster:
-                print("A monster blocks your way!")
-                // Monster may attack
-                if monster.canAttack():
-                    damage = monster.attack(game.getPlayer())
-                    if damage > 0:
-                        print("The monster attacks!")
-            else:
-                print("Something blocks your way.")
-            return
-
-        // Move to new room
-        nextRoom = currentRoom.getExit(direction)
-        if nextRoom not null:
-            game.getPlayer().setCurrentRoom(nextRoom)
-            print("You move " + direction.toString())
-        else:
-            print("You can't go that way right now.")
-
-    function showInventory():
-        player = game.getPlayer()
-
-        print("Your inventory (" + player.getInventoryWeight() + "/" + player.getMaxWeight() + "):")
-
-        if player.getInventory() is empty:
-            print("You're not carrying anything.")
-            return
-
-        for each item in player.getInventory():
-            print("- " + item.getName() + " (uses left: " + item.getUsesRemaining() + ")")
-
-    function takeItem(itemName):
-            if itemName is empty:
-                print("What do you want to take?")
-                return
-
-            currentRoom = game.getPlayer().getCurrentRoom()
-            item = currentRoom.getItem(itemName)
-
-            if item is null:
-                print("There's no " + itemName + " here.")
-                return
-
-            if game.getPlayer().addToInventory(item):
-                currentRoom.removeItem(item)
-                print("You pick up the " + item.getName() + ".")
-            else:
-                print("You can't carry any more. Drop something first.")
-
-        function dropItem(itemName):
-            if itemName is empty:
-                print("What do you want to drop?")
-                return
-
-            player = game.getPlayer()
-            item = player.getItemFromInventory(itemName)
-
-            if item is null:
-                print("You don't have a " + itemName + ".")
-                return
-
-            if player.removeFromInventory(item):
-                player.getCurrentRoom().addItem(item)
-                print("You drop the " + item.getName() + ".")
-            else:
-                print("You can't drop that for some reason.")
-
-        function examine(target):
-            if target is empty:
-                print("What do you want to examine?")
-                return
-
-            // Check inventory first
-            player = game.getPlayer()
-            item = player.getItemFromInventory(target)
-
-            if item is not null:
-                print(item.getDescription())
-                return
-
-            // Check room items
-            currentRoom = player.getCurrentRoom()
-            roomItem = currentRoom.getItem(target)
-
-            if roomItem is not null:
-                print(roomItem.getDescription())
-                return
-
-            // Check fixtures
-            fixture = currentRoom.getFixture(target)
-
-            if fixture is not null:
-                print(fixture.getDescription())
-                return
-
-            print("You don't see a " + target + " here.")
-
-        function useItem(itemName):
-            if itemName is empty:
-                print("What do you want to use?")
-                return
-
-            player = game.getPlayer()
-            item = player.getItemFromInventory(itemName)
-
-            if item is null:
-                print("You don't have a " + itemName + ".")
-                return
-
-            if item.getUsesRemaining() <= 0:
-                print("The " + item.getName() + " can't be used anymore.")
-                return
-
-            // Try to solve puzzle or defeat monster
-            currentRoom = player.getCurrentRoom()
-            solved = game.applySolution(item.getName())
-
-            if solved:
-                if currentRoom.getPuzzle() is not null and not currentRoom.getPuzzle().isActive():
-                    print("You used the " + item.getName() + " to solve the puzzle!")
-                    print("You earned " + currentRoom.getPuzzle().getValue() + " points!")
-                else if currentRoom.getMonster() is not null and not currentRoom.getMonster().isActive():
-                    print("You used the " + item.getName() + " to defeat the monster!")
-                    print("You earned " + currentRoom.getMonster().getValue() + " points!")
-            else:
-                // Generic use
-                print("You use the " + item.getName() + ".")
-                print(item.getWhenUsed())
-
-            // Reduce uses
-            item.use()
-
-        function answer(answer):
-            if answer is empty:
-                print("What's your answer?")
-                return
-
-            currentRoom = game.getPlayer().getCurrentRoom()
-            puzzle = currentRoom.getPuzzle()
-
-            if puzzle is null or not puzzle.isActive():
-                print("There's no puzzle here to solve.")
-                return
-
-            // Check if it's a text puzzle
-            if not puzzle.getSolution().startsWith("'"):
-                print("This puzzle needs an item, not an answer.")
-                return
-
-            // Try to solve
-            solved = game.applySolution(answer)
-
-            if solved:
-                print("Correct!")
-                print("You earned " + puzzle.getValue() + " points!")
-            else:
-                print("That's not right. Try something else.")
-
-        function attackMonster():
-            player = game.getPlayer()
-            currentRoom = player.getCurrentRoom()
-            monster = currentRoom.getMonster()
-
-            // Check if there's a monster to attack
-            if monster is null or not monster.isActive():
-                print("There's nothing here to attack.")
-                return
-
-            // Player attacks monster
-            attackResult = player.attack(monster)
-
-            if attackResult.success:
-                // Show attack details
-                if attackResult.critical:
-                    print("CRITICAL HIT! You attack the monster for " + attackResult.damage + " damage!")
-                else:
-                    print("You attack the monster for " + attackResult.damage + " damage!")
-
-                // Show monster health status
-                healthPercentage = attackResult.healthRemaining
-                if healthPercentage > 75:
-                    print("The monster appears mostly unharmed.")
-                else if healthPercentage > 50:
-                    print("The monster appears wounded.")
-                else if healthPercentage > 25:
-                    print("The monster appears badly injured.")
-                else if healthPercentage > 0:
-                    print("The monster appears to be near death!")
-
-                // Check if monster was defeated
-                if attackResult.defeated:
-                    print("You defeated the " + monster.getName() + "!")
-                    print("You earned " + monster.getValue() + " points!")
-
-                    // Unblock any paths
-                    game.unblockPaths(currentRoom)
-                else:
-                    // Monster counterattacks
-                    if monster.canAttack():
-                        damage = monster.attack(player)
-                        if damage > 0:
-                            print(monster.getAttackDescription())
-                            print("You took " + damage + " damage!")
-                            print("Your health: " + player.getHealth() + " (" + player.getHealthStatus() + ")")
-            else:
-                // Attack missed or failed
-                print(attackResult.message)
-
-        function saveGame():
-            try:
-                game.saveGame("saved_game.json")
-                print("Game saved!")
-            catch Exception:
-                print("Couldn't save the game.")
-
-        function loadGame():
-            try:
-                game.loadGame("saved_game.json")
-                print("Game loaded!")
-            catch Exception:
-                print("Couldn't load the game.")
-
-        function print(message):
-            output.append(message + "\n")
+    function printUsage():
+        System.out.println("Usage: java -jar game_engine.jar <game_file> <mode> [options]")
+        System.out.println("  Modes:")
+        System.out.println("    -text       : Run in text mode")
+        System.out.println("    -graphics   : Run in graphical mode")
+        System.out.println("    -batch <in> : Run in batch mode with commands from file")
+        System.out.println("    -batch <in> <out> : Run in batch mode with output to file")
