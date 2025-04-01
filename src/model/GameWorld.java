@@ -1,13 +1,14 @@
 package model;
 
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,7 +19,10 @@ import org.json.simple.parser.ParseException;
  * This class manages rooms, items, fixtures, puzzles, monsters, and the player.
  * It handles game data loading, saving, and various game mechanics.
  */
-public class GameWorld {
+public class GameWorld implements  Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   // Game metadata
   private String gameName;
   private String version;
@@ -138,7 +142,7 @@ public class GameWorld {
 
       // Create room
       Room room = new Room(roomName, roomNumber, description, exits,
-              0, 0, 0, 0,"itemsField", "field3");
+              0, 0, 0, 0, "itemsField", "field3");
 
       // Add items to room if present
       String itemsList = (String) roomData.get("items");
@@ -416,8 +420,8 @@ public class GameWorld {
           String exitNumber = currentRoom.getExitRoomNumber(dir);
           if (Integer.parseInt(exitNumber) < 0) {
             // Convert negative to positive to unblock
-            currentRoom.setExitRoomNumber(dir, String.valueOf(Math.abs
-                    (Integer.parseInt(exitNumber))));
+            currentRoom.setExitRoomNumber(dir,
+                    String.valueOf(Math.abs(Integer.parseInt(exitNumber))));
             // Set the actual exit
             Room targetRoom = rooms.get(String.valueOf(Math.abs(Integer.parseInt(exitNumber))));
             if (targetRoom != null) {
@@ -469,21 +473,7 @@ public class GameWorld {
     JSONObject saveData = new JSONObject();
 
     // Save player data
-    JSONObject playerData = new JSONObject(); // Fixed typo: JSONobject to JSONObject
-    playerData.put("name", player.getName());
-    playerData.put("health", player.getHealth());
-    playerData.put("score", player.getScore());
-    playerData.put("current_room", player.getCurrentRoom().getRoomNumber());
-
-    // Save inventory
-    JSONArray inventoryData = new JSONArray();
-    for (Item item : player.getInventory()) {
-      JSONObject itemData = new JSONObject();
-      itemData.put("name", item.getName());
-      itemData.put("uses_remaining", item.getUsesRemaining());
-      inventoryData.add(itemData);
-    }
-    playerData.put("inventory", inventoryData);
+    JSONObject playerData = getJsonObject();
 
     saveData.put("player", playerData);
 
@@ -527,6 +517,25 @@ public class GameWorld {
     try (FileWriter file = new FileWriter(filename)) {
       file.write(saveData.toJSONString());
     }
+  }
+
+  private JSONObject getJsonObject() {
+    JSONObject playerData = new JSONObject(); // Fixed typo: JSONobject to JSONObject
+    playerData.put("name", player.getName());
+    playerData.put("health", player.getHealth());
+    playerData.put("score", player.getScore());
+    playerData.put("current_room", player.getCurrentRoom().getRoomNumber());
+
+    // Save inventory
+    JSONArray inventoryData = new JSONArray();
+    for (Item item : player.getInventory()) {
+      JSONObject itemData = new JSONObject();
+      itemData.put("name", item.getName());
+      itemData.put("uses_remaining", item.getUsesRemaining());
+      inventoryData.add(itemData);
+    }
+    playerData.put("inventory", inventoryData);
+    return playerData;
   }
 
   /**

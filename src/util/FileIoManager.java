@@ -1,23 +1,18 @@
 package util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Utility class for reading commands from input files and writing output.
+ * Utility class for reading command files and writing output files.
  */
 public class FileIoManager {
 
   /**
    * Reads command lines from a file.
-   *
-   * @param path the file path
-   * @return list of commands
    */
   public static List<String> readCommandsFromFile(String path) {
     List<String> commands = new ArrayList<>();
@@ -35,9 +30,6 @@ public class FileIoManager {
 
   /**
    * Writes output to a file.
-   *
-   * @param path   the file path
-   * @param output the output content
    */
   public static void writeOutputToFile(String path, String output) {
     try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path))) {

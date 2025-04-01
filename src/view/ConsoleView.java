@@ -1,18 +1,15 @@
-package view;
+package view.text;
+
+import view.GameView;
 
 /**
- * ConsoleView displays game info to the console or captures it in batch mode.
+ * ConsoleView displays game messages in either live or batch mode.
  */
 public class ConsoleView implements GameView {
 
   private final boolean isBatchMode;
   private final StringBuilder output;
 
-  /**
-   * Constructs a ConsoleView.
-   *
-   * @param isBatchMode true for batch mode, false for live console output
-   */
   public ConsoleView(boolean isBatchMode) {
     this.isBatchMode = isBatchMode;
     this.output = isBatchMode ? new StringBuilder() : null;
@@ -27,11 +24,6 @@ public class ConsoleView implements GameView {
     }
   }
 
-  /**
-   * Returns output collected in batch mode.
-   *
-   * @return the output string
-   */
   public String getBatchOutput() {
     if (!isBatchMode) {
       throw new IllegalStateException("Not in batch mode");
