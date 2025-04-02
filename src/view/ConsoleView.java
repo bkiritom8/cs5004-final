@@ -1,34 +1,48 @@
-package view.text;
+/* ConsoleView.java */
+package view;
 
 import view.GameView;
 
-/**
- * ConsoleView displays game messages in either live or batch mode.
- */
 public class ConsoleView implements GameView {
+  private boolean batchMode;
+  private StringBuilder batchOutput;
 
-  private final boolean isBatchMode;
-  private final StringBuilder output;
-
-  public ConsoleView(boolean isBatchMode) {
-    this.isBatchMode = isBatchMode;
-    this.output = isBatchMode ? new StringBuilder() : null;
+  /**
+   * Constructs a ConsoleView.
+   *
+   * @param batchMode If true, output will be built in a string for batch mode; otherwise, it prints directly to the console.
+   */
+  public ConsoleView(boolean batchMode) {
+    this.batchMode = batchMode;
+    if (batchMode) {
+      batchOutput = new StringBuilder();
+    }
   }
 
+  /**
+   * Displays a message. In batch mode, the message is appended to the output string;
+   * otherwise, it is printed to the console.
+   *
+   * @param message The message to display.
+   */
   @Override
   public void display(String message) {
-    if (isBatchMode) {
-      output.append(message).append(System.lineSeparator());
+    if (batchMode) {
+      batchOutput.append(message).append(System.lineSeparator());
     } else {
       System.out.println(message);
     }
   }
 
+  /**
+   * Retrieves the built output string in batch mode.
+   *
+   * @return The batch output string, or an empty string if not in batch mode.
+   */
   public String getBatchOutput() {
-    if (!isBatchMode) {
-      throw new IllegalStateException("Not in batch mode");
+    if (batchMode) {
+      return batchOutput.toString();
     }
-    return output.toString();
+    return "";
   }
 }
-

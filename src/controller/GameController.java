@@ -21,7 +21,10 @@ public class GameController {
         this.output = output;
         this.gameOver = false;
     }
-    
+
+    public GameController(GameWorld world) {
+    }
+
     // run main game loop
     public void play() throws IOException {
         displayWelcome();

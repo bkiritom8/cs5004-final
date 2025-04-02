@@ -1,42 +1,50 @@
+/* FileIOManager.java */
 package util;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Utility class for reading command files and writing output files.
- */
 public class FileIoManager {
 
+  public static List<String> readFile(String s) {
+  return null;
+  }
+
   /**
-   * Reads command lines from a file.
+   * Reads commands from a given file.
+   *
+   * @param filePath The path to the batch command file.
+   * @return A list of command strings.
    */
-  public static List<String> readCommandsFromFile(String path) {
+  public List<String> readCommands(String filePath) {
     List<String> commands = new ArrayList<>();
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get(path))) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
       String line;
       while ((line = reader.readLine()) != null) {
         commands.add(line.trim());
       }
     } catch (IOException e) {
-      System.err.println("Failed to read file: " + path);
-      System.err.println(e.getMessage());
+      System.err.println("Error reading commands from file: " + e.getMessage());
     }
     return commands;
   }
 
   /**
-   * Writes output to a file.
+   * Writes game output to a specified file.
+   *
+   * @param filePath The path to the output file.
+   * @param content The output content to write.
    */
-  public static void writeOutputToFile(String path, String output) {
-    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path))) {
-      writer.write(output);
+  public void writeOutput(String filePath, String content) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+      writer.write(content);
     } catch (IOException e) {
-      System.err.println("Failed to write to file: " + path);
-      System.err.println(e.getMessage());
+      System.err.println("Error writing output to file: " + e.getMessage());
     }
   }
 }
