@@ -1,49 +1,97 @@
 package enginedriver;
 
 import java.io.IOException;
-import model.GameWorld;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+
+import controller.BatchController;
 import controller.GameController;
+import controller.SwingController;
+import controller.TextController;
+import model.GameWorld;
+import view.GameView;
+import view.text.ConsoleView;
 
 /**
- * The main application class that initializes and runs the text-based adventure game.
- * This class serves as the entry point for the game, connecting the model (GameWorld)
- * with the controller (GameController) and handling I/O operations.
+ * The main application class that initializes and runs the adventure game.
+ * This class serves as a facade for creating and connecting the appropriate model,
+ * view, and controller components based on the selected game mode.
  */
 public class GameEngineApp {
   private final String gameFileName;
-  private final Readable input;
-  private final Appendable output;
+  private final String mode;
+  private final String inputFile;
+  private final String outputFile;
 
   /**
-   * Constructs a new GameEngineApp with the specified game file and I/O interfaces.
+   * Constructs a new GameEngineApp with the specified parameters.
    *
    * @param gameFileName The path to the JSON file containing game data
-   * @param input The input source for reading player commands
-   * @param output The output destination for displaying game text
+   * @param mode The mode to run the game in ("text", "graphics", or "batch")
+   * @param inputFile The input file for batch mode (null for other modes)
+   * @param outputFile The output file for batch mode (null for console output or other modes)
    */
-  public GameEngineApp(String gameFileName, Readable input, Appendable output) {
+  public GameEngineApp(String gameFileName, String mode, String inputFile, String outputFile) {
     this.gameFileName = gameFileName;
-    this.input = input;
-    this.output = output;
+    this.mode = mode;
+    this.inputFile = inputFile;
+    this.outputFile = outputFile;
   }
 
   /**
    * Initializes and starts the game.
-   * This method loads the game data from the specified JSON file,
-   * creates the game world and controller, and begins the main game loop.
+   * This method creates the game world, appropriate controller, and begins the game.
    *
    * @throws IOException If there is an error reading the game file or during I/O operations
    */
   public void start() throws IOException {
     try {
-      // Create the game model by loading the specified JSON
+      // Create model from game file
       GameWorld gameWorld = new GameWorld(gameFileName);
 
-      // Create the controller, linking it to the model and I/O
-      GameController controller = new GameController(gameWorld, input, output);
+      // Create appropriate controller based on mode
+      GameController controller;
 
-      // Start game loop
-      controller.play();
+      switch (mode) {
+        case "text":
+          // Text mode with console I/O
+          controller = new TextController(
+                  gameWorld,
+                  new BufferedReader(new InputStreamReader(System.in)),
+                  System.out
+          );
+          break;
+
+        case "graphics":
+          // Graphical mode with Swing UI
+          controller = new SwingController(gameWorld);
+          break;
+
+        case "batch":
+          // Batch mode with file I/O
+          Appendable output;
+          if (outputFile != null) {
+            output = new FileWriter(outputFile);
+          } else {
+            output = System.out;
+          }
+
+          controller = new BatchController(
+                  gameWorld,
+                  inputFile,
+                  output
+          );
+          break;
+
+        default:
+          throw new IllegalArgumentException("Invalid mode: " + mode);
+      }
+
+      // Start the game with chosen controller
+      controller.start();
+
     } catch (IOException e) {
       throw new IOException("Error starting game: " + e.getMessage(), e);
     }
