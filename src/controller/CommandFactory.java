@@ -1,9 +1,5 @@
 package controller;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiFunction;
-
 import controller.commands.*;
 import model.Direction;
 
@@ -13,17 +9,24 @@ import model.Direction;
  */
 public class CommandFactory {
 
+  /**
+   * Creates a command object based on the input string.
+   *
+   * @param controller The controller that will execute the command
+   * @param commandString The input command string
+   * @return A Command object that can be executed
+   */
   public static Command createCommand(GameController controller, String commandString) {
     if (commandString == null || commandString.trim().isEmpty()) {
       return new UnknownCommand(controller, "");
     }
 
-    // Parse  command string
+    // Parse command string
     String[] parts = commandString.trim().toLowerCase().split("\\s+", 2);
     String command = parts[0];
-    String arguments = parts.length > 1 ? parts[1] : "";
+    String argument = parts.length > 1 ? parts[1] : "";
 
-    // Create appropriate command object
+    // Create appropriate command object based on the first word
     switch (command) {
       case "n":
       case "north":
