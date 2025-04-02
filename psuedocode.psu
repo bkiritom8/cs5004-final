@@ -1,0 +1,869 @@
+// VIEW INTERFACES - Define common interface for all views
+interface GameView:
+    function displayRoom(room: Room): void
+    function displayHealth(health: int, status: String): void
+    function displayInventory(items: List<Item>): void
+    function displayMessage(message: String): void
+    function close(): void
+
+// CONSOLE VIEW - Implements text-based view
+class ConsoleView implements GameView:
+    properties:
+        output: Appendable
+
+    constructor(output: Appendable):
+        this.output = output
+
+    function displayRoom(room):
+        // Display room details to text console
+        output.append("You are in " + room.getName() + "\n")
+        // Handle puzzle/monster effects or description
+        // Display items in room
+
+    function displayHealth(health, status):
+        output.append("Health: " + health + " (" + status + ")\n")
+
+    function displayInventory(items):
+        // Format and display inventory items
+
+    function displayMessage(message):
+        output.append(message + "\n")
+
+    function close():
+        // Close any resources
+
+// SWING COMPONENTS - GUI view implementation
+class GameWindow extends JFrame implements GameView:
+    properties:
+        roomPanel: RoomPanel
+        inventoryPanel: InventoryPanel
+        navigationPanel: NavigationPanel
+        actionPanel: ActionPanel
+        controller: SwingController
+
+    constructor(title: String, controller: SwingController):
+        // Set up main window
+        super(title)
+        this.controller = controller
+
+        // Initialize UI components
+        initComponents()
+        createMenuBar()
+
+    function initComponents():
+        // Create main layout
+        mainPanel = new JPanel(new BorderLayout())
+
+        // Initialize panels
+        roomPanel = new RoomPanel()
+        inventoryPanel = new InventoryPanel()
+        navigationPanel = new NavigationPanel(controller)
+        actionPanel = new ActionPanel(controller)
+
+        // Add panels to window
+        mainPanel.add(roomPanel, BorderLayout.CENTER)
+        mainPanel.add(inventoryPanel, BorderLayout.EAST)
+
+        bottomPanel = new JPanel(new BorderLayout())
+        bottomPanel.add(navigationPanel, BorderLayout.NORTH)
+        bottomPanel.add(actionPanel, BorderLayout.SOUTH)
+
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH)
+
+        this.add(mainPanel)
+
+    function createMenuBar():
+        menuBar = new JMenuBar()
+
+        gameMenu = new JMenu("Game")
+        saveItem = new JMenuItem("Save Game")
+        loadItem = new JMenuItem("Load Game")
+        exitItem = new JMenuItem("Exit")
+
+        // Add action listeners
+        saveItem.addActionListener(e -> controller.saveGame())
+        loadItem.addActionListener(e -> controller.loadGame())
+        exitItem.addActionListener(e -> controller.quitGame())
+
+        // Add items to menu
+        gameMenu.add(saveItem)
+        gameMenu.add(loadItem)
+        gameMenu.addSeparator()
+        gameMenu.add(exitItem)
+
+        helpMenu = new JMenu("Help")
+        aboutItem = new JMenuItem("About")
+        aboutItem.addActionListener(e -> showAboutDialog())
+        helpMenu.add(aboutItem)
+
+        menuBar.add(gameMenu)
+        menuBar.add(helpMenu)
+
+        setJMenuBar(menuBar)
+
+    function displayRoom(room):
+        roomPanel.updateRoom(room)
+        navigationPanel.updateAvailableDirections(room)
+
+    function displayHealth(health, status):
+        roomPanel.updateHealth(health, status)
+
+    function displayInventory(items):
+        inventoryPanel.updateInventory(items)
+
+    function displayMessage(message):
+        roomPanel.addMessage(message)
+
+    function close():
+        dispose()
+
+    function showAboutDialog():
+        aboutDialog = new AboutDialog(this)
+        aboutDialog.setVisible(true)
+
+// ROOM PANEL - Display room information
+class RoomPanel extends JPanel:
+    properties:
+        roomImageLabel: JLabel
+        descriptionArea: JTextArea
+        healthLabel: JLabel
+        messageArea: JTextArea
+
+    constructor():
+        // Set layout
+        setLayout(new BorderLayout())
+
+        // Initialize components
+        roomImageLabel = new JLabel()
+        descriptionArea = new JTextArea()
+        descriptionArea.setEditable(false)
+        messageArea = new JTextArea()
+        messageArea.setEditable(false)
+        healthLabel = new JLabel()
+
+        // Add components
+        add(roomImageLabel, BorderLayout.NORTH)
+        add(new JScrollPane(descriptionArea), BorderLayout.CENTER)
+
+        bottomPanel = new JPanel(new BorderLayout())
+        bottomPanel.add(healthLabel, BorderLayout.NORTH)
+        bottomPanel.add(new JScrollPane(messageArea), BorderLayout.CENTER)
+
+        add(bottomPanel, BorderLayout.SOUTH)
+
+    function updateRoom(room):
+        // Get image for room
+        image = ImageLoader.getRoomImage(room)
+        roomImageLabel.setIcon(image)
+
+        // Update description
+        if (room has active puzzle that affects target):
+            descriptionArea.setText(room.getPuzzle().getEffects())
+        else if (room has active monster):
+            descriptionArea.setText("A " + room.getMonster().getName() + " is here!\n" + room.getMonster().getEffects())
+        else:
+            descriptionArea.setText(room.getDescription())
+
+        // Add items in room
+        if (room has items):
+            itemsText = "Items here: "
+            for each item in room.getItems():
+                itemsText += item.getName() + " "
+            descriptionArea.append("\n" + itemsText)
+
+    function updateHealth(health, status):
+        healthLabel.setText("Health: " + health + " (" + status + ")")
+
+    function addMessage(message):
+        messageArea.append(message + "\n")
+        // Auto-scroll to bottom
+        messageArea.setCaretPosition(messageArea.getDocument().getLength())
+
+// INVENTORY PANEL - Display and interact with inventory
+class InventoryPanel extends JPanel:
+    properties:
+        inventoryList: JList<String>
+        inventoryListModel: DefaultListModel<String>
+        controller: SwingController
+
+    constructor(controller):
+        this.controller = controller
+
+        // Set layout and border
+        setLayout(new BorderLayout())
+        setBorder(BorderFactory.createTitledBorder("Inventory"))
+
+        // Initialize list model and list
+        inventoryListModel = new DefaultListModel<>()
+        inventoryList = new JList<>(inventoryListModel)
+
+        // Add components
+        add(new JScrollPane(inventoryList), BorderLayout.CENTER)
+
+        // Add buttons
+        buttonPanel = new JPanel()
+        useButton = new JButton("Use")
+        dropButton = new JButton("Drop")
+        examineButton = new JButton("Examine")
+
+        useButton.addActionListener(e -> useSelectedItem())
+        dropButton.addActionListener(e -> dropSelectedItem())
+        examineButton.addActionListener(e -> examineSelectedItem())
+
+        buttonPanel.add(useButton)
+        buttonPanel.add(dropButton)
+        buttonPanel.add(examineButton)
+
+        add(buttonPanel, BorderLayout.SOUTH)
+
+    function updateInventory(items):
+        inventoryListModel.clear()
+        for each item in items:
+            inventoryListModel.addElement(item.getName() + " (" + item.getUsesRemaining() + " uses)")
+
+    function useSelectedItem():
+        selected = inventoryList.getSelectedValue()
+        if (selected is not null):
+            // Extract item name from display string
+            itemName = selected.split(" ")[0]
+            controller.executeCommand("use " + itemName)
+
+    function dropSelectedItem():
+        selected = inventoryList.getSelectedValue()
+        if (selected is not null):
+            itemName = selected.split(" ")[0]
+            controller.executeCommand("drop " + itemName)
+
+    function examineSelectedItem():
+        selected = inventoryList.getSelectedValue()
+        if (selected is not null):
+            itemName = selected.split(" ")[0]
+            controller.executeCommand("examine " + itemName)
+
+// NAVIGATION PANEL - Directional movement buttons
+class NavigationPanel extends JPanel:
+    properties:
+        directionButtons: Map<Direction, JButton>
+        controller: SwingController
+
+    constructor(controller):
+        this.controller = controller
+
+        // Set layout and border
+        setLayout(new GridLayout(3, 3))
+        setBorder(BorderFactory.createTitledBorder("Navigation"))
+
+        // Initialize buttons
+        directionButtons = new HashMap<>()
+
+        // Create 3x3 grid with direction buttons in cardinal positions
+        for (int i = 0; i < 9; i++):
+            if (i == 1): // North
+                button = new JButton("North")
+                button.addActionListener(e -> controller.move(Direction.NORTH))
+                directionButtons.put(Direction.NORTH, button)
+                add(button)
+            else if (i == 3): // West
+                button = new JButton("West")
+                button.addActionListener(e -> controller.move(Direction.WEST))
+                directionButtons.put(Direction.WEST, button)
+                add(button)
+            else if (i == 5): // East
+                button = new JButton("East")
+                button.addActionListener(e -> controller.move(Direction.EAST))
+                directionButtons.put(Direction.EAST, button)
+                add(button)
+            else if (i == 7): // South
+                button = new JButton("South")
+                button.addActionListener(e -> controller.move(Direction.SOUTH))
+                directionButtons.put(Direction.SOUTH, button)
+                add(button)
+            else:
+                add(new JPanel()) // Empty cell
+
+    function updateAvailableDirections(room):
+        // Enable/disable buttons based on available exits
+        for each direction in Direction.values():
+            button = directionButtons.get(direction)
+            exitNumber = room.getExitRoomNumber(direction)
+
+            // Enable if exit exists and is not blocked
+            button.setEnabled(!exitNumber.equals("0") && Integer.parseInt(exitNumber) > 0)
+
+// ACTION PANEL - Game action buttons
+class ActionPanel extends JPanel:
+    properties:
+        controller: SwingController
+
+    constructor(controller):
+        this.controller = controller
+
+        // Set layout and border
+        setLayout(new FlowLayout())
+        setBorder(BorderFactory.createTitledBorder("Actions"))
+
+        // Create buttons
+        lookButton = new JButton("Look")
+        takeButton = new JButton("Take")
+        attackButton = new JButton("Attack")
+        answerButton = new JButton("Answer")
+
+        // Add action listeners
+        lookButton.addActionListener(e -> controller.executeCommand("look"))
+        takeButton.addActionListener(e -> showTakeDialog())
+        attackButton.addActionListener(e -> controller.executeCommand("attack"))
+        answerButton.addActionListener(e -> showAnswerDialog())
+
+        // Add buttons to panel
+        add(lookButton)
+        add(takeButton)
+        add(attackButton)
+        add(answerButton)
+
+    function showTakeDialog():
+        // Display dialog to select item to take
+        itemName = JOptionPane.showInputDialog(this, "What would you like to take?")
+        if (itemName is not null and not empty):
+            controller.executeCommand("take " + itemName)
+
+    function showAnswerDialog():
+        // Display dialog to input puzzle answer
+        answer = JOptionPane.showInputDialog(this, "Enter your answer:")
+        if (answer is not null and not empty):
+            controller.executeCommand("answer " + answer)
+
+// ABOUT DIALOG - Display game information
+class AboutDialog extends JDialog:
+    constructor(parent):
+        super(parent, "About Adventure Game", true)
+
+        // Set size and location
+        setSize(400, 300)
+        setLocationRelativeTo(parent)
+
+        // Create components
+        panel = new JPanel(new BorderLayout())
+
+        // Title and logo
+        titleLabel = new JLabel("Adventure Game Engine", SwingConstants.CENTER)
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18))
+
+        // Description
+        descriptionArea = new JTextArea(
+            "A text and graphical adventure game engine.\n" +
+            "Navigate through rooms, solve puzzles, defeat monsters, and collect items.\n\n" +
+            "Created for CS5004 - Object Oriented Design"
+        )
+        descriptionArea.setEditable(false)
+
+        // Close button
+        closeButton = new JButton("Close")
+        closeButton.addActionListener(e -> dispose())
+
+        // Add components
+        panel.add(titleLabel, BorderLayout.NORTH)
+        panel.add(descriptionArea, BorderLayout.CENTER)
+        panel.add(closeButton, BorderLayout.SOUTH)
+
+        add(panel)
+
+// END GAME DIALOG - Display win/lose message
+class EndGameDialog extends JDialog:
+    constructor(parent, isWin, message):
+        super(parent, isWin ? "Victory!" : "Game Over", true)
+
+        // Set size and location
+        setSize(400, 300)
+        setLocationRelativeTo(parent)
+
+        // Create components
+        panel = new JPanel(new BorderLayout())
+
+        // Title
+        titleLabel = new JLabel(isWin ? "Congratulations!" : "Game Over", SwingConstants.CENTER)
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18))
+
+        // Message
+        messageArea = new JTextArea(message)
+        messageArea.setEditable(false)
+
+        // Close button
+        closeButton = new JButton("Close")
+        closeButton.addActionListener(e -> dispose())
+
+        // Add components
+        panel.add(titleLabel, BorderLayout.NORTH)
+        panel.add(messageArea, BorderLayout.CENTER)
+        panel.add(closeButton, BorderLayout.SOUTH)
+
+        add(panel)
+
+// UTILITY - IMAGE LOADER
+class ImageLoader:
+    properties:
+        static imageCache: Map<String, ImageIcon>
+        static RESOURCE_PATH: String = "./resources/images/"
+        static DEFAULT_ROOM_IMAGE: String = RESOURCE_PATH + "rooms/default.png"
+        static DEFAULT_ITEM_IMAGE: String = RESOURCE_PATH + "items/default.png"
+        static DEFAULT_MONSTER_IMAGE: String = RESOURCE_PATH + "monsters/default.png"
+        static DEFAULT_FIXTURE_IMAGE: String = RESOURCE_PATH + "fixtures/default.png"
+
+    static function initialize():
+        imageCache = new HashMap<>()
+        // Load default images
+        loadImage(DEFAULT_ROOM_IMAGE)
+        loadImage(DEFAULT_ITEM_IMAGE)
+        loadImage(DEFAULT_MONSTER_IMAGE)
+        loadImage(DEFAULT_FIXTURE_IMAGE)
+
+    static function loadImage(path):
+        try:
+            // Check if image is in cache
+            if (imageCache.containsKey(path)):
+                return imageCache.get(path)
+
+            // Load image from file
+            image = new ImageIcon(path)
+            imageCache.put(path, image)
+            return image
+        catch Exception:
+            System.err.println("Error loading image: " + path)
+            return null
+
+    static function getRoomImage(room):
+        imagePath = RESOURCE_PATH + "rooms/" + room.getRoomNumber() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_ROOM_IMAGE)
+        return image
+
+    static function getItemImage(item):
+        imagePath = RESOURCE_PATH + "items/" + item.getName().replaceAll(" ", "_").toLowerCase() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_ITEM_IMAGE)
+        return image
+
+    static function getMonsterImage(monster):
+        imagePath = RESOURCE_PATH + "monsters/" + monster.getName().replaceAll(" ", "_").toLowerCase() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_MONSTER_IMAGE)
+        return image
+
+    static function getFixtureImage(fixture):
+        imagePath = RESOURCE_PATH + "fixtures/" + fixture.getName().replaceAll(" ", "_").toLowerCase() + ".png"
+        image = loadImage(imagePath)
+        if (image is null):
+            return loadImage(DEFAULT_FIXTURE_IMAGE)
+        return image
+
+// COMMAND PATTERN - INTERFACE
+interface Command:
+    function execute(): void
+
+// COMMAND FACTORY
+class CommandFactory:
+    static function createCommand(controller, commandString):
+        // Parse command string
+        parts = commandString.trim().toLowerCase().split(" ", 2)
+        command = parts[0]
+        argument = parts.length > 1 ? parts[1] : ""
+
+        // Create appropriate command object
+        if (command equals "n" or command equals "north"):
+            return new MoveCommand(controller, Direction.NORTH)
+        else if (command equals "s" or command equals "south"):
+            return new MoveCommand(controller, Direction.SOUTH)
+        else if (command equals "e" or command equals "east"):
+            return new MoveCommand(controller, Direction.EAST)
+        else if (command equals "w" or command equals "west"):
+            return new MoveCommand(controller, Direction.WEST)
+        else if (command equals "l" or command equals "look"):
+            return new LookCommand(controller)
+        else if (command equals "i" or command equals "inventory"):
+            return new InventoryCommand(controller)
+        else if (command equals "t" or command equals "take"):
+            return new TakeCommand(controller, argument)
+        else if (command equals "d" or command equals "drop"):
+            return new DropCommand(controller, argument)
+        else if (command equals "x" or command equals "examine"):
+            return new ExamineCommand(controller, argument)
+        else if (command equals "u" or command equals "use"):
+            return new UseCommand(controller, argument)
+        else if (command equals "a" or command equals "answer"):
+            return new AnswerCommand(controller, argument)
+        else if (command equals "k" or command equals "attack"):
+            return new AttackCommand(controller)
+        else if (command equals "save"):
+            return new SaveCommand(controller)
+        else if (command equals "restore" or command equals "load"):
+            return new LoadCommand(controller)
+        else if (command equals "q" or command equals "quit"):
+            return new QuitCommand(controller)
+        else:
+            return new UnknownCommand(controller, commandString)
+
+// COMMAND IMPLEMENTATIONS (examples)
+class MoveCommand implements Command:
+    properties:
+        controller: GameController
+        direction: Direction
+
+    constructor(controller, direction):
+        this.controller = controller
+        this.direction = direction
+
+    function execute():
+        controller.move(direction)
+
+class TakeCommand implements Command:
+    properties:
+        controller: GameController
+        itemName: String
+
+    constructor(controller, itemName):
+        this.controller = controller
+        this.itemName = itemName
+
+    function execute():
+        controller.takeItem(itemName)
+
+// (Other command implementations follow same pattern)
+
+// ABSTRACT CONTROLLER - Base for all controllers
+abstract class GameController:
+    properties:
+        gameWorld: GameWorld
+        view: GameView
+
+    constructor(gameWorld, view):
+        this.gameWorld = gameWorld
+        this.view = view
+
+    // Abstract methods to be implemented by subclasses
+    abstract function processInput(): void
+    abstract function start(): void
+
+    // Common controller methods (shared by all controllers)
+    function move(direction):
+        currentRoom = gameWorld.getPlayer().getCurrentRoom()
+        exitNumber = currentRoom.getExitRoomNumber(direction)
+
+        // Check for wall (0)
+        if (exitNumber equals "0"):
+            view.displayMessage("You can't go that way.")
+            return
+
+        // Check for blocked path (negative)
+        if (parseInt(exitNumber) < 0):
+            if (currentRoom has active puzzle):
+                view.displayMessage("A puzzle blocks your way.")
+            else if (currentRoom has active monster):
+                view.displayMessage("A monster blocks your way!")
+                // Monster may attack
+                if (monster.canAttack()):
+                    damage = monster.attack(gameWorld.getPlayer())
+                    if (damage > 0):
+                        view.displayMessage("The monster attacks!")
+                        view.displayHealth(gameWorld.getPlayer().getHealth(), gameWorld.getPlayer().getHealthStatus())
+            else:
+                view.displayMessage("Something blocks your way.")
+            return
+
+        // Move to new room
+        nextRoom = currentRoom.getExit(direction)
+        if (nextRoom not null):
+            gameWorld.getPlayer().setCurrentRoom(nextRoom)
+            view.displayMessage("You move " + direction.toString())
+            updateView()
+        else:
+            view.displayMessage("You can't go that way right now.")
+
+    function takeItem(itemName):
+        if (itemName is empty):
+            view.displayMessage("What do you want to take?")
+            return
+
+        currentRoom = gameWorld.getPlayer().getCurrentRoom()
+        item = currentRoom.getItem(itemName)
+
+        if (item is null):
+            view.displayMessage("There's no " + itemName + " here.")
+            return
+
+        if (gameWorld.getPlayer().addToInventory(item)):
+            currentRoom.removeItem(item)
+            view.displayMessage("You pick up the " + item.getName() + ".")
+            updateView()
+        else:
+            view.displayMessage("You can't carry any more. Drop something first.")
+
+    // (Similar implementations for other game actions)
+
+    function updateView():
+        // Update the view with current game state
+        view.displayRoom(gameWorld.getPlayer().getCurrentRoom())
+        view.displayHealth(gameWorld.getPlayer().getHealth(), gameWorld.getPlayer().getHealthStatus())
+        view.displayInventory(gameWorld.getPlayer().getInventory())
+
+// TEXT CONTROLLER - Handles text-based interface
+class TextController extends GameController:
+    properties:
+        scanner: Scanner
+        output: Appendable
+        running: Boolean
+
+    constructor(gameWorld, input, output):
+        this.scanner = new Scanner(input)
+        this.output = output
+        this.view = new ConsoleView(output)
+        super(gameWorld, view)
+        this.running = false
+
+    function start():
+        // Start the game
+        running = true
+
+        // Get player name
+        view.displayMessage("Welcome to " + gameWorld.getGameName())
+        view.displayMessage("Enter your name: ")
+        name = scanner.nextLine()
+        gameWorld.setPlayerName(name)
+
+        // Show initial state
+        updateView()
+
+        // Main game loop
+        while (running and scanner.hasNextLine()):
+            processInput()
+
+    function processInput():
+        // Show commands and get input
+        view.displayMessage("\nWhat do you want to do? ")
+        commandString = scanner.nextLine().toLowerCase()
+
+        // Create and execute command
+        command = CommandFactory.createCommand(this, commandString)
+        command.execute()
+
+        // Check if player died
+        if (gameWorld.getPlayer().getHealth() <= 0):
+            view.displayMessage("Game over!")
+            running = false
+
+    function quitGame():
+        view.displayMessage("Thanks for playing!")
+        running = false
+
+// SWING CONTROLLER - Handles GUI interface
+class SwingController extends GameController:
+    properties:
+        gameWindow: GameWindow
+
+    constructor(gameWorld):
+        this.gameWindow = new GameWindow("Adventure Game", this)
+        super(gameWorld, gameWindow)
+
+    function start():
+        // Initialize window and display
+        gameWindow.setSize(800, 600)
+        gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+        gameWindow.setVisible(true)
+
+        // Get player name via dialog
+        name = JOptionPane.showInputDialog(gameWindow, "Enter your name:")
+        if (name is null or name.isEmpty()):
+            name = "Player"
+        gameWorld.setPlayerName(name)
+
+        // Show initial state
+        updateView()
+
+    function processInput():
+        // Not used in Swing controller (event-driven)
+
+    function executeCommand(commandString):
+        // Create and execute command
+        command = CommandFactory.createCommand(this, commandString)
+        command.execute()
+
+        // Check if player died
+        if (gameWorld.getPlayer().getHealth() <= 0):
+            showGameOverDialog("You have died!")
+
+    function quitGame():
+        int option = JOptionPane.showConfirmDialog(
+            gameWindow,
+            "Are you sure you want to quit?",
+            "Confirm Exit",
+            JOptionPane.YES_NO_OPTION
+        )
+
+        if (option == JOptionPane.YES_OPTION):
+            gameWindow.dispose()
+            System.exit(0)
+
+    function showGameOverDialog(message):
+        dialog = new EndGameDialog(gameWindow, false, message)
+        dialog.setVisible(true)
+
+        // Exit after dialog is closed
+        gameWindow.dispose()
+        System.exit(0)
+
+// BATCH CONTROLLER - Processes batch commands
+class BatchController extends GameController:
+    properties:
+        commands: List<String>
+        outputFile: String
+        stringBuilder: StringBuilder
+
+    constructor(gameWorld, commandFile, outputFile):
+        this.view = new ConsoleView(new StringBuilder())
+        super(gameWorld, view)
+        this.commands = FileIOManager.readCommandsFromFile(commandFile)
+        this.outputFile = outputFile
+        this.stringBuilder = new StringBuilder()
+
+    function start():
+        // Process welcome message
+        stringBuilder.append("Welcome to " + gameWorld.getGameName() + "\n")
+
+        // Set player name (first command or default)
+        if (!commands.isEmpty()):
+            name = commands.remove(0)
+        else:
+            name = "Player"
+        gameWorld.setPlayerName(name)
+
+        // Process all commands
+        for (String commandString : commands):
+            // Skip empty lines and comments
+            if (commandString.isEmpty() or commandString.startsWith("//"))
+                continue
+
+            // Execute command
+            Command command = CommandFactory.createCommand(this, commandString)
+            command.execute()
+
+            // Check if player died
+            if (gameWorld.getPlayer().getHealth() <= 0):
+                stringBuilder.append("Game over!\n")
+                break
+
+        // Write output
+        if (outputFile != null):
+            FileIOManager.writeToFile(outputFile, stringBuilder.toString())
+        else:
+            System.out.println(stringBuilder.toString())
+
+    function processInput():
+        // Not used in batch controller
+
+    function displayMessage(message):
+        stringBuilder.append(message + "\n")
+
+// FILE I/O MANAGER - Handles file operations
+class FileIOManager:
+    static function readCommandsFromFile(filename):
+        commands = new ArrayList<String>()
+        try:
+            File file = new File(filename)
+            Scanner scanner = new Scanner(file)
+
+            while (scanner.hasNextLine()):
+                line = scanner.nextLine().trim()
+                if (!line.isEmpty()):
+                    commands.add(line)
+
+            scanner.close()
+        catch Exception:
+            System.err.println("Error reading command file: " + filename)
+
+        return commands
+
+    static function writeToFile(filename, content):
+        try:
+            FileWriter writer = new FileWriter(filename)
+            writer.write(content)
+            writer.close()
+        catch Exception:
+            System.err.println("Error writing to file: " + filename)
+
+// GAME ENGINE APP - Main application class (updated)
+class GameEngineApp:
+    properties:
+        gameFileName: String
+        mode: String
+        inputFile: String
+        outputFile: String
+
+    constructor(gameFileName, mode, inputFile, outputFile):
+        this.gameFileName = gameFileName
+        this.mode = mode
+        this.inputFile = inputFile
+        this.outputFile = outputFile
+
+    function start():
+        try:
+            // Create model from game file
+            gameWorld = new GameWorld(gameFileName)
+
+            // Create appropriate controller based on mode
+            if (mode equals "text"):
+                // Text mode with console I/O
+                controller = new TextController(gameWorld, System.in, System.out)
+            else if (mode equals "graphics"):
+                // Graphical mode with Swing
+                controller = new SwingController(gameWorld)
+            else if (mode equals "batch"):
+                // Batch mode with file I/O
+                controller = new BatchController(gameWorld, inputFile, outputFile)
+            else:
+                throw new IllegalArgumentException("Invalid mode: " + mode)
+
+            // Start the game with chosen controller
+            controller.start()
+        catch Exception:
+            System.err.println("Error starting game: " + e.getMessage())
+            e.printStackTrace()
+
+// MAIN - Entry point with command line argument processing
+class Main:
+    function main(args):
+        if (args.length < 2):
+            printUsage()
+            return
+
+        gameFileName = args[0]
+        mode = args[1]
+
+        if (mode equals "-text"):
+            app = new GameEngineApp(gameFileName, "text", null, null)
+            app.start()
+        else if (mode equals "-graphics"):
+            app = new GameEngineApp(gameFileName, "graphics", null, null)
+            app.start()
+        else if (mode equals "-batch"):
+            if (args.length < 3):
+                System.out.println("Error: Batch mode requires source file")
+                printUsage()
+                return
+
+            inputFile = args[2]
+            outputFile = args.length >= 4 ? args[3] : null
+
+            app = new GameEngineApp(gameFileName, "batch", inputFile, outputFile)
+            app.start()
+        else:
+            System.out.println("Error: Invalid mode: " + mode)
+            printUsage()
+
+    function printUsage():
+        System.out.println("Usage: java -jar game_engine.jar <game_file> <mode> [options]")
+        System.out.println("  Modes:")
+        System.out.println("    -text       : Run in text mode")
+        System.out.println("    -graphics   : Run in graphical mode")
+        System.out.println("    -batch <in> : Run in batch mode with commands from file")
+        System.out.println("    -batch <in> <out> : Run in batch mode with output to file")
