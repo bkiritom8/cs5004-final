@@ -2,7 +2,6 @@ package enginedriver;
 
 import java.io.IOException;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 
@@ -11,8 +10,6 @@ import controller.GameController;
 import controller.SwingController;
 import controller.TextController;
 import model.GameWorld;
-import view.GameView;
-import view.text.ConsoleView;
 
 /**
  * The main application class that initializes and runs the adventure game.
