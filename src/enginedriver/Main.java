@@ -1,17 +1,18 @@
 package enginedriver;
 
-import controller.GameController;
-import model.GameWorld;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import javax.swing.SwingUtilities;
+
+import controller.GameController;
+import controller.TextGameController;
+import model.GameWorld;
+
 
 /**
  * Main entry point for the Adventure Game application.
@@ -22,15 +23,65 @@ public class Main {
   /**
    * The main method that creates and starts the game.
    *
-   * @param args Command line arguments (not used)
+   * @param args Command line arguments
    * @throws IOException If there is an error reading input or writing output
    */
   public static void main(String[] args) throws IOException {
+    // If no arguments are provided, use default behaviour
+    if (args.length == 0) {
+      runDefaultGame();
+      return;
+    }
+
+    // Processes command line arguments
+    if (args.length < 2) {
+      printUseage();
+      return;
+    }
+
+    String gameFile = args[0];
+    String mode = args[1];
+
+    try {
+      switch (mode) {
+        case "-text":
+          runTextMode(gameFile);
+          break;
+        case "-graphics":
+          runGraphicsMode(gameFile);
+          break;
+        case "-batch":
+          if (args.length < 3) {
+            System.out.println("Batch mode requires an input file");
+            printUseage();
+            return;
+          }
+
+          String inputFile = args[2];
+          String outputFile = (args.length > 3) ? args[3] : null;
+          runBatchMode(gameFile, inputFile, outputFile);
+          break;
+        default:
+          System.out.println("Invalid mode" + mode);
+          printUseage();
+      }
+    } catch (IOException e) {
+      System.err.println("Error : " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Runs the default "Hero's Journey" game with the original flow
+   *
+   * @throws IOException If there is an error reading/writing files
+   */
+  private static void runDefaultGame() throws IOException {
     // Create the game data in-memory
     String gameData = createGameData();
 
-    // Write game data to a temporary file
-    Path tempFile = Files.createTempFile("heroes_journey", ".json");
+    // Write to a temporary file
+    Path tempFile = Files.createTempFile("heros_journey", ".json");
     Files.writeString(tempFile, gameData);
 
     System.out.println("=== The Hero's Journey ===");
@@ -39,7 +90,7 @@ public class Main {
     System.out.println("          (L)ook, (U)se, (I)nventory, (A)nswer, sa(V)e, (R)estore, (Q)uit");
     System.out.println("\nYour adventure begins now...");
 
-    // Create game engine with interactive input/output
+    // Create  game engine  with interactive input/output
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     GameEngineApp gameEngineApp = new GameEngineApp(tempFile.toString(), reader, System.out);
 
@@ -47,10 +98,83 @@ public class Main {
     try {
       gameEngineApp.start();
     } finally {
-      // Clean up temporary file
+      // clean up temporary files
       Files.deleteIfExists(tempFile);
     }
   }
+
+  /**
+   * Runs the game in graphical mode using Swing UI.
+   *
+   * @param gameFile Path to the game file
+   * @throws IOException If there is an error loading the game
+   */
+  private static void runTextMode(String gameFile) throws IOException {
+    // Create  game engine  with interactive input/output
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    GameEngineApp gameEngineApp = new GameEngineApp(gameFile, reader, System.out);
+
+    // Start the game
+    gameEngineApp.start();
+  }
+
+  private static void runGraphicsMode(String gameFile) throws IOException {
+    // Create game engine with graphical interface
+    final String gameFilePath = gameFile;
+
+    // Launch the graphical UI on the Event Dispatch Thread
+    SwingUtilities.invokeLater(() -> {
+      try {
+        // Implementation will be added in GraphicalGameController
+        System.out.println("Starting graphical game mode with game file: " + gameFilePath);
+
+        GameWorld gameWorld = new GameWorld(gameFilePath);
+        GraphicalGameController controller = new GraphicalGameController(gameWorld);
+        controller.start();
+      } catch (IOException e) {
+        System.err.println("Error starting Graphical interface: " + e.getMessage());
+      }
+    });
+  }
+
+  /**
+   * Runs the game in batch mode with input from a file.
+   *
+   * @param gameFile   Path to the game file
+   * @param inputFile  Path to the file containing game commands
+   * @param outputFile Path to the output file (or null for console output)
+   * @throws IOException If there is an error reading/writing files
+   */
+  private static void runBatchMode(String gameFile, String inputFile, String outputFile) throws IOException {
+    try {
+      // Set up input from file
+      Readable input = new FileReader(inputFile);
+
+      // Set up output to file or console
+      Appendable output;
+      if (outputFile != null) {
+        output = new FileWriter(outputFile);
+      } else {
+        output = System.out;
+      }
+
+      // Create and start game engine
+      GameEngineApp gameEngineApp = new GameEngineApp(gameFile, input, output);
+      gameEngineApp.start();
+
+      // Close file streams if needed
+      if (input instanceof FileReader) {
+        ((FileReader) input).close();
+      }
+
+      if (output instanceof FileWriter) {
+        ((FileWriter) output).close();
+      }
+    } catch (IOException e) {
+      throw new IOException("Error in batch mode: " + e.getMessage(), e);
+    }
+  }
+
 
   /**
    * Creates the game world data as a JSON string.
