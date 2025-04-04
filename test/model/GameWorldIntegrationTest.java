@@ -375,7 +375,7 @@ public class GameWorldIntegrationTest {
 
   @Test
   @DisplayName("Should save and load game state correctly")
-  void testSaveAndLoadGame() throws IOException {
+  void testSaveAndLoadGame() throws IOException, org.json.simple.parser.ParseException {
     // Set up initial game state
     Player player = gameWorld.getPlayer();
     player.setName("TestPlayer");
@@ -408,7 +408,7 @@ public class GameWorldIntegrationTest {
 
   @Test
   @DisplayName("Should handle game loading with existing save file")
-  void testLoadExistingSaveFile() throws IOException {
+  void testLoadExistingSaveFile() throws IOException, org.json.simple.parser.ParseException {
     // Create a save file with pre-defined state
     String savePath = createTestSaveFile();
 
