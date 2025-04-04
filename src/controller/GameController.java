@@ -25,7 +25,10 @@ public class GameController {
     public GameController(GameWorld world) {
     }
 
-    // run main game loop
+  public GameController() {
+  }
+
+  // run main game loop
     public void play() throws IOException {
         displayWelcome();
         promptForPlayerName();

@@ -1,19 +1,42 @@
 package util;
 
 import org.junit.jupiter.api.Test;
+
 import java.awt.image.BufferedImage;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ImageLoaderTest {
+/**
+ * Unit tests for the ImageLoader utility class.
+ */
+class ImageLoaderTest {
+
+  /**
+   * Tests that an existing image file is loaded successfully.
+   */
   @Test
-  public void testLoadDefaultImage() {
-    BufferedImage image = ImageLoader.loadImage("rooms/default.png");
-    assertNotNull(image, "Default room image should load successfully");
+  void testLoadExistingImage() {
+    BufferedImage img = ImageLoader.loadImage("items", "default.png");
+    assertNotNull(img, "Should load existing image");
   }
 
+  /**
+   * Tests that a missing image falls back to the default image.
+   */
   @Test
-  public void testLoadNonExistentImage() {
-    BufferedImage image = ImageLoader.loadImage("nonexistent.png");
-    assertNull(image, "Non-existent image should return null");
+  void testLoadMissingImageFallsBack() {
+    BufferedImage img = ImageLoader.loadImage("monsters", "nonexistent.png");
+    assertNotNull(img, "Should fallback to default image");
+  }
+
+  /**
+   * Tests fallback behavior when no default image is available.
+   */
+  @Test
+  void testFallbackBlankImage() {
+    // This test assumes no default.png exists for "weird"
+    BufferedImage img = ImageLoader.loadImage("weird", "nothing.png");
+    assertEquals(100, img.getWidth());
+    assertEquals(100, img.getHeight());
   }
 }

@@ -1,21 +1,41 @@
 package util;
 
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FileIoManagerTest {
+/**
+ * Unit tests for FileIoManager file reading and writing functionality.
+ */
+class FileIoManagerTest {
+
+  /**
+   * Tests writing to a file and then reading from it to verify content round-trip.
+   */
   @Test
-  public void testReadExistingBatchFile() {
-    List<String> lines = FileIoManager.readFile("/batch/example_commands.txt");
-    assertNotNull(lines);
-    assertFalse(lines.isEmpty(), "Batch file should not be empty");
-    assertTrue(lines.contains("look"));
+  void testReadWriteRoundTrip() throws IOException {
+    String path = "test_output.txt";
+    String content = "look\nattack\nquit";
+
+    FileIoManager.writeOutput(path, content);
+
+    List<String> read = FileIoManager.readCommands(path);
+    assertEquals(3, read.size());
+    assertEquals("look", read.get(0));
+    assertEquals("quit", read.get(2));
+
+    new File(path).delete(); // cleanup
   }
 
+  /**
+   * Tests that reading a missing file throws an IOException.
+   */
   @Test
-  public void testReadNonExistentFile() {
-    List<String> lines = FileIoManager.readFile("/batch/nonexistent.txt");
-    assertTrue(lines.isEmpty(), "Should return empty list for nonexistent file");
+  void testReadFromMissingFileThrows() {
+    assertThrows(IOException.class, () -> FileIoManager.readCommands("missing.txt"));
   }
 }

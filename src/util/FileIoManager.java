@@ -1,50 +1,52 @@
-/* FileIOManager.java */
 package util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class for reading commands and writing output to files.
+ */
 public class FileIoManager {
 
-  public static List<String> readFile(String s) {
-  return null;
-  }
-
   /**
-   * Reads commands from a given file.
+   * Reads commands line-by-line from a file.
    *
-   * @param filePath The path to the batch command file.
-   * @return A list of command strings.
+   * @param path Path to the input file
+   * @return List of trimmed command strings
+   * @throws IOException If the file cannot be read
    */
-  public List<String> readCommands(String filePath) {
+  public static List<String> readCommands(String path) throws IOException {
     List<String> commands = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
       String line;
       while ((line = reader.readLine()) != null) {
         commands.add(line.trim());
       }
-    } catch (IOException e) {
-      System.err.println("Error reading commands from file: " + e.getMessage());
     }
     return commands;
   }
 
   /**
-   * Writes game output to a specified file.
+   * Writes text output to a file.
    *
-   * @param filePath The path to the output file.
-   * @param content The output content to write.
+   * @param path    Path to the output file
+   * @param content Text content to write
+   * @throws IOException If the file cannot be written
    */
-  public void writeOutput(String filePath, String content) {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+  public static void writeOutput(String path, String content) throws IOException {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
       writer.write(content);
-    } catch (IOException e) {
-      System.err.println("Error writing output to file: " + e.getMessage());
     }
+  }
+
+  /**
+   * Placeholder method to read a file into a list of strings.
+   *
+   * @param batchFilePath Path to the file
+   * @return An empty list (not implemented)
+   */
+  public static List<String> readFile(String batchFilePath) {
+    return List.of(); // Placeholder; implement as needed
   }
 }
