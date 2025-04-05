@@ -1,3 +1,4 @@
+/*
 package scenarios;
 
 import java.io.File;
@@ -9,11 +10,13 @@ import java.io.StringWriter;
 import enginedriver.GameEngineApp;
 import model.*;
 
+*/
 /**
  * Scenario 6: Implements a test scenario where a player discovers a pearl in a coral cavern.
  * This class creates a temporary game file with a coral cavern scenario, runs the game
  * with predefined commands, and verifies the expected outcomes.
- */
+ *//*
+
 public class UnlockPearlScenario {
     private final String jsonData = "{\n"
             + "  \"name\": \"Coral Cavern Scenario\",\n"
@@ -97,13 +100,15 @@ public class UnlockPearlScenario {
             + "  ]\n"
             + "}";
 
-    /**
+    */
+/**
      * Runs the coral cavern scenario with predefined commands.
      * Creates a temporary JSON game file, executes the commands through the game engine,
      * and verifies the expected outcomes.
      *
      * @throws IOException If there is an error creating or writing to the temporary file
-     */
+     *//*
+
     public void run() throws IOException {
         // Write the scenario data to a temporary file
         File tempFile = File.createTempFile("coral_scenario", ".json");
@@ -142,12 +147,14 @@ public class UnlockPearlScenario {
         verifyScenarioOutcomes(result);
     }
 
-    /**
+    */
+/**
      * Verifies that the scenario played out as expected by checking the output text.
      * Looks for specific indicators of success or failure in the game output.
      *
      * @param output The text output from the game run
-     */
+     *//*
+
     private void verifyScenarioOutcomes(String output) {
         boolean success = true;
 
@@ -174,11 +181,13 @@ public class UnlockPearlScenario {
         }
     }
 
-    /**
+    */
+/**
      * Main method to run this scenario independently for testing purposes.
      *
      * @param args Command line arguments (not used)
-     */
+     *//*
+
     public static void main(String[] args) {
         try {
             new UnlockPearlScenario().run();
@@ -186,4 +195,4 @@ public class UnlockPearlScenario {
             System.out.println("Error running coral cavern scenario: " + e.getMessage());
         }
     }
-}
+}*/

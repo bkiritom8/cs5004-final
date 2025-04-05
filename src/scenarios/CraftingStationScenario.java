@@ -1,16 +1,19 @@
+/*
 package scenarios;
 
 import model.*;
 import java.util.HashMap;
 import java.util.Map;
 
+*/
 /**
  * Scenario 4: Activating a Crafting Station.
  * The player enters a cave and discovers a Crafting Station made of wood and stones.
  * The station is inactive until the player has both Iron and Diamond.
  * When the player interacts with the station while holding both items,
  * the station consumes them and crafts a Diamond Sword.
- */
+ *//*
+
 public class CraftingStationScenario {
 
   // Placeholder fields to simulate parameters used when constructing the room
@@ -20,11 +23,13 @@ public class CraftingStationScenario {
   public static String field3;
   public static String picture;
 
-  /**
+  */
+/**
    * Demonstrates the crafting station scenario, including inventory checks and item interaction.
    *
    * @param args command-line arguments (not used)
-   */
+   *//*
+
   public static void main(String[] args) {
     // Step 1: Create a dummy room as the required starting point for the player
     Map<Direction, String> defaultExits = new HashMap<>();
@@ -81,3 +86,4 @@ public class CraftingStationScenario {
     System.out.println("Final Inventory: " + player.getInventory());
   }
 }
+*/

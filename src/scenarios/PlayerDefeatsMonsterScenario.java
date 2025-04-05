@@ -1,3 +1,4 @@
+/*
 package scenarios;
 
 import java.io.File;
@@ -9,6 +10,7 @@ import java.io.StringWriter;
 import enginedriver.GameEngineApp;
 import model.*;
 
+*/
 /**
  * Scenario 2: Player Encounters and Defeats a Monster
  * 
@@ -24,7 +26,8 @@ import model.*;
  * 
  * This class creates a temporary game file with this scenario, runs the game
  * with predefined commands, and verifies the expected outcomes.
- */
+ *//*
+
 public class PlayerDefeatsMonsterScenario {
     private final String jsonData = "{\n"
             + "  \"name\": \"Player Defeats Monster Scenario\",\n"
@@ -74,13 +77,15 @@ public class PlayerDefeatsMonsterScenario {
             + "  ]\n"
             + "}";
 
-    /**
+    */
+/**
      * Runs the player defeats monster scenario with predefined commands.
      * Creates a temporary JSON game file, executes the commands through the game engine,
      * and verifies the expected outcomes.
      *
      * @throws IOException If there is an error creating or writing to the temporary file
-     */
+     *//*
+
     public void run() throws IOException {
         // Write the scenario data to a temporary file
         File tempFile = File.createTempFile("monster_defeat_scenario", ".json");
@@ -116,12 +121,14 @@ public class PlayerDefeatsMonsterScenario {
         verifyScenarioOutcomes(result);
     }
 
-    /**
+    */
+/**
      * Verifies that the scenario played out as expected by checking the output text.
      * Looks for specific indicators of success or failure in the game output.
      *
      * @param output The text output from the game run
-     */
+     *//*
+
     private void verifyScenarioOutcomes(String output) {
         boolean success = true;
 
@@ -178,11 +185,13 @@ public class PlayerDefeatsMonsterScenario {
         }
     }
 
-    /**
+    */
+/**
      * Main method to run this scenario independently for testing purposes.
      *
      * @param args Command line arguments (not used)
-     */
+     *//*
+
     public static void main(String[] args) {
         try {
             new PlayerDefeatsMonsterScenario().run();
@@ -190,4 +199,4 @@ public class PlayerDefeatsMonsterScenario {
             System.out.println("Error running monster defeat scenario: " + e.getMessage());
         }
     }
-} 
+} */

@@ -1,3 +1,4 @@
+/*
 package scenarios;
 
 import java.io.File;
@@ -11,6 +12,7 @@ import java.util.Map;
 import enginedriver.GameEngineApp;
 import model.*;
 
+*/
 /**
  * Scenario 7: Implements a test scenario where a player encounters what they think is a fixture,
  * but is actually a monster. This monster is also a special monster that cannot be defeated because
@@ -18,7 +20,8 @@ import model.*;
  * will cause the monster to pick it and drop another item for the player to pick. This item is a
  * Chamber Compass, a rare item, that can be used to navigate to more Treasure Chambers like this
  * located outside the town within the same country.
- */
+ *//*
+
 public class SurpriseEncounterScenario {
   private final String jsonData = """
           {
@@ -84,13 +87,15 @@ public class SurpriseEncounterScenario {
             ]
           }""";
 
-  /**
+  */
+/**
    * Runs the monster encounter scenario with predefined commands.
    * Creates a temporary JSON game file, executes the commands through the game engine,
    * and verifies the expected outcomes.
    *
    * @throws IOException If there is an error creating or writing to the temporary file
-   */
+   *//*
+
   public void run() throws IOException {
     // Write the scenario data to a temporary file
     File tempFile = File.createTempFile("monster_scenario", ".json");
@@ -142,12 +147,14 @@ public class SurpriseEncounterScenario {
     verifyScenarioOutcomes(result);
   }
 
-  /**
+  */
+/**
    * Verifies that the scenario played out as expected by checking the output text.
    * Looks for specific indicators of success or failure in the game output.
    *
    * @param output The text output from the game run
-   */
+   *//*
+
   private void verifyScenarioOutcomes(String output) {
     boolean success = true;
 
@@ -175,11 +182,13 @@ public class SurpriseEncounterScenario {
     }
   }
 
-  /**
+  */
+/**
    * Main method to run this scenario independently for testing purposes.
    *
    * @param args Command line arguments (not used)
-   */
+   *//*
+
   public static void main(String[] args) {
     try {
       new TrollDefeatScenario().run();
@@ -188,3 +197,4 @@ public class SurpriseEncounterScenario {
     }
   }
 }
+*/

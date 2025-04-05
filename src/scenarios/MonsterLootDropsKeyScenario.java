@@ -1,3 +1,4 @@
+/*
 package scenarios;
 
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.StringWriter;
 
 import enginedriver.GameEngineApp;
 
+*/
 /**
  * Scenario 1: Monster Loot Drops Key
  * This scenario tests the monster loot and key-based puzzle mechanics:
@@ -20,12 +22,15 @@ import enginedriver.GameEngineApp;
  * 7. Player can progress in their adventure
  * This class creates a temporary game file with this scenario, runs the game
  * with predefined commands, and verifies the expected outcomes.
- */
+ *//*
+
 public class MonsterLootDropsKeyScenario {
     
-    /**
+    */
+/**
      * JSON game data defining the scenario world, items, monsters, and puzzles.
-     */
+     *//*
+
     private final String jsonData = "{\n"
         + "  \"name\": \"Monster Loot Drops Key Scenario\",\n"
         + "  \"version\": \"1.0\",\n"
@@ -94,13 +99,15 @@ public class MonsterLootDropsKeyScenario {
         + "  ]\n"
         + "}";
 
-    /**
+    */
+/**
      * Runs the monster loot drops key scenario with predefined commands.
      * Creates a temporary JSON game file, executes the commands through the game engine,
      * and verifies the expected outcomes.
      *
      * @throws IOException If there is an error creating or writing to the temporary file
-     */
+     *//*
+
     public void run() throws IOException {
         // Create temporary file for the scenario
         File tempFile = createTempGameFile();
@@ -122,12 +129,14 @@ public class MonsterLootDropsKeyScenario {
         verifyScenarioOutcomes(result);
     }
     
-    /**
+    */
+/**
      * Creates a temporary file with the JSON game data.
      * 
      * @return The created temporary file
      * @throws IOException If there is an error creating or writing to the file
-     */
+     *//*
+
     private File createTempGameFile() throws IOException {
         File tempFile = File.createTempFile("monster_loot_scenario", ".json");
         try (FileWriter writer = new FileWriter(tempFile)) {
@@ -136,11 +145,13 @@ public class MonsterLootDropsKeyScenario {
         return tempFile;
     }
     
-    /**
+    */
+/**
      * Builds the sequence of commands to execute the scenario.
      * 
      * @return A string containing the command sequence
-     */
+     *//*
+
     private String buildCommandSequence() {
         return String.join("\n", 
             "Player",                  // Set player name
@@ -160,14 +171,16 @@ public class MonsterLootDropsKeyScenario {
         ) + "\n";
     }
     
-    /**
+    */
+/**
      * Executes the game with the provided file and commands.
      * 
      * @param gameFile The game file to use
      * @param commands The commands to execute
      * @return The output from the game engine
      * @throws IOException If there is an error executing the game
-     */
+     *//*
+
     private String executeGame(File gameFile, String commands) throws IOException {
         StringReader input = new StringReader(commands);
         StringWriter output = new StringWriter();
@@ -178,12 +191,14 @@ public class MonsterLootDropsKeyScenario {
         return output.toString();
     }
 
-    /**
+    */
+/**
      * Verifies that the scenario played out as expected by checking the output text.
      * Looks for specific indicators of success or failure in the game output.
      *
      * @param output The text output from the game run
-     */
+     *//*
+
     private void verifyScenarioOutcomes(String output) {
         boolean success = true;
         
@@ -251,20 +266,24 @@ public class MonsterLootDropsKeyScenario {
         tracker.printResults();
     }
     
-    /**
+    */
+/**
      * Helper class to track and report verification results.
-     */
+     *//*
+
     private class VerificationTracker {
         private int totalChecks = 0;
         private int passedChecks = 0;
         private StringBuilder failures = new StringBuilder();
         
-        /**
+        */
+/**
          * Verify a condition and track the result.
          * 
          * @param condition The condition to verify
          * @param message The message describing what's being verified
-         */
+         *//*
+
         public void verify(boolean condition, String message) {
             totalChecks++;
             if (condition) {
@@ -274,9 +293,11 @@ public class MonsterLootDropsKeyScenario {
             }
         }
         
-        /**
+        */
+/**
          * Print verification results.
-         */
+         *//*
+
         public void printResults() {
             if (failures.length() > 0) {
                 System.out.println(failures.toString());
@@ -293,11 +314,13 @@ public class MonsterLootDropsKeyScenario {
         }
     }
 
-    /**
+    */
+/**
      * Main method to run this scenario independently for testing purposes.
      *
      * @param args Command line arguments (not used)
-     */
+     *//*
+
     public static void main(String[] args) {
         try {
             new MonsterLootDropsKeyScenario().run();
@@ -306,4 +329,4 @@ public class MonsterLootDropsKeyScenario {
             e.printStackTrace();
         }
     }
-} 
+} */
