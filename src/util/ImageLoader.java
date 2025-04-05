@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.swing.*;
+
+import model.Room;
 
 
 /**
@@ -93,5 +96,9 @@ public class ImageLoader {
     } catch (Exception ignored) {}
 
     return new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+  }
+
+  public static Icon getRoomImage(Room room) {
+    return null;
   }
 }

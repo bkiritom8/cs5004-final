@@ -16,7 +16,7 @@ import controller.TextController;
 import model.GameWorld;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import util.FileIOManager;
+import util.FileIoManager;
 import util.ImageLoader;
 
 /**

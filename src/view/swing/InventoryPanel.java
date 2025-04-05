@@ -1,6 +1,7 @@
 package view.swing;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -52,7 +53,10 @@ public class InventoryPanel extends JPanel {
   }
 
   /**
+   * Integrates the player's selected items (and remaining uses) to be updated with the
+   * inventory display.
    *
+   * @param items List of items to display in the inventory
    */
   public void updateInventory(List<Item> items) {
     inventoryListModel.clear();

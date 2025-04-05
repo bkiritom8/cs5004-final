@@ -13,14 +13,14 @@ import model.Room;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
- * TestControllerTest verifies the TestController behavior.
+ * TextControllerTest verifies the TextController behavior.
  */
-public class TestControllerTest {
+public class TextControllerTest {
 
   /**
    * Creates a simple dummy GameWorld instance.
    */
-  private GameWorld createDummyGameWorld() {
+  private GameWorld createDummyGameWorld() throws IOException {
     return new GameWorld() {
       private final Player player;
       private final Room room;
@@ -65,12 +65,12 @@ public class TestControllerTest {
   }
 
   /**
-   * Test that TestController starts without throwing an exception.
+   * Test that TextController starts without throwing an exception.
    */
   @Test
-  public void testTestControllerStart() {
+  public void testTextControllerStart() throws IOException {
     GameWorld dummyWorld = createDummyGameWorld();
-    TestController controller = new TestController(dummyWorld);
-    assertDoesNotThrow(() -> controller.start(), "TestController started successfully");
+    TextController controller = new TextController(dummyWorld);
+    assertDoesNotThrow(() -> controller.start(), "TextController started successfully");
   }
 }

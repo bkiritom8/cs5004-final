@@ -1,31 +1,29 @@
 package controller;
 
 import java.io.IOException;
-
 import model.GameWorld;
 
 /**
- * TestController is a dummy controller used for testing.
- * It simply prints a test message and basic game world information.
+ * TextController is a dummy controller used for texting.
+ * It simply prints a text message and basic game world information.
  */
-public class TestController extends GameController {
+public class TextController extends GameController {
   private final GameWorld gameWorld;
 
   /**
-   * Constructs a TestController with the given GameWorld.
+   * Constructs a TextController with the given GameWorld.
    *
    * @param gameWorld the game world model
    */
-  public TestController(GameWorld gameWorld) {
+  public TextController(GameWorld gameWorld) {
     this.gameWorld = gameWorld;
   }
 
   /**
-   * Starts the test controller by printing a test message.
+   * Starts the text controller by printing a text message.
    */
-  @Override
   public void start() throws IOException {
-    System.out.println("Test Controller Started");
+    System.out.println("Text Controller Started");
     System.out.println("Game World: " + gameWorld.getGameName());
     System.out.println("Current Room: " + gameWorld.getPlayer().getCurrentRoom().getName());
   }
