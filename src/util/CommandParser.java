@@ -16,20 +16,23 @@ public class CommandParser {
    */
   public static ParsedCommand parse(String input) {
     String[] parts = input.trim().split("\\s+");
-    if (parts.length == 0) return new ParsedCommand("", List.of());
-    String command = parts[0];
-    List<String> args = Arrays.asList(parts).subList(1, parts.length);
-    return new ParsedCommand(command, args);
+    if (parts.length != 0) {
+      String command = parts[0];
+      List<String> args = Arrays.asList(parts).subList(1, parts.length);
+      return new ParsedCommand(command, args);
+    } else {
+      return new ParsedCommand("", List.of());
+    }
   }
 
   /**
    * A simple data class that holds a parsed command and its arguments.
    */
   public static class ParsedCommand {
-    /** The command keyword (e.g., "take", "look") */
+    /** The command keyword (e.g., "take", "look"). */
     public final String command;
 
-    /** The list of arguments following the command */
+    /** The list of arguments following the command. */
     public final List<String> args;
 
     /**

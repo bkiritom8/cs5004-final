@@ -118,7 +118,7 @@ public class SwingController extends GameController {
   }
 
   // 3a. Process the command using the command map.
-  private void processCommand(String command) {
+  public void processCommand(String command) {
     Runnable action = commandMap.get(command);
     if (action != null) {
       action.run();
@@ -128,7 +128,7 @@ public class SwingController extends GameController {
   }
 
   // Moves the player in the specified direction.
-  private void move(Direction dir) {
+  public void move(Direction dir) {
     Player player = gameWorld.getPlayer();
     Room current = player.getCurrentRoom();
     String nextId = current.getExitRoomNumber(dir);
@@ -149,7 +149,7 @@ public class SwingController extends GameController {
   }
 
   // Displays the current room again.
-  private void look() {
+  public void look() {
     Room room = gameWorld.getPlayer().getCurrentRoom();
     appendText("You are in: " + room.getName());
     appendText(room.getDescription());
@@ -163,7 +163,7 @@ public class SwingController extends GameController {
   }
 
   // Displays the player's inventory.
-  private void showInventory() {
+  public void showInventory() {
     Player player = gameWorld.getPlayer();
     if (player.getInventory().isEmpty()) {
       appendText("Your inventory is empty.");

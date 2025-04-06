@@ -41,10 +41,9 @@ public class GameWorld implements  Serializable {
    * Constructs a new GameWorld by loading game data from the specified JSON file.
    * Initializes all game elements and places the player in the first defined room.
    *
-   * @param gameFileName Path to the JSON file containing game data
    * @throws IOException If there is an error reading or parsing the game file
    */
-  public GameWorld(String gameFileName) throws IOException {
+  public GameWorld() throws IOException {
     this.rooms = new HashMap<>();
     this.items = new HashMap<>();
     this.fixtures = new HashMap<>();

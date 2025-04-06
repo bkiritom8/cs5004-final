@@ -28,7 +28,7 @@ class FileIoManagerTest {
     assertEquals("look", read.get(0));
     assertEquals("quit", read.get(2));
 
-    new File(path).delete(); // cleanup
+    assertTrue(new File(path).delete());
   }
 
   /**
@@ -37,5 +37,25 @@ class FileIoManagerTest {
   @Test
   void testReadFromMissingFileThrows() {
     assertThrows(IOException.class, () -> FileIoManager.readCommands("missing.txt"));
+  }
+
+  @Test
+  void writeOutput() {
+  }
+
+  @Test
+  void readFile() {
+  }
+
+  @Test
+  void readCommands() {
+  }
+
+  @Test
+  void testWriteOutput() {
+  }
+
+  @Test
+  void testReadFile() {
   }
 }

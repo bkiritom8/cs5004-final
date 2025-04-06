@@ -1,7 +1,17 @@
 package view.swing;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -50,6 +60,7 @@ public class AboutDialog extends JDialog {
     descriptionArea.setLineWrap(true);
     descriptionArea.setWrapStyleWord(true);
     descriptionArea.setBackground(panel.getBackground());
+    descriptionArea.setFont(new Font("SansSerif", Font.PLAIN, 12));
     descriptionArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     
     // Version info

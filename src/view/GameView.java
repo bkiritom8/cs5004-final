@@ -20,13 +20,6 @@ public interface GameView {
   void displayRoom(String roomDescription);
 
   /**
-   * Displays the player's inventory.
-   *
-   * @param inventory The inventory text to display
-   */
-  void displayInventory(String inventory);
-
-  /**
    * Displays the game over message.
    */
   void displayGameOver();
@@ -45,10 +38,4 @@ public interface GameView {
    */
   void showMessage(String s);
 
-  /**
-   * Gets input from the user (e.g. for interactive mode).
-   *
-   * @return The user input string
-   */
-  String getUserInput();
 }

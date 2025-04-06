@@ -1,11 +1,6 @@
 package view.swing;
 
 import controller.SwingController;
-import view.GameView;
-import view.swing.AboutDialog;
-import view.swing.EndGameDialog;
-import view.swing.GameWindow;
-import view.swing.MenuBarSetup;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,38 +1,44 @@
 package util;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import model.GameWorld;
 
-import java.io.*;
 
 /**
- * Utility class for saving and loading GameWorld objects to and from files.
+ * Utility for saving and loading the GameWorld state.
  */
 public class SaveLoadManager {
 
   /**
    * Saves the current game state to a file.
    *
-   * @param gameWorld The GameWorld instance to save
-   * @param filePath  The file path to save the game to
-   * @throws IOException If an I/O error occurs during saving
+   * @param world the GameWorld to save
+   * @param filePath the file path to save to
    */
-  public static void saveGame(GameWorld gameWorld, String filePath) throws IOException {
+  public static void saveGame(GameWorld world, String filePath) {
     try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filePath))) {
-      out.writeObject(gameWorld);
+      out.writeObject(world);
+    } catch (IOException e) {
+      System.err.println("Failed to save game: " + e.getMessage());
     }
   }
 
   /**
-   * Loads a previously saved game state from a file.
+   * Loads a game state from a file.
    *
-   * @param filePath The file path to load the game from
-   * @return The loaded GameWorld instance
-   * @throws IOException If an I/O error occurs during loading
-   * @throws ClassNotFoundException If the GameWorld class cannot be found
+   * @param filePath the file path to load from
+   * @return the loaded GameWorld, or null if failed
    */
-  public static GameWorld loadGame(String filePath) throws IOException, ClassNotFoundException {
+  public static GameWorld loadGame(String filePath) {
     try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))) {
       return (GameWorld) in.readObject();
+    } catch (IOException | ClassNotFoundException e) {
+      System.err.println("Failed to load game: " + e.getMessage());
+      return null;
     }
   }
 }

@@ -1,94 +1,121 @@
 package view.text;
 
-import java.io.IOException;
+import java.io.StringWriter;
 import view.GameView;
 
 /**
- * ConsoleView is a text-based implementation of GameView for console and batch output.
+ * Text-based implementation of the GameView interface.
+ * Displays game information to the console with consistent formatting and supports both direct console output and batch mode.
  */
 public class ConsoleView implements GameView {
-  private final Appendable output;
+  private StringBuilder outputBuffer;
+  private boolean batchMode;
 
   /**
-   * Constructs a ConsoleView that writes to the given Appendable.
+   * Constructs a ConsoleView.
+   * If batchMode is true, output is built as a string in an internal buffer.
+   * Otherwise, output is printed directly to the console.
    *
-   * @param output The output target (e.g., System.out, StringBuilder)
+   * @param batchMode true for batch mode (string building), false for direct console output
    */
-  public ConsoleView(Appendable output) {
-    this.output = output;
-  }
-
-  /**
-   * Displays a generic message to the output.
-   *
-   * @param message The message to display
-   */
-  @Override
-  public void displayMessage(String message) {
-    try {
-      output.append(message).append("\n");
-    } catch (IOException e) {
-      throw new RuntimeException("Error writing to output", e);
+  public ConsoleView(boolean batchMode) {
+    this.batchMode = batchMode;
+    if (batchMode) {
+      outputBuffer = new StringBuilder();
     }
   }
 
   /**
-   * Displays the current room description.
+   * Constructs a ConsoleView using the provided StringWriter.
+   * This constructor initializes the view in batch mode with the given StringWriter.
    *
-   * @param roomDescription The room's description text
+   * @param output a StringWriter to which the output will be written in batch mode
    */
-  @Override
-  public void displayRoom(String roomDescription) {
-    displayMessage("== Room ==");
-    displayMessage(roomDescription);
+  public ConsoleView(StringWriter output) {
+    // Initialize batch mode and synchronize with the provided StringWriter's content.
+    this.batchMode = true;
+    outputBuffer = new StringBuilder();
+    outputBuffer.append(output.toString());
   }
 
   /**
-   * Displays the player's current inventory.
+   * Displays a general message.
+   * This method delegates to the internal display method to output the message with consistent formatting.
    *
-   * @param inventory The inventory description
+   * @param message the message to display
    */
   @Override
-  public void displayInventory(String inventory) {
-    displayMessage("== Inventory ==");
-    displayMessage(inventory);
+  public void displayMessage(String message) {
+    display(message);
+  }
+
+  /**
+   * Displays a description of the room.
+   * This method delegates to the internal display method to output the room description.
+   *
+   * @param roomDescription the description of the room
+   */
+  @Override
+  public void displayRoom(String roomDescription) {
+    display(roomDescription);
   }
 
   /**
    * Displays the game over message.
+   * This method outputs a standardized "Game Over" message.
    */
   @Override
   public void displayGameOver() {
-    displayMessage("== GAME OVER ==");
+    display("Game Over");
   }
 
   /**
-   * Displays a message (generic fallback).
+   * Displays a message by formatting it consistently.
+   * In batch mode, the message is appended to the output buffer.
+   * Otherwise, the message is printed directly to the console.
    *
-   * @param message The message to show
+   * @param message the message to display
    */
-  @Override
   public void display(String message) {
-    // Unused, could be redirected to displayMessage if needed
+    String formattedMessage = formatMessage(message);
+    if (batchMode) {
+      outputBuffer.append(formattedMessage).append("\n");
+    } else {
+      System.out.println(formattedMessage);
+    }
   }
 
   /**
-   * Shows a message (alias method, may overlap with displayMessage).
+   * Shows a message.
+   * This method is a synonym for displayMessage.
    *
-   * @param s The string to show
+   * @param s the message to show
    */
   @Override
   public void showMessage(String s) {
-    // Unused, could be redirected to displayMessage if needed
+    displayMessage(s);
   }
 
   /**
-   * Gets user input (not supported in batch/console mode).
+   * Formats a message with consistent formatting (e.g., adding a header).
    *
-   * @return Always returns an empty string
+   * @param message the raw message to format
+   * @return the formatted message
    */
-  @Override
-  public String getUserInput() {
+  private String formatMessage(String message) {
+    return "[Game Info] " + message;
+  }
+
+  /**
+   * Returns the complete output string built in batch mode.
+   * If not in batch mode, this method returns an empty string.
+   *
+   * @return the output string accumulated in the internal buffer, or an empty string if not in batch mode
+   */
+  public String getBatchOutput() {
+    if (batchMode && outputBuffer != null) {
+      return outputBuffer.toString();
+    }
     return "";
   }
 }

@@ -10,6 +10,7 @@ import controller.GameController;
 import controller.SwingController;
 import controller.TextController;
 import model.GameWorld;
+import view.GameView;
 
 /**
  * The main application class that initializes and runs the adventure game.
@@ -78,7 +79,7 @@ public class GameEngineApp {
           controller = new BatchController(
                   gameWorld,
                   inputFile,
-                  output
+                  (GameView) output
           );
           break;
 

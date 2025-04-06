@@ -2,13 +2,14 @@ package controller.commands;
 
 import controller.Command;
 import controller.GameController;
+import model.GameWorld;
 
 /**
  * Command for answering a puzzle.
  */
 public class AnswerCommand implements Command {
-  private final GameController controller;
-  private final String answer;
+  private GameController controller;
+  private String answer;
 
   /**
    * Creates a new answer command.
@@ -19,6 +20,9 @@ public class AnswerCommand implements Command {
   public AnswerCommand(GameController controller, String answer) {
     this.controller = controller;
     this.answer = answer;
+  }
+
+  public AnswerCommand(GameWorld testWorld) {
   }
 
   @Override

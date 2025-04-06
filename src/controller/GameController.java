@@ -9,10 +9,10 @@ controller commands:
 (n)orth, (s)outh, (e)ast, (w)est, (t)ake, (d)rop, e(x)amine, attac(k), (l)ook, (u)se, (i)nventory, (a)nswer, sa(v)e, (r)estore, (q)uit.
 */
 public class GameController {
-    private GameWorld gameWorld;
-    private Scanner scanner;
-    private Appendable output;
-    private boolean gameOver;
+    public GameWorld gameWorld;
+    public Scanner scanner;
+    public Appendable output;
+    public boolean gameOver;
     
     // set up game world environment, input, and output
     public GameController(GameWorld gameWorld, Readable input, Appendable output) {
@@ -46,12 +46,12 @@ public class GameController {
     }
     
     // display welcome message
-    private void displayWelcome() throws IOException {
+    public void displayWelcome() throws IOException {
         output.append("welcome to " + gameWorld.getGameName() + "!\n\n");
     }
     
     // prompt for player's name
-    private void promptForPlayerName() throws IOException {
+    public void promptForPlayerName() throws IOException {
         output.append("enter your name: ");
         String name = scanner.nextLine().trim();
         gameWorld.setPlayerName(name);
@@ -59,7 +59,7 @@ public class GameController {
     }
     
     // display current room and health status
-    private void lookAround() throws IOException {
+    public void look() throws IOException {
         Player player = gameWorld.getPlayer();
         Room currentRoom = player.getCurrentRoom();
         output.append("health: " + player.getHealth() + " (" + player.getHealthStatus() + ")\n");
@@ -78,7 +78,7 @@ public class GameController {
     }
     
     // display items in the room
-    private void displayRoomItems() throws IOException {
+    public void displayRoomItems() throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         if (!currentRoom.getItems().isEmpty()) {
             output.append("items here: ");
@@ -90,7 +90,7 @@ public class GameController {
     }
     
     // let monster counterattack
-    private void monsterAttacksPlayer() throws IOException {
+    public void monsterAttacksPlayer() throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         Monster monster = currentRoom.getMonster();
         if (monster != null && monster.isActive() && monster.canAttack()) {
@@ -103,13 +103,13 @@ public class GameController {
     }
     
     // display list of available commands
-    private void displayMenu() throws IOException {
+    public void displayMenu() throws IOException {
         output.append("\ncommands: (n)orth, (s)outh, (e)ast, (w)est, (t)ake, (d)rop, e(x)amine, attac(k), (l)ook, (u)se, (i)nventory, (a)nswer, sa(v)e, (r)estore, (q)uit\n");
         output.append("your choice: ");
     }
     
     // process player's command
-    private void processCommand(String command) throws IOException {
+    public void processCommand(String command) throws IOException {
         if (command.isEmpty()) return;
         if (command.equals("n") || command.equals("north")) {
             move(Direction.NORTH);
@@ -153,7 +153,7 @@ public class GameController {
     }
     
     // move player in the given direction
-    private void move(Direction direction) throws IOException {
+    public void move(Direction direction) throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         String exitNumber = currentRoom.getExitRoomNumber(direction);
         if (exitNumber.equals("0")) {
@@ -181,7 +181,7 @@ public class GameController {
     }
     
     // display player's inventory
-    private void showInventory() throws IOException {
+    public void showInventory() throws IOException {
         Player player = gameWorld.getPlayer();
         output.append("inventory (weight: " + player.getInventoryWeight() + "/" + player.getMaxWeight() + "):\n");
         if (player.getInventory().isEmpty()) {
@@ -195,7 +195,7 @@ public class GameController {
     }
     
     // attack monster in the room
-    private void attackMonster() throws IOException {
+    public void attackMonster() throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         Monster monster = currentRoom.getMonster();
         if (monster == null || !monster.isActive()) {
@@ -207,7 +207,7 @@ public class GameController {
     }
     
     // pick up an item
-    private void takeItem(String itemName) throws IOException {
+    public void takeItem(String itemName) throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         Item item = currentRoom.getItem(itemName);
         if (item == null) {
@@ -223,7 +223,7 @@ public class GameController {
     }
     
     // drop an item from inventory
-    private void dropItem(String itemName) throws IOException {
+    public void dropItem(String itemName) throws IOException {
         Player player = gameWorld.getPlayer();
         Item item = player.getItemFromInventory(itemName);
         if (item == null) {
@@ -239,7 +239,7 @@ public class GameController {
     }
     
     // examine an object in inventory, room, or fixture
-    private void examine(String target) throws IOException {
+    public void examine(String target) throws IOException {
         Player player = gameWorld.getPlayer();
         Item invItem = player.getItemFromInventory(target);
         if (invItem != null) {
@@ -261,7 +261,7 @@ public class GameController {
     }
     
     // use an item to solve a puzzle or defeat a monster
-    private void useItem(String itemName) throws IOException {
+    public void useItem(String itemName) throws IOException {
         Player player = gameWorld.getPlayer();
         Item item = player.getItemFromInventory(itemName);
         if (item == null) {
@@ -292,7 +292,7 @@ public class GameController {
     }
     
     // provide an answer to a puzzle
-    private void provideAnswer(String answer) throws IOException {
+    public void provideAnswer(String answer) throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         if (currentRoom.getPuzzle() == null || !currentRoom.getPuzzle().isActive()) {
             output.append("there's no active puzzle here.\n");
@@ -313,7 +313,7 @@ public class GameController {
     }
     
     // save game state
-    private void saveGame() throws IOException {
+    public void saveGame() throws IOException {
         try {
             gameWorld.saveGame("saved_game.json");
             output.append("game saved successfully!\n");
@@ -323,7 +323,7 @@ public class GameController {
     }
     
     // restore game state
-    private void restoreGame() throws IOException {
+    public void restoreGame() throws IOException {
         try {
             gameWorld.loadGame("saved_game.json");
             output.append("game restored successfully!\n");
@@ -333,7 +333,7 @@ public class GameController {
     }
     
     // display final score and rank
-    private void showFinalScore() throws IOException {
+    public void showFinalScore() throws IOException {
         Player player = gameWorld.getPlayer();
         output.append("\ngame over!\n");
         output.append("final score: " + player.getScore() + "\n");
@@ -341,15 +341,17 @@ public class GameController {
     }
     
     // display game over message
-    private void displayGameOver() throws IOException {
+    public void displayGameOver() throws IOException {
         output.append("\nyour health is depleted. you fall into a deep sleep.\n");
         output.append("game over\n");
     }
     
     // end game loop
-    private void endGame() {
+    public void endGame() {
         gameOver = true;
     }
-}
 
+  public void start() {
+  }
+}
 

@@ -1,104 +1,57 @@
 package util;
 
-import java.awt.image.BufferedImage;
-import java.io.InputStream;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import javax.swing.*;
-
-import model.Room;
-
 
 /**
- * Utility class to load and cache images by category and name with default fallbacks.
+ * Utility class for loading images with caching and fallback support.
+ * Provides methods for loading and scaling images.
  */
 public class ImageLoader {
-  private static final Map<String, BufferedImage> cache = new HashMap<>();
-  private static final String BASE_PATH = "/images/";
-  private static final String DEFAULT_IMAGE = "default.png";
+  private static final Map<String, Image> cache = new HashMap<>();
+  private static final String DEFAULT_IMAGE_PATH = "resources/images/default.png";
 
   /**
-   * Loads an image by category and name, or returns a default if not found.
+   * Loads an image from the given path with caching.
+   * If the image is not found, it falls back to the default image.
    *
-   * @param category The image folder (e.g., "items", "rooms")
-   * @param name     The image filename (e.g., "sword.png")
-   * @return The loaded image or a fallback image
+   * @param path the path to the image file
+   * @return the loaded Image, or null if neither the specified image nor the default image can be loaded
    */
-  public static BufferedImage loadImage(String category, String name) {
-    String key = category + "/" + name;
-    if (cache.containsKey(key)) {
-      return cache.get(key);
-    }
-
-    String path = BASE_PATH + category + "/" + name;
-    try (InputStream stream = ImageLoader.class.getResourceAsStream(path)) {
-      if (stream != null) {
-        BufferedImage image = ImageIO.read(stream);
-        cache.put(key, image);
-        return image;
-      }
-    } catch (Exception ignored) {}
-
-    return loadDefaultImage(category);
-  }
-
-  /**
-   * Loads the default fallback image for a given category.
-   *
-   * @param category The image category folder
-   * @return The fallback image or blank placeholder
-   */
-  private static BufferedImage loadDefaultImage(String category) {
-    String fallbackPath = BASE_PATH + category + "/" + DEFAULT_IMAGE;
-    try (InputStream stream = ImageLoader.class.getResourceAsStream(fallbackPath)) {
-      if (stream != null) {
-        return ImageIO.read(stream);
-      }
-    } catch (Exception ignored) {}
-    return new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
-  }
-
-  /**
-   * Initializes the image loader, currently a placeholder method.
-   */
-  public static void initialize() {
-  }
-
-  /**
-   * Loads an image from a combined path string.
-   *
-   * @param s The relative image path (e.g., "items/sword.png")
-   * @return The loaded image or fallback image
-   */
-  public static BufferedImage loadImage(String s) {
-    return loadImageFromPath(s);
-  }
-
-  /**
-   * Loads an image directly from a path string.
-   *
-   * @param path Relative path to image within resources
-   * @return Buffered image or blank fallback image
-   */
-  private static BufferedImage loadImageFromPath(String path) {
+  public static Image load(String path) {
     if (cache.containsKey(path)) {
       return cache.get(path);
     }
-
-    String fullPath = BASE_PATH + path;
-    try (InputStream stream = ImageLoader.class.getResourceAsStream(fullPath)) {
-      if (stream != null) {
-        BufferedImage image = ImageIO.read(stream);
-        cache.put(path, image);
-        return image;
+    Image img = null;
+    try {
+      img = ImageIO.read(new File(path));
+    } catch (IOException e) {
+      System.err.println("Failed to load image from: " + path + ". Using default image.");
+      try {
+        img = ImageIO.read(new File(DEFAULT_IMAGE_PATH));
+      } catch (IOException ex) {
+        System.err.println("Failed to load default image from: " + DEFAULT_IMAGE_PATH);
       }
-    } catch (Exception ignored) {}
-
-    return new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+    }
+    if (img != null) {
+      cache.put(path, img);
+    }
+    return img;
   }
 
-  public static Icon getRoomImage(Room room) {
-    return null;
+  /**
+   * Returns a scaled version of the given image.
+   *
+   * @param srcImg the source image to be scaled
+   * @param width  the target width
+   * @param height the target height
+   * @return the scaled image
+   */
+  public static Image getScaledImage(Image srcImg, int width, int height) {
+    return srcImg.getScaledInstance(width, height, Image.SCALE_SMOOTH);
   }
 }

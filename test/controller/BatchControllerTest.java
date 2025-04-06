@@ -29,7 +29,7 @@ class BatchControllerTest {
   void setUp() {
     commandLog = new ArrayList<>();
     try {
-      dummyWorld = new GameWorld("dummy.json"); // Replace with your real constructor
+      dummyWorld = new GameWorld(); // Replace with your real constructor
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -123,13 +123,8 @@ class BatchControllerTest {
       @Override
       public void run() {
         for (String line : commands) {
-          CommandParser.ParsedCommand parsed = new CommandParser.ParsedCommand(line, List.of());
-          Command command = null; // simulate command not found
-          if (command != null) {
-            command.execute(dummyWorld, mockView);
-          } else {
-            mockView.showMessage("Invalid command in batch file: " + line);
-          }
+          // simulate command not found
+          mockView.showMessage("Invalid command in batch file: " + line);
         }
       }
     };

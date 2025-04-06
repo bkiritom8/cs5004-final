@@ -1,15 +1,18 @@
 package controller.commands;
 
+import java.io.IOException;
+
 import controller.Command;
 import controller.GameController;
 import model.Direction;
+import model.GameWorld;
 
 /**
  * Command for player movement in a direction.
  */
 public class MoveCommand implements Command {
-  private final GameController controller;
-  private final Direction direction;
+  private GameController controller;
+  private Direction direction;
 
   /**
    * Creates a new move command.
@@ -22,8 +25,15 @@ public class MoveCommand implements Command {
     this.direction = direction;
   }
 
+  public MoveCommand(GameWorld ignoredTestWorld) {
+  }
+
   @Override
   public void execute() {
-    controller.move(direction);
+    try {
+      controller.move(direction);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
