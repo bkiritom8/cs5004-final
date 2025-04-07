@@ -61,12 +61,8 @@ class BatchControllerTest {
       public void showMessage(String s) {
         displayMessage(s);
       }
-
-      @Override
-      public String getUserInput() {
-        return "";
-      }
     };
+
   }
 
   @Test
@@ -79,7 +75,11 @@ class BatchControllerTest {
         for (String line : commands) {
           CommandParser.ParsedCommand parsed = new CommandParser.ParsedCommand(line, List.of());
           Command command = () -> mockView.displayMessage("Executed: " + parsed.command());
-          command.execute();
+          try {
+            dummyWorld = new GameWorld("dummy.json");
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
         }
       }
     };

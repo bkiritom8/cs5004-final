@@ -358,7 +358,97 @@ public class GameController {
         gameOver = true;
     }
 
-  public void start() {
+  /**
+   * Default start method for the base controller.
+   * Empty implementation to be overridden by subclasses.
+   */
+  public void start() {}
+
+  /**
+   * Provides an answer to a puzzle.
+   * Delegates to the provideAnswer method.
+   *
+   * @param answer The answer to the puzzle
+   */
+  public void answerPuzzle(String answer) {
+    try {
+      provideAnswer(answer);
+    } catch (IOException e) {
+      System.err.println("Error processing answer: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Quits the game.
+   * Shows the final score and ends the game.
+   */
+  public void quitGame() {
+    try {
+      showFinalScore();
+      endGame();
+    } catch (IOException e) {
+      System.err.println("Error quitting game: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Loads a saved game.
+   * Attempts to load the game state from a save file and updates the view.
+   */
+  public void loadGame() {
+    try {
+      gameWorld.loadGame("saved_game.json");
+      output.append("Game loaded successfully!\n");
+
+      // Update view with current room information
+      Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
+      output.append("You are in: " + currentRoom.getName() + "\n");
+      output.append(currentRoom.getDescription() + "\n");
+
+      // Show available exits
+      showExits(currentRoom);
+    } catch (Exception e) {
+      try {
+        output.append("Error loading game: " + e.getMessage() + "\n");
+      } catch (IOException ioEx) {
+        System.err.println("Error displaying load error: " + ioEx.getMessage());
+      }
+    }
+  }
+
+  /**
+   * Helper method to show available exits in a room.
+   * Used after loading a game to display the current room state.
+   *
+   * @param room The room to show exits for
+   * @throws IOException If there is an error writing to the output
+   */
+  private void showExits(Room room) throws IOException {
+    StringBuilder exits = new StringBuilder("Exits: ");
+    boolean hasExits = false;
+
+    if (!"0".equals(room.getExitRoomNumber(Direction.NORTH))) {
+      exits.append("NORTH ");
+      hasExits = true;
+    }
+    if (!"0".equals(room.getExitRoomNumber(Direction.SOUTH))) {
+      exits.append("SOUTH ");
+      hasExits = true;
+    }
+    if (!"0".equals(room.getExitRoomNumber(Direction.EAST))) {
+      exits.append("EAST ");
+      hasExits = true;
+    }
+    if (!"0".equals(room.getExitRoomNumber(Direction.WEST))) {
+      exits.append("WEST ");
+      hasExits = true;
+    }
+
+    if (hasExits) {
+      output.append(exits.toString() + "\n");
+    } else {
+      output.append("There are no obvious exits.\n");
+    }
   }
 }
 

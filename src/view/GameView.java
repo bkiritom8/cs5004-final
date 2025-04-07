@@ -20,6 +20,13 @@ public interface GameView {
   void displayRoom(String roomDescription);
 
   /**
+   * Displays the player's current inventory.
+   *
+   * @param inventoryDescription The inventory to display
+   */
+  void displayInventory(String inventoryDescription);  // 🔧 Add this method
+
+  /**
    * Displays the game over message.
    */
   void displayGameOver();

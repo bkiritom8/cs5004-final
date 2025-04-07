@@ -83,5 +83,5 @@ public class ConsoleView implements GameView {
     return "[Game Info] " + message;
   }
 
-  // Removed unused getBatchOutput() method
+
 }

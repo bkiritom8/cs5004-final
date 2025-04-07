@@ -1,5 +1,7 @@
 package controller.commands;
 
+import java.io.IOException;
+
 import controller.Command;
 import controller.GameController;
 
@@ -19,7 +21,7 @@ public class AttackCommand implements Command {
   }
 
   @Override
-  public void execute() {
+  public void execute() throws IOException {
     controller.attackMonster();
   }
 }

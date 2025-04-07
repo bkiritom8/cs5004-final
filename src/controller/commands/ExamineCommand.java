@@ -1,5 +1,7 @@
 package controller.commands;
 
+import java.io.IOException;
+
 import controller.Command;
 import controller.GameController;
 
@@ -22,7 +24,7 @@ public class ExamineCommand implements Command {
   }
 
   @Override
-  public void execute() {
+  public void execute() throws IOException {
     controller.examine(target);
   }
 }
