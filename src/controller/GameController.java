@@ -1,6 +1,8 @@
 package controller;
 
 import model.*;
+import view.GameView;
+
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -13,8 +15,9 @@ public class GameController {
     public Scanner scanner;
     public Appendable output;
     public boolean gameOver;
-    
-    // set up game world environment, input, and output
+    public GameView view;
+
+  // set up game world environment, input, and output
     public GameController(GameWorld gameWorld, Readable input, Appendable output) {
         this.gameWorld = gameWorld;
         this.scanner = new Scanner(input);
@@ -151,8 +154,8 @@ public class GameController {
             output.append("I don't understand that command.\n");
         }
     }
-    
-    // move player in the given direction
+
+  // move player in the given direction
     public void move(Direction direction) throws IOException {
         Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
         String exitNumber = currentRoom.getExitRoomNumber(direction);
@@ -331,6 +334,10 @@ public class GameController {
             output.append("error restoring game: " + e.getMessage() + "\n");
         }
     }
+
+  private void lookAround() {
+    // TODO Generate a look around method, Currently used as a placeholder
+  }
     
     // display final score and rank
     public void showFinalScore() throws IOException {

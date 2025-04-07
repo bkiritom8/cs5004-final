@@ -37,5 +37,4 @@ public interface GameView {
    * @param s The string to show
    */
   void showMessage(String s);
-
 }

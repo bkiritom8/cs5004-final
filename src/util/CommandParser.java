@@ -26,24 +26,11 @@ public class CommandParser {
   }
 
   /**
-   * A simple data class that holds a parsed command and its arguments.
+   * A simple record that holds a parsed command and its arguments.
+   *
+   * @param command The command keyword (e.g., "take", "look")
+   * @param args    The list of arguments following the command
    */
-  public static class ParsedCommand {
-    /** The command keyword (e.g., "take", "look"). */
-    public final String command;
-
-    /** The list of arguments following the command. */
-    public final List<String> args;
-
-    /**
-     * Constructs a new ParsedCommand.
-     *
-     * @param command The command keyword
-     * @param args    The list of arguments
-     */
-    public ParsedCommand(String command, List<String> args) {
-      this.command = command;
-      this.args = args;
-    }
+  public record ParsedCommand(String command, List<String> args) {
   }
 }

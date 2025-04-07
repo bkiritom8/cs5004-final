@@ -22,14 +22,11 @@ class BatchControllerTest {
   private GameView mockView;
   private GameWorld dummyWorld;
 
-  /**
-   * Sets up a dummy game world and mock view for each test.
-   */
   @BeforeEach
   void setUp() {
     commandLog = new ArrayList<>();
     try {
-      dummyWorld = new GameWorld(); // Replace with your real constructor
+      dummyWorld = new GameWorld("dummy.json"); // ✅ Fixed: added required constructor argument
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -72,9 +69,6 @@ class BatchControllerTest {
     };
   }
 
-  /**
-   * Tests running valid mock commands using the BatchController.
-   */
   @Test
   void testValidCommandsExecuteSuccessfully() {
     List<String> commands = List.of("look", "inventory", "quit");
@@ -84,23 +78,8 @@ class BatchControllerTest {
       public void run() {
         for (String line : commands) {
           CommandParser.ParsedCommand parsed = new CommandParser.ParsedCommand(line, List.of());
-          Command command = new Command() {
-            @Override
-            public void execute() {
-
-            }
-
-            @Override
-            public void execute(GameWorld dummyWorld, GameView mockView) {
-
-            }
-
-            @Override
-            public void execute(Object world, GameView view) {
-              view.displayMessage("Executed: " + parsed.command);
-            }
-          };
-          command.execute(dummyWorld, mockView);
+          Command command = () -> mockView.displayMessage("Executed: " + parsed.command());
+          command.execute();
         }
       }
     };
@@ -112,9 +91,6 @@ class BatchControllerTest {
     assertTrue(commandLog.contains("MESSAGE: Executed: quit"));
   }
 
-  /**
-   * Tests handling of an unknown command.
-   */
   @Test
   void testUnknownCommandIsHandled() {
     List<String> commands = List.of("fly");
@@ -123,7 +99,6 @@ class BatchControllerTest {
       @Override
       public void run() {
         for (String line : commands) {
-          // simulate command not found
           mockView.showMessage("Invalid command in batch file: " + line);
         }
       }

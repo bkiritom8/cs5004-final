@@ -1,11 +1,11 @@
 package view.swing;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -15,8 +15,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+
+import controller.SwingController;
+import model.Player;
 
 /**
  * Dialog for displaying end game messages (win or lose).
@@ -31,6 +36,18 @@ public class EndGameDialog extends JDialog {
    * @param message The end game message
    */
   public EndGameDialog(JFrame parent, boolean isWin, String message) {
+    this(parent, isWin, message, null);
+  }
+  
+  /**
+   * Constructs a new EndGameDialog with player statistics.
+   * 
+   * @param parent The parent frame
+   * @param isWin true if player won, false if player lost
+   * @param message The end game message
+   * @param controller The game controller with access to player data
+   */
+  public EndGameDialog(JFrame parent, boolean isWin, String message, SwingController controller) {
     super(parent, isWin ? "Victory!" : "Game Over", true);
     
     // Set size and location
@@ -45,10 +62,16 @@ public class EndGameDialog extends JDialog {
     // Title with icon
     JPanel titlePanel = new JPanel(new BorderLayout(10, 10));
     
-    // You could add an image here if available
-    // String iconPath = isWin ? "resources/images/ui/victory.png" : "resources/images/ui/defeat.png";
-    // JLabel iconLabel = new JLabel(new ImageIcon(iconPath));
-    // titlePanel.add(iconLabel, BorderLayout.WEST);
+    // Load the appropriate image based on win/lose condition
+    String iconPath = isWin ? "resources/images/ui/victory.png" : "resources/images/ui/defeat.png";
+    File imageFile = new File(iconPath);
+    if (imageFile.exists()) {
+        ImageIcon icon = new ImageIcon(iconPath);
+        // Scale the image to fit nicely in the dialog
+        Image scaledImage = icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
+        JLabel iconLabel = new JLabel(new ImageIcon(scaledImage));
+        titlePanel.add(iconLabel, BorderLayout.WEST);
+    }
     
     JLabel titleLabel = new JLabel(
         isWin ? "Congratulations! You Won!" : "Game Over",
@@ -70,20 +93,25 @@ public class EndGameDialog extends JDialog {
     messageArea.setBackground(panel.getBackground());
     messageArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     
-    // Stats (could be added later)
+    // Stats panel
     JPanel statsPanel = new JPanel(new GridLayout(0, 2, 5, 5));
     statsPanel.setBorder(BorderFactory.createTitledBorder("Game Statistics"));
     
-    // Example stats (replace with actual game stats)
-    JLabel timeLabel = new JLabel("Time played:");
-    JLabel timeValue = new JLabel("00:00:00");
-    JLabel roomsLabel = new JLabel("Rooms visited:");
-    JLabel roomsValue = new JLabel("0");
-    JLabel itemsLabel = new JLabel("Items collected:");
-    JLabel itemsValue = new JLabel("0");
+    // Default values for statistics
+    String itemCount = "0";
+    String health = "Unknown";
+    String roomNumber = "Unknown";
     
-    statsPanel.add(timeLabel);
-    statsPanel.add(timeValue);
+    // Add statistics labels
+    JLabel healthLabel = new JLabel("Health:");
+    JLabel healthValue = new JLabel(health);
+    JLabel roomsLabel = new JLabel("Room:");
+    JLabel roomsValue = new JLabel(roomNumber);
+    JLabel itemsLabel = new JLabel("Items:");
+    JLabel itemsValue = new JLabel(itemCount);
+    
+    statsPanel.add(healthLabel);
+    statsPanel.add(healthValue);
     statsPanel.add(roomsLabel);
     statsPanel.add(roomsValue);
     statsPanel.add(itemsLabel);

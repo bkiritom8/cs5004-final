@@ -1,6 +1,7 @@
 package view.swing;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -12,8 +13,10 @@ import javax.swing.SwingConstants;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 /**
  * Dialog for displaying information about the game.
@@ -26,7 +29,7 @@ public class AboutDialog extends JDialog {
    * @param parent The parent frame
    */
   public AboutDialog(JFrame parent) {
-    super(parent, "About Adventure Game", true);
+    super(parent, "Adventure Game - Team Scalpel", true);
     
     // Set size and location
     setSize(450, 350);
@@ -40,9 +43,16 @@ public class AboutDialog extends JDialog {
     // Logo/title panel
     JPanel titlePanel = new JPanel(new BorderLayout());
     
-    // You could add an image here if available
-    // JLabel logoLabel = new JLabel(new ImageIcon("resources/images/ui/logo.png"));
-    // titlePanel.add(logoLabel, BorderLayout.WEST);
+    // Load the logo image from resources
+    String logoPath = "resources/images/ui/logo.png";
+    File logoFile = new File(logoPath);
+    if (logoFile.exists()) {
+        ImageIcon logo = new ImageIcon(logoPath);
+        // Scale the image to fit nicely in the dialog
+        Image scaledImage = logo.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+        JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
+        titlePanel.add(logoLabel, BorderLayout.WEST);
+    }
     
     JLabel titleLabel = new JLabel("Adventure Game Engine", SwingConstants.CENTER);
     titleLabel.setFont(new Font("Arial", Font.BOLD, 20));

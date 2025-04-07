@@ -31,9 +31,9 @@ public class ActionPanel extends JPanel {
     JButton answerButton = new JButton("Answer");
 
     // Add action listeners
-    lookButton.addActionListener(e -> controller.executeCommand("look"));
+    lookButton.addActionListener(e -> controller.processCommand("look"));
     takeButton.addActionListener(e -> showTakeDialog());
-    attackButton.addActionListener(e -> controller.executeCommand("attack"));
+    attackButton.addActionListener(e -> controller.processCommand("attack"));
     answerButton.addActionListener(e -> showAnswerDialog());
 
     // Add buttons to panel
@@ -51,7 +51,7 @@ public class ActionPanel extends JPanel {
     String itemName = JOptionPane.showInputDialog(this, "What would you like to take?");
 
     if (itemName != null && !itemName.isEmpty()) {
-      controller.executeCommand("take " + itemName);
+      controller.processCommand("take " + itemName);
     }
   }
 
@@ -63,7 +63,7 @@ public class ActionPanel extends JPanel {
     String answer = JOptionPane.showInputDialog(this, "Enter your answer:");
 
     if (answer != null && !answer.isEmpty()) {
-      controller.executeCommand("answer " + answer);
+      controller.processCommand("answer " + answer);
     }
   }
 }

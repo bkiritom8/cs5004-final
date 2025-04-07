@@ -15,8 +15,8 @@ public class CommandParserTest {
   @Test
   public void testParseCommandWithArguments() {
     CommandParser.ParsedCommand cmd = CommandParser.parse("take sword");
-    assertEquals("take", cmd.command);
-    assertEquals(List.of("sword"), cmd.args);
+    assertEquals("take", cmd.command());
+    assertEquals(List.of("sword"), cmd.args());
   }
 
   /**
@@ -25,8 +25,8 @@ public class CommandParserTest {
   @Test
   public void testParseCommandWithNoArguments() {
     CommandParser.ParsedCommand cmd = CommandParser.parse("look");
-    assertEquals("look", cmd.command);
-    assertTrue(cmd.args.isEmpty());
+    assertEquals("look", cmd.command());
+    assertTrue(cmd.args().isEmpty());
   }
 
   /**
@@ -35,7 +35,7 @@ public class CommandParserTest {
   @Test
   public void testParseEmptyInput() {
     CommandParser.ParsedCommand cmd = CommandParser.parse("");
-    assertEquals("", cmd.command);
-    assertTrue(cmd.args.isEmpty());
+    assertEquals("", cmd.command());
+    assertTrue(cmd.args().isEmpty());
   }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.*;
 
 import controller.SwingController;
+import controller.commands.InventoryCommand;
 import model.Item;
 
 /**
@@ -77,7 +78,7 @@ public class InventoryPanel extends JPanel {
     if (selected != null) {
       // Extract item name from display string
       String itemName = selected.split(" ")[0];
-      controller.executeCommand("use " + itemName);
+      controller.processCommand("use " + itemName);
     }
   }
 
@@ -89,7 +90,7 @@ public class InventoryPanel extends JPanel {
 
     if (selected != null) {
       String itemName = selected.split(" ")[0];
-      controller.executeCommand("drop " + itemName);
+      controller.processCommand("drop " + itemName);
     }
   }
 
@@ -101,7 +102,7 @@ public class InventoryPanel extends JPanel {
 
     if (selected != null) {
       String itemName = selected.split(" ")[0];
-      controller.executeCommand("examine " + itemName);
+      controller.processCommand("examine " + itemName);
     }
   }
 }

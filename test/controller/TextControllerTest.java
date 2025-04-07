@@ -27,7 +27,7 @@ public class TextControllerTest {
    * @throws IOException if an I/O error occurs.
    */
   private GameWorld createDummyGameWorld() throws IOException {
-    return new GameWorld() {
+    return new GameWorld("dummy.json") {
       private final Player player;
 
       {
@@ -68,6 +68,7 @@ public class TextControllerTest {
       }
     };
   }
+
 
   /**
    * Test that TextController starts without throwing an exception.
