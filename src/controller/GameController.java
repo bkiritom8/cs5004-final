@@ -31,19 +31,19 @@ public class GameController {
         this.output = output;
         this.gameOver = false;
     }
-    /**
-    * Constructor for testing purposes that accepts only a GameWorld.
-    * Sets up dummy I/O for testing commands.
-    *
-    * @param world The game world to use
-    */
-    public GameController(GameWorld world) {
-        this.gameWorld = world;
-        this.scanner = null;
-        this.output = new StringBuilder();
-        this.gameOver = false;
-        this.view = null;
-      }
+
+  /**
+   * Default constructor for GameController.
+   * Creates a controller with null game world and default I/O.
+   * This constructor is required for inheritance purposes.
+   */
+  public GameController() {
+    this.gameWorld = null;
+    this.scanner = null;
+    this.output = new StringBuilder();
+    this.gameOver = false;
+    this.view = null;
+  }
 
   // run main game loop
     public void play() throws IOException {
