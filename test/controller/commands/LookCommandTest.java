@@ -1,10 +1,13 @@
 package controller.commands;
 
+import controller.Command;
+import controller.GameController;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,7 +22,7 @@ public class LookCommandTest {
   private Player player;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
     // Step 1: Create a basic game world with one room and player
     Room room = new Room("Test Room", "1", "A room used for testing.", new HashMap<>());
     room.setExitRoomNumber(Direction.NORTH, "0");
@@ -35,13 +38,15 @@ public class LookCommandTest {
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+    GameController controller = new GameController(testWorld);
   }
 
   @Test
   @DisplayName("Should execute LookCommand without error")
   void testCommandExecution() {
     // Step 2: Instantiate the command
-    Command command = new LookCommand(testWorld);
+    GameController controller = new GameController(testWorld);
+    Command command = new LookCommand(controller);
 
     // Step 3: Run the command
     command.execute();

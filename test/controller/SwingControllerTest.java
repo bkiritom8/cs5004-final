@@ -47,29 +47,7 @@ public class SwingControllerTest {
 
     Player player = new Player(room);
 
-    return new GameWorld() {
-      public String getGameName() {
-        return "Test Game";
-      }
-
-      public Player getPlayer() {
-        return player;
-      }
-
-      public void setPlayerName(String name) {
-        player.setName(name);
-      }
-
-      public boolean applySolution(String solution) {
-        return false;
-      }
-
-      public void saveGame(String filename) {
-      }
-
-      public void loadGame(String filename) {
-      }
-    };
+    return new MockGameWorld(player);
   }
 
   // helper to pause briefly
@@ -154,5 +132,43 @@ public class SwingControllerTest {
     sendCommand("north");
     String out = getOutput();
     assertTrue(out.contains("can't go"), "should show can't move message");
+  }
+
+  // minimal mock class to bypass constructor requirement
+  private static class MockGameWorld extends GameWorld {
+    private final Player player;
+
+    public MockGameWorld(Player player) throws IOException {
+      super("dummy.json"); // doesn't actually load since we override methods
+      this.player = player;
+    }
+
+    @Override
+    public String getGameName() {
+      return "Test Game";
+    }
+
+    @Override
+    public Player getPlayer() {
+      return player;
+    }
+
+    @Override
+    public void setPlayerName(String name) {
+      player.setName(name);
+    }
+
+    @Override
+    public boolean applySolution(String solution) {
+      return false;
+    }
+
+    @Override
+    public void saveGame(String filename) {
+    }
+
+    @Override
+    public void loadGame(String filename) {
+    }
   }
 }

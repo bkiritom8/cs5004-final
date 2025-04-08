@@ -22,9 +22,6 @@ public class AnswerCommand implements Command {
     this.answer = answer;
   }
 
-  public AnswerCommand(GameWorld testWorld) {
-  }
-
   @Override
   public void execute() {
     controller.answerPuzzle(answer);

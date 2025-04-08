@@ -1,14 +1,20 @@
 package controller.commands;
 
 import model.*;
+import controller.GameController;
+import controller.Command;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+
 
 /**
  * Test for the AnswerCommand.
@@ -19,7 +25,7 @@ public class AnswerCommandTest {
   private Player player;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
     // Step 1: Create a basic game world with one room and player
     Room room = new Room("Test Room", "1", "A room used for testing.", new HashMap<>());
     room.setExitRoomNumber(Direction.NORTH, "0");
@@ -41,7 +47,8 @@ public class AnswerCommandTest {
   @DisplayName("Should execute AnswerCommand without error")
   void testCommandExecution() {
     // Step 2: Instantiate the command
-    Command command = new AnswerCommand(testWorld);
+    GameController controller = new GameController(testWorld);
+    AnswerCommand command = new AnswerCommand(controller, "mock-answer");
 
     // Step 3: Run the command
     command.execute();

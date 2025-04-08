@@ -26,7 +26,7 @@ class BatchControllerTest {
   void setUp() {
     commandLog = new ArrayList<>();
     try {
-      dummyWorld = new GameWorld("dummy.json"); // ✅ Fixed: added required constructor argument
+      dummyWorld = new GameWorld("dummy.json");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
