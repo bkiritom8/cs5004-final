@@ -1,6 +1,7 @@
 package controller.commands;
 
 import controller.Command;
+import controller.GameController;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ public class TakeCommandTest {
 
   private GameWorld testWorld;
   private Player player;
+  private GameController controller;
 
   @BeforeEach
   void setUp() throws IOException {
@@ -31,19 +33,22 @@ public class TakeCommandTest {
     room.setMonster(null);
 
     player = new Player(room);
-    testWorld = new GameWorld() {
+    testWorld = new GameWorld("dummy.json") {
       @Override public String getGameName() { return "Test Game"; }
       @Override public Player getPlayer() { return player; }
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+
+    // Create a controller using the test world
+    controller = new GameController(testWorld);
   }
 
   @Test
   @DisplayName("Should execute TakeCommand without error")
-  void testCommandExecution() {
-    // Step 2: Instantiate the command
-    Command command = new TakeCommand(testWorld);
+  void testCommandExecution() throws IOException {
+    // Step 2: Instantiate the command with the controller
+    Command command = new TakeCommand(controller, "item"); // Added second parameter for itemName
 
     // Step 3: Run the command
     command.execute();

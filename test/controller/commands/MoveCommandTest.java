@@ -32,7 +32,7 @@ public class MoveCommandTest {
 
     player = new Player(room);
     try {
-      testWorld = new GameWorld() {
+      testWorld = new GameWorld("dummy.json") {
         @Override public String getGameName() { return "Test Game"; }
         @Override public Player getPlayer() { return player; }
         @Override public void setPlayerName(String name) { player.setName(name); }
@@ -45,7 +45,7 @@ public class MoveCommandTest {
 
   @Test
   @DisplayName("Should execute MoveCommand without error")
-  void testCommandExecution() {
+  void testCommandExecution() throws IOException {
     // Step 2: Instantiate the command
     Command command = new MoveCommand(testWorld);
 

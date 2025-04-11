@@ -23,6 +23,7 @@ public class AnswerCommandTest {
 
   private GameWorld testWorld;
   private Player player;
+  private GameController controller;
 
   @BeforeEach
   void setUp() throws IOException {
@@ -35,12 +36,14 @@ public class AnswerCommandTest {
     room.setMonster(null);
 
     player = new Player(room);
-    testWorld = new GameWorld() {
+    testWorld = new GameWorld("dummy.json") {
       @Override public String getGameName() { return "Test Game"; }
       @Override public Player getPlayer() { return player; }
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+    // Create a controller using the test world
+    controller = new GameController(testWorld);
   }
 
   @Test

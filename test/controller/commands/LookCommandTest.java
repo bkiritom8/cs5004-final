@@ -32,7 +32,7 @@ public class LookCommandTest {
     room.setMonster(null);
 
     player = new Player(room);
-    testWorld = new GameWorld() {
+    testWorld = new GameWorld("dummy.json") {
       @Override public String getGameName() { return "Test Game"; }
       @Override public Player getPlayer() { return player; }
       @Override public void setPlayerName(String name) { player.setName(name); }
@@ -43,7 +43,7 @@ public class LookCommandTest {
 
   @Test
   @DisplayName("Should execute LookCommand without error")
-  void testCommandExecution() {
+  void testCommandExecution() throws IOException {
     // Step 2: Instantiate the command
     GameController controller = new GameController(testWorld);
     Command command = new LookCommand(controller);

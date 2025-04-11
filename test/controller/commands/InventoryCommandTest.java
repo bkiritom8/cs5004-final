@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import controller.Command;
+import controller.GameController;
 import model.Direction;
 import model.GameWorld;
 import model.Player;
@@ -23,6 +24,7 @@ public class InventoryCommandTest {
 
   private GameWorld testWorld;
   private Player player;
+  private GameController controller;
 
   @BeforeEach
   void setUp() throws IOException {
@@ -35,7 +37,7 @@ public class InventoryCommandTest {
     room.setMonster(null);
 
     player = new Player(room);
-    testWorld = new GameWorld() {
+    testWorld = new GameWorld("dummy.json") {
       @Override
       public String getGameName() {
         return "Test Game";
@@ -56,13 +58,16 @@ public class InventoryCommandTest {
         return true;
       }
     };
+
+    // Create a controller using the test world
+    controller = new GameController(testWorld);
   }
 
   @Test
   @DisplayName("Should execute InventoryCommand without error")
-  void testCommandExecution() {
+  void testCommandExecution() throws IOException {
     // Step 2: Instantiate the command
-    Command command = new InventoryCommand(testWorld);
+    Command command = new InventoryCommand(controller);
 
     // Step 3: Run the command
     command.execute();
