@@ -24,6 +24,10 @@ public class GameController {
     public boolean gameOver;
     public GameView view;
 
+    public GameController() {
+      // TODO add a parameterless constructor to compile
+    }
+
   // set up game world environment, input, and output
     public GameController(GameWorld gameWorld, Readable input, Appendable output) {
         this.gameWorld = gameWorld;
@@ -32,18 +36,19 @@ public class GameController {
         this.gameOver = false;
     }
 
-  /**
-   * Default constructor for GameController.
-   * Creates a controller with null game world and default I/O.
-   * This constructor is required for inheritance purposes.
-   */
-  public GameController() {
-    this.gameWorld = null;
-    this.scanner = null;
-    this.output = new StringBuilder();
-    this.gameOver = false;
-    this.view = null;
-  }
+    /**
+    * Constructor for testing purposes that accepts only a GameWorld.
+    * Sets up dummy I/O for testing commands.
+    *
+    * @param world The game world to use
+    */
+    public GameController(GameWorld world) {
+        this.gameWorld = world;
+        this.scanner = null;
+        this.output = new StringBuilder();
+        this.gameOver = false;
+        this.view = null;
+      }
 
   // run main game loop
     public void play() throws IOException {

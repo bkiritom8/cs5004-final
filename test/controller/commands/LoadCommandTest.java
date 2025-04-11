@@ -1,10 +1,12 @@
 package controller.commands;
 
+import controller.Command;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,7 +21,7 @@ public class LoadCommandTest {
   private Player player;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
     // Step 1: Create a basic game world with one room and player
     Room room = new Room("Test Room", "1", "A room used for testing.", new HashMap<>());
     room.setExitRoomNumber(Direction.NORTH, "0");

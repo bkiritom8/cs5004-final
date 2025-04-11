@@ -43,6 +43,8 @@ public class GameWindow extends JFrame implements GameView {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(800, 600);
     setLocationRelativeTo(null); // Center on screen
+
+    setVisible(true);
   }
   
   /**
@@ -147,6 +149,7 @@ public class GameWindow extends JFrame implements GameView {
    *
    * @param inventory The inventory text to display.
    */
+  @Override
   public void displayInventory(String inventory) {
     displayMessage("Inventory: " + inventory);
   }
@@ -185,7 +188,36 @@ public class GameWindow extends JFrame implements GameView {
    * @return null since input is handled via events.
    */
   public String getUserInput() {
-    // GUI input is handled via the text field and its action listener
+    // Create a command input dialog
+    String input = JOptionPane.showInputDialog(this, 
+        "Enter command:", 
+        "Game Command", 
+        JOptionPane.QUESTION_MESSAGE);
+    
+    // If user cancels, return null
+    if (input == null) {
+      return null;
+    }
+    
+    // If input was provided, display it and process it
+    if (!input.trim().isEmpty()) {
+      String command = input.trim();
+      displayMessage("> " + command);
+      
+      // Try to process command using controller
+      if (controller != null) {
+        try {
+          controller.processCommand(command.toLowerCase());
+        } catch (Exception e) {
+          // If there's an error, display it but don't interrupt flow
+          displayMessage("Error: " + e.getMessage());
+        }
+      }
+      
+      return command;
+    }
+    
+    // Return null for empty input
     return null;
   }
   

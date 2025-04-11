@@ -41,7 +41,7 @@ public class AttackCommandTest {
 
   @Test
   @DisplayName("Should execute AttackCommand without error")
-  void testCommandExecution() throws IOException {
+  void testCommandExecution() {
     // Step 2: Instantiate the command
     Command command = new AttackCommand(testWorld);
 
