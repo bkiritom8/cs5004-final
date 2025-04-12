@@ -12,10 +12,10 @@ import util.ImageLoader;
  * The RoomPanel class provides a UI panel containing room information.
  */
 public class RoomPanel extends JPanel {
-  JLabel roomImageLabel;
-  JLabel healthLabel;
-  JTextArea descriptionArea;
-  JTextArea messageArea;
+  private JLabel roomImageLabel;
+  private JLabel healthLabel;
+  private JTextArea descriptionArea;
+  private JTextArea messageArea;
 
   /**
    * Constructs the layout, border/s, and adds images and descriptions for rooms.

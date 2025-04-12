@@ -13,9 +13,9 @@ import model.Item;
  * The InventoryPanel class provides a UI panel for interacting with the inventory.
  */
 public class InventoryPanel extends JPanel {
-  JList<String> inventoryList;
-  DefaultListModel<String> inventoryListModel;
-  SwingController controller;
+  private JList<String> inventoryList;
+  private DefaultListModel<String> inventoryListModel;
+  private SwingController controller;
 
   /**
    * InventoryPanel class constructor using SwingController for handling GUI events.

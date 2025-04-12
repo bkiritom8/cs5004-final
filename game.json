@@ -1,0 +1,483 @@
+{
+  "name": "The Ancient Citadel",
+  "version": "1.0.0",
+  "rooms": [
+    {
+      "room_name": "Entrance Hall",
+      "room_number": "1",
+      "description": "You stand in a grand entrance hall with marble floors and high ceilings. Torches flicker along the walls, casting dancing shadows. Ancient symbols are carved into the stonework.",
+      "N": "2",
+      "S": "0",
+      "E": "3",
+      "W": "0",
+      "puzzle": null,
+      "monster": null,
+      "items": "Silver Key",
+      "fixtures": "Stone Pedestal"
+    },
+    {
+      "room_name": "Guard Chamber",
+      "room_number": "2",
+      "description": "This chamber has faded tapestries on the walls depicting ancient battles. The air is cool and still. Rusted weapons and armor lie scattered about.",
+      "N": "5",
+      "S": "1",
+      "E": "0",
+      "W": "0",
+      "puzzle": null,
+      "monster": "Goblin",
+      "items": null,
+      "fixtures": "Wooden Chest"
+    },
+    {
+      "room_name": "Eastern Library",
+      "room_number": "3",
+      "description": "Rows of bookshelves fill this room, many with ancient tomes. Dust motes float in the air, visible in beams of light from high windows.",
+      "N": "0",
+      "S": "0",
+      "E": "-4",
+      "W": "1",
+      "puzzle": "Door Riddle",
+      "monster": null,
+      "items": "Old Book",
+      "fixtures": "Reading Desk"
+    },
+    {
+      "room_name": "Treasure Chamber",
+      "room_number": "4",
+      "description": "This hidden chamber contains a valuable treasure chest. Gold coins spill onto the floor and jewels glitter in the torchlight.",
+      "N": "0",
+      "S": "0",
+      "E": "0",
+      "W": "3",
+      "puzzle": null,
+      "monster": null,
+      "items": "Gold Coins, Ruby Necklace",
+      "fixtures": "Treasure Chest"
+    },
+    {
+      "room_name": "Northern Corridor",
+      "room_number": "5",
+      "description": "A long stone corridor stretches north, lined with unlit braziers. The ceiling arches high above, disappearing into shadows.",
+      "N": "8",
+      "S": "2",
+      "E": "6",
+      "W": "7",
+      "puzzle": null,
+      "monster": null,
+      "items": "Torch",
+      "fixtures": "Wall Brazier"
+    },
+    {
+      "room_name": "Armory",
+      "room_number": "6",
+      "description": "Weapon racks line the walls of this chamber, though most are empty. A few rusty swords and dented shields remain.",
+      "N": "0",
+      "S": "0",
+      "E": "0",
+      "W": "5",
+      "puzzle": null,
+      "monster": null,
+      "items": "Bronze Shield",
+      "fixtures": "Weapon Rack"
+    },
+    {
+      "room_name": "Western Storeroom",
+      "room_number": "7",
+      "description": "Shelves and crates fill this dusty room. Most supplies have rotted away, but a few items might still be useful.",
+      "N": "0",
+      "S": "0",
+      "E": "5",
+      "W": "0",
+      "puzzle": null,
+      "monster": "Giant Rat",
+      "items": "Healing Potion",
+      "fixtures": "Wooden Crates"
+    },
+    {
+      "room_name": "Grand Staircase",
+      "room_number": "8",
+      "description": "A magnificent stone staircase spirals upward. Elaborate carvings adorn the banister, depicting scenes of ancient glory.",
+      "N": "0",
+      "S": "5",
+      "E": "0",
+      "W": "0",
+      "puzzle": null,
+      "monster": null,
+      "items": null,
+      "fixtures": "Stone Staircase"
+    },
+    {
+      "room_name": "Upper Landing",
+      "room_number": "9",
+      "description": "At the top of the grand staircase, a spacious landing opens up with doorways leading in several directions.",
+      "N": "12",
+      "S": "8",
+      "E": "10",
+      "W": "11",
+      "puzzle": null,
+      "monster": null,
+      "items": null,
+      "fixtures": "Faded Carpet"
+    },
+    {
+      "room_name": "Eastern Balcony",
+      "room_number": "10",
+      "description": "This balcony overlooks a vast courtyard, now overgrown with wild vegetation. The view extends for miles across the surrounding countryside.",
+      "N": "0",
+      "S": "0",
+      "E": "0",
+      "W": "9",
+      "puzzle": null,
+      "monster": null,
+      "items": "Spyglass",
+      "fixtures": "Stone Railing"
+    },
+    {
+      "room_name": "Wizard's Study",
+      "room_number": "11",
+      "description": "This circular room contains magical apparatus and shelves of arcane ingredients. A large crystal ball sits on a central pedestal.",
+      "N": "0",
+      "S": "0",
+      "E": "9",
+      "W": "0",
+      "puzzle": "Magic Lock",
+      "monster": null,
+      "items": "Magic Scroll",
+      "fixtures": "Crystal Ball"
+    },
+    {
+      "room_name": "Royal Bedchamber",
+      "room_number": "12",
+      "description": "A grand four-poster bed dominates this opulent room. Faded tapestries hang from the walls, and a thick layer of dust covers everything.",
+      "N": "0",
+      "S": "9",
+      "E": "13",
+      "W": "0",
+      "puzzle": null,
+      "monster": null,
+      "items": "Golden Comb",
+      "fixtures": "Royal Bed"
+    },
+    {
+      "room_name": "Secret Passage",
+      "room_number": "13",
+      "description": "This narrow, hidden passage is cold and damp. Water drips from the ceiling, and the walls are slick with moisture.",
+      "N": "14",
+      "S": "0",
+      "E": "0",
+      "W": "12",
+      "puzzle": null,
+      "monster": "Cave Spider",
+      "items": null,
+      "fixtures": "Rusty Sconce"
+    },
+    {
+      "room_name": "Hidden Throne Room",
+      "room_number": "14",
+      "description": "This magnificent chamber contains an ornate throne carved from a single piece of marble. Ancient magic still lingers in the air.",
+      "N": "0",
+      "S": "13",
+      "E": "-15",
+      "W": "0",
+      "puzzle": null,
+      "monster": "Ghost King",
+      "items": null,
+      "fixtures": "Marble Throne"
+    },
+    {
+      "room_name": "Crown Chamber",
+      "room_number": "15",
+      "description": "The legendary crown of the ancient kingdom rests on a velvet cushion in this well-protected chamber. You have reached your ultimate goal!",
+      "N": "0",
+      "S": "0",
+      "E": "0",
+      "W": "14",
+      "puzzle": null,
+      "monster": null,
+      "items": "Ancient Crown",
+      "fixtures": "Pedestal of Light"
+    }
+  ],
+  "items": [
+    {
+      "name": "Silver Key",
+      "weight": "1",
+      "max_uses": "1",
+      "uses_remaining": "1",
+      "value": "20",
+      "when_used": "The key fits perfectly into the lock and turns with a satisfying click.",
+      "description": "A small silver key with ornate engravings. It looks important."
+    },
+    {
+      "name": "Old Book",
+      "weight": "2",
+      "max_uses": "5",
+      "uses_remaining": "5",
+      "value": "15",
+      "when_used": "You carefully open the book and read a few pages about the ancient crown.",
+      "description": "A dusty tome bound in leather with faded gold lettering on the spine."
+    },
+    {
+      "name": "Gold Coins",
+      "weight": "3",
+      "max_uses": "1",
+      "uses_remaining": "1",
+      "value": "50",
+      "when_used": "You count the coins - there are more than you initially thought!",
+      "description": "A small pile of gleaming gold coins from a forgotten age."
+    },
+    {
+      "name": "Ruby Necklace",
+      "weight": "1",
+      "max_uses": "1",
+      "uses_remaining": "1",
+      "value": "100",
+      "when_used": "You hold the necklace up to the light, admiring its brilliance.",
+      "description": "A delicate silver chain with a large ruby pendant that catches the light beautifully."
+    },
+    {
+      "name": "Torch",
+      "weight": "1",
+      "max_uses": "10",
+      "uses_remaining": "10",
+      "value": "5",
+      "when_used": "You light the torch, illuminating the darkness around you.",
+      "description": "A wooden torch with a cloth-wrapped end, perfect for lighting dark passages."
+    },
+    {
+      "name": "Bronze Shield",
+      "weight": "4",
+      "max_uses": "20",
+      "uses_remaining": "20",
+      "value": "30",
+      "when_used": "You raise the shield defensively, ready to block incoming attacks.",
+      "description": "A sturdy bronze shield with the emblem of an eagle. Though dented, it's still serviceable."
+    },
+    {
+      "name": "Healing Potion",
+      "weight": "1",
+      "max_uses": "1",
+      "uses_remaining": "1",
+      "value": "40",
+      "when_used": "You drink the potion and feel a warm glow spread through your body as your wounds heal.",
+      "description": "A small glass vial containing a bright red liquid that smells of herbs and spices."
+    },
+    {
+      "name": "Spyglass",
+      "weight": "1",
+      "max_uses": "10",
+      "uses_remaining": "10",
+      "value": "25",
+      "when_used": "You peer through the spyglass, bringing distant objects into clear focus.",
+      "description": "A brass telescope that extends to reveal multiple glass lenses for viewing far-off objects."
+    },
+    {
+      "name": "Magic Scroll",
+      "weight": "1",
+      "max_uses": "1",
+      "uses_remaining": "1",
+      "value": "75",
+      "when_used": "You read the arcane words on the scroll, releasing a burst of magical energy.",
+      "description": "A yellowed parchment covered with strange symbols and glowing runes."
+    },
+    {
+      "name": "Golden Comb",
+      "weight": "1",
+      "max_uses": "5",
+      "uses_remaining": "5",
+      "value": "60",
+      "when_used": "You run the comb through your hair, feeling oddly refreshed and revitalized.",
+      "description": "An ornate golden comb with jeweled teeth, clearly once belonging to royalty."
+    },
+    {
+      "name": "Ancient Crown",
+      "weight": "2",
+      "max_uses": "1",
+      "uses_remaining": "1",
+      "value": "500",
+      "when_used": "You place the crown on your head and feel the weight of ancient power and responsibility.",
+      "description": "The legendary crown of the ancient kingdom, forged of precious metals and set with dazzling jewels."
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "Stone Pedestal",
+      "weight": "1000",
+      "puzzle": null,
+      "states": null,
+      "description": "A carved stone pedestal with intricate designs around its base."
+    },
+    {
+      "name": "Wooden Chest",
+      "weight": "500",
+      "puzzle": null,
+      "states": null,
+      "description": "An old wooden chest with iron bindings. It appears to be locked."
+    },
+    {
+      "name": "Reading Desk",
+      "weight": "200",
+      "puzzle": null,
+      "states": null,
+      "description": "A sturdy wooden desk with an angled surface for reading large books."
+    },
+    {
+      "name": "Treasure Chest",
+      "weight": "800",
+      "puzzle": null,
+      "states": null,
+      "description": "A large ornate chest filled with various treasures and valuables."
+    },
+    {
+      "name": "Wall Brazier",
+      "weight": "300",
+      "puzzle": null,
+      "states": null,
+      "description": "An iron brazier attached to the wall, designed to hold a torch or burning coals."
+    },
+    {
+      "name": "Weapon Rack",
+      "weight": "400",
+      "puzzle": null,
+      "states": null,
+      "description": "A wooden rack designed to hold various weapons, though most slots are now empty."
+    },
+    {
+      "name": "Wooden Crates",
+      "weight": "600",
+      "puzzle": null,
+      "states": null,
+      "description": "Stacked wooden crates containing various supplies, most now rotten or useless."
+    },
+    {
+      "name": "Stone Staircase",
+      "weight": "2000",
+      "puzzle": null,
+      "states": null,
+      "description": "A grand spiral staircase carved from stone, leading to upper levels of the citadel."
+    },
+    {
+      "name": "Faded Carpet",
+      "weight": "100",
+      "puzzle": null,
+      "states": null,
+      "description": "A once-luxurious carpet, now faded and threadbare from centuries of use."
+    },
+    {
+      "name": "Stone Railing",
+      "weight": "1000",
+      "puzzle": null,
+      "states": null,
+      "description": "A decorative stone balustrade running along the edge of the balcony."
+    },
+    {
+      "name": "Crystal Ball",
+      "weight": "50",
+      "puzzle": null,
+      "states": null,
+      "description": "A perfectly clear sphere of crystal that seems to glow with an inner light."
+    },
+    {
+      "name": "Royal Bed",
+      "weight": "1000",
+      "puzzle": null,
+      "states": null,
+      "description": "A grand four-poster bed with rotting silk hangings and a dusty mattress."
+    },
+    {
+      "name": "Rusty Sconce",
+      "weight": "100",
+      "puzzle": null,
+      "states": null,
+      "description": "An old iron sconce protruding from the wall, heavily rusted from the damp."
+    },
+    {
+      "name": "Marble Throne",
+      "weight": "3000",
+      "puzzle": null,
+      "states": null,
+      "description": "A magnificent throne carved from a single piece of white marble with gold inlay."
+    },
+    {
+      "name": "Pedestal of Light",
+      "weight": "500",
+      "puzzle": null,
+      "states": null,
+      "description": "A glowing pedestal that emits a soft, ethereal light. The crown rests upon it."
+    }
+  ],
+  "puzzles": [
+    {
+      "name": "Door Riddle",
+      "active": "true",
+      "affects_target": "true",
+      "affects_player": "false",
+      "solution": "'books'",
+      "value": "30",
+      "description": "A riddle is carved above the eastern door: 'I have pages but no words, spines but no bones. What am I?'",
+      "effects": "The door is magically sealed until you solve the riddle.",
+      "target": "3:Eastern Library"
+    },
+    {
+      "name": "Magic Lock",
+      "active": "true",
+      "affects_target": "true",
+      "affects_player": "false",
+      "solution": "Magic Scroll",
+      "value": "75",
+      "description": "A magical barrier blocks the doorway, shimmering with arcane energy.",
+      "effects": "A magical force prevents access to the hidden chamber beyond.",
+      "target": "11:Wizard's Study"
+    }
+  ],
+  "monsters": [
+    {
+      "name": "Goblin",
+      "active": "true",
+      "damage": "10",
+      "can_attack": "true",
+      "attack_description": "The goblin lunges at you with a rusty dagger!",
+      "description": "A small green goblin with a wicked grin and a rusty dagger.",
+      "effects": "A goblin blocks your path, clutching a rusty dagger.",
+      "value": "25",
+      "solution": "Silver Key",
+      "target": "2:Guard Chamber"
+    },
+    {
+      "name": "Giant Rat",
+      "active": "true",
+      "damage": "5",
+      "can_attack": "true",
+      "attack_description": "The giant rat leaps at you, attempting to bite!",
+      "description": "A rat the size of a small dog with matted fur and sharp teeth.",
+      "effects": "A giant rat scurries among the crates, hissing at your approach.",
+      "value": "15",
+      "solution": "Bronze Shield",
+      "target": "7:Western Storeroom"
+    },
+    {
+      "name": "Cave Spider",
+      "active": "true",
+      "damage": "15",
+      "can_attack": "true",
+      "attack_description": "The cave spider attempts to ensnare you in its sticky web!",
+      "description": "A huge spider with a body the size of a dinner plate and hairy legs twice as long.",
+      "effects": "A massive cave spider blocks the passage, its many eyes gleaming in the darkness.",
+      "value": "40",
+      "solution": "Torch",
+      "target": "13:Secret Passage"
+    },
+    {
+      "name": "Ghost King",
+      "active": "true",
+      "damage": "20",
+      "can_attack": "true",
+      "attack_description": "The ghost king swings his spectral sword, chilling you to the bone!",
+      "description": "The translucent figure of an ancient king, still wearing his royal regalia.",
+      "effects": "The ghost of the ancient king stands before his throne, watching you with hollow eyes.",
+      "value": "100",
+      "solution": "Golden Comb",
+      "target": "14:Hidden Throne Room"
+    }
+  ]
+}

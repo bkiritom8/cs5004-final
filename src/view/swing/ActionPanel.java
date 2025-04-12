@@ -10,7 +10,7 @@ import controller.SwingController;
  * The ActionPanel class provides a UI panel for performing actions within the game.
  */
 public class ActionPanel extends JPanel {
-  SwingController controller;
+  private SwingController controller;
 
   /**
    * ActionPanel class constructor using SwingController for handling GUI events.

@@ -1,9 +1,12 @@
 package util;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,6 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for FileIoManager file reading and writing functionality.
  */
 class FileIoManagerTest {
+
+  @BeforeAll
+  static void suppressLogging() {
+    Logger logger = Logger.getLogger(FileIoManager.class.getName());
+    logger.setLevel(Level.OFF);
+  }
 
   @Test
   void testReadWriteRoundTrip() {

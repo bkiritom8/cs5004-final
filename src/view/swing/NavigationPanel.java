@@ -14,8 +14,8 @@ import model.Room;
  * The NavigationPanel class provides a UI panel for the player's navigation controls.
  */
 public class NavigationPanel extends JPanel {
-  Map<Direction, JButton> directionButtons;
-  SwingController controller;
+  private Map<Direction, JButton> directionButtons;
+  private SwingController controller;
 
   /**
    * NavigationPanel class constructor using SwingController for handling GUI events.
