@@ -1,0 +1,30 @@
+Player name set to: Player
+> look
+Health: 100 (AWAKE)
+You are in: Align HQ
+Align Headquarters. Professor Keith is here working on your architecture review requirements.
+ "Great to see you!" he says. "Looks like you're ready to do your code walk!" 
+There is an open pathway to the north.
+Items here: Golden Ticket 
+Exits: NORTH EAST 
+> inventory
+Your inventory is empty.
+> take Magic Scroll
+There's no Magic Scroll here to take.
+> inventory
+Your inventory is empty.
+> e
+You move east.
+Health: 100 (AWAKE)
+You are in: Recursive Study
+A study/office room. A fake mirror has been shattered showing an opening to the east.
+Exits: NORTH EAST WEST 
+> look
+Health: 100 (AWAKE)
+You are in: Recursive Study
+A study/office room. A fake mirror has been shattered showing an opening to the east.
+Exits: NORTH EAST WEST 
+> w
+You can't go that way right now.
+> quit
+Exiting game with score: 0

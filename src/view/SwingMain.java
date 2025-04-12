@@ -5,11 +5,15 @@ import java.io.IOException;
 import controller.SwingController;
 import model.GameWorld;
 import view.swing.GameWindow;
+import util.ImageLoader;
 
 public class SwingMain {
 
   public static void main(String[] args) {
     try {
+      //  Initialize image loader (optional pre-caching or logging setup)
+      ImageLoader.initialize();
+
       // Create a new game world and controller
       GameWorld world = new GameWorld("align_quest_game_elements.json");
       SwingController controller = new SwingController(world);

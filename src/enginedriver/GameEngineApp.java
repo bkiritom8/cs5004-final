@@ -104,19 +104,17 @@ public class GameEngineApp {
       throw new IllegalArgumentException("Batch mode requires an input file");
     }
 
-    // Create appropriate view based on output destination
+    // Create batch controller with or without output file
+    BatchController batchController;
     if (outputFile != null) {
       // Output to file
-      try (FileWriter writer = new FileWriter(outputFile)) {
-        GameView view = new ConsoleView(true);
-        BatchController batchController = new BatchController(gameWorld, inputFile, view);
-        batchController.run();
-      }
+      batchController = new BatchController(gameWorld, inputFile, outputFile, null);
     } else {
       // Output to console
-      GameView view = new ConsoleView(false);
-      BatchController batchController = new BatchController(gameWorld, inputFile, view);
-      batchController.run();
+      batchController = new BatchController(gameWorld, inputFile, null);
     }
+
+    // Run the batch controller
+    batchController.run();
   }
-}
+  }

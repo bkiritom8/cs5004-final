@@ -45,39 +45,62 @@ public class TextController extends GameController {
   public void start() throws IOException {
     running = true;
 
+    // Check for existing save file
+    java.io.File saveFile = new java.io.File("saved_game.json");
+    if (saveFile.exists()) {
+      out.println("==================================");
+      out.println("Save file detected!");
+      out.println("Would you like to continue your previous game? (y/n)");
+      out.println("==================================");
+      out.print("> ");
+      out.flush();
+
+      String answer = bufferedReader.readLine();
+      if (answer != null && (answer.toLowerCase().startsWith("y"))) {
+        try {
+          loadGame();
+          out.println("Game loaded successfully!");
+        } catch (Exception e) {
+          out.println("Error loading game: " + e.getMessage());
+          out.println("Starting a new game instead...");
+        }
+      } else {
+        out.println("Starting a new game...");
+      }
+    }
+
     // Display welcome screen
     displayWelcome();
 
-    // Get player name
-    promptForPlayerName();
+    // Get player name if not already set (from loaded game)
+    if ("Player".equals(gameWorld.getPlayer().getName())) {
+      promptForPlayerName();
+    } else {
+      out.println("Welcome back, " + gameWorld.getPlayer().getName() + "!");
+    }
 
     // Show initial room description
     lookAround();
 
-    // Add this line to display the initial command prompt
-    displayPrompt();
-
-    // Enter main game loop
+    // Main game loop with fixed logic
     while (running) {
-      try {
-        // Get and process player command
-        String command = bufferedReader.readLine();
-        if (command != null) {
-          processCommand(command.trim().toLowerCase());
-        }
+      displayPrompt();
 
-        // Check if player's health is depleted
-        if (gameWorld.getPlayer().getHealth() <= 0) {
-          displayGameOver();
-          endGame();
-        }
+      // Read next command
+      String command = bufferedReader.readLine();
 
-        // Only display prompt if game is still running
-        if (running) {
-          displayPrompt();
-        }
-      } catch (IOException e) {
-        out.println("Error reading input: " + e.getMessage());
+      // Check if input is null (EOF or ctrl+d)
+      if (command == null) {
+        quitGame();
+        break;
+      }
+
+      // Process the command
+      processCommand(command.trim().toLowerCase());
+
+      // Check if player's health is depleted
+      if (gameWorld.getPlayer().getHealth() <= 0) {
+        displayGameOver();
         endGame();
       }
     }
@@ -513,10 +536,26 @@ public class TextController extends GameController {
   @Override
   public void quitGame() {
     try {
-      showFinalScore();
+      // Show final score
+      Player player = gameWorld.getPlayer();
+      out.println("\nGame over!");
+      out.println("Final score: " + player.getScore());
+      out.println("Rank: " + player.getRank());
+
+      // Ask if player wants to save
+      out.println("Would you like to save your game? (y/n)");
+      out.print("> ");
+      out.flush();
+
+      String answer = bufferedReader.readLine();
+      if (answer != null && answer.toLowerCase().startsWith("y")) {
+        saveGame();
+      }
+
       endGame();
     } catch (IOException e) {
       System.err.println("Error quitting game: " + e.getMessage());
+      endGame();
     }
   }
 

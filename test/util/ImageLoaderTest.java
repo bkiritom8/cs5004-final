@@ -39,5 +39,19 @@ class ImageLoaderTest {
     assertEquals(64, img.getWidth(), "Should return fallback blank image with width 64");
     assertEquals(64, img.getHeight(), "Should return fallback blank image with height 64");
   }
+  /**
+   * Tests that an image can be loaded directly from the classpath for Swing use.
+   */
+  @Test
+  void testClasspathImageLoad() {
+    try {
+      var stream = ImageLoader.class.getResourceAsStream("/images/items/sword.png");
+      assertNotNull(stream, "Stream for sword.png should not be null");
+      BufferedImage img = javax.imageio.ImageIO.read(stream);
+      assertNotNull(img, "Image should load from classpath for Swing");
+    } catch (Exception e) {
+      fail("Exception while loading image from classpath: " + e.getMessage());
+    }
+  }
 
 }

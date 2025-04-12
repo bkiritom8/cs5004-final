@@ -1,0 +1,9 @@
+Player
+look
+inventory
+take Magic Scroll
+inventory
+e
+look
+w
+quit
