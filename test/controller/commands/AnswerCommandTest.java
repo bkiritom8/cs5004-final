@@ -1,8 +1,8 @@
-
 package controller.commands;
 
 import model.*;
 import controller.GameController;
+import controller.Command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+
 
 /**
  * Test for the AnswerCommand.
@@ -40,16 +42,21 @@ public class AnswerCommandTest {
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+    // Create a controller using the test world
     controller = new GameController(testWorld);
   }
 
   @Test
   @DisplayName("Should execute AnswerCommand without error")
   void testCommandExecution() {
+    // Step 2: Instantiate the command
+    GameController controller = new GameController(testWorld);
     AnswerCommand command = new AnswerCommand(controller, "mock-answer");
+
+    // Step 3: Run the command
     command.execute();
 
+    // Step 4: (Generic test) just ensure it runs
     assertNotNull(testWorld.getPlayer());
-
   }
 }

@@ -54,12 +54,12 @@ public class TextController extends GameController {
     // Show initial room description
     lookAround();
 
+    // Add this line to display the initial command prompt
+    displayPrompt();
+
     // Enter main game loop
     while (running) {
       try {
-        // Show command prompt
-        displayPrompt();
-
         // Get and process player command
         String command = bufferedReader.readLine();
         if (command != null) {
@@ -70,6 +70,11 @@ public class TextController extends GameController {
         if (gameWorld.getPlayer().getHealth() <= 0) {
           displayGameOver();
           endGame();
+        }
+
+        // Only display prompt if game is still running
+        if (running) {
+          displayPrompt();
         }
       } catch (IOException e) {
         out.println("Error reading input: " + e.getMessage());
@@ -283,7 +288,7 @@ public class TextController extends GameController {
   /**
    * Let monster counterattack
    */
-  public void monsterAttacksPlayer() throws IOException {
+  public void monsterAttacksPlayer() {
     Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
     Monster monster = currentRoom.getMonster();
     if (monster != null && monster.isActive() && monster.canAttack()) {
@@ -298,7 +303,7 @@ public class TextController extends GameController {
   /**
    * Display player's inventory
    */
-  public void showInventory() throws IOException {
+  public void showInventory() {
     Player player = gameWorld.getPlayer();
     out.println("Inventory (weight: " + player.getInventoryWeight() + "/" + player.getMaxWeight() + "):");
     if (player.getInventory().isEmpty()) {
@@ -314,7 +319,7 @@ public class TextController extends GameController {
   /**
    * Take an item from the current room
    */
-  public void takeItem(String itemName) throws IOException {
+  public void takeItem(String itemName) {
     Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
     Item item = currentRoom.getItem(itemName);
     if (item == null) {
@@ -332,7 +337,7 @@ public class TextController extends GameController {
   /**
    * Drop an item from inventory
    */
-  public void dropItem(String itemName) throws IOException {
+  public void dropItem(String itemName) {
     Player player = gameWorld.getPlayer();
     Item item = player.getItemFromInventory(itemName);
     if (item == null) {
@@ -350,7 +355,7 @@ public class TextController extends GameController {
   /**
    * Examine an object in inventory or room
    */
-  public void examine(String target) throws IOException {
+  public void examine(String target) {
     // Check inventory first
     Player player = gameWorld.getPlayer();
     Item invItem = player.getItemFromInventory(target);
@@ -387,7 +392,7 @@ public class TextController extends GameController {
   /**
    * Use an item
    */
-  public void useItem(String itemName) throws IOException {
+  public void useItem(String itemName) {
     Player player = gameWorld.getPlayer();
     Item item = player.getItemFromInventory(itemName);
     if (item == null) {
@@ -421,7 +426,7 @@ public class TextController extends GameController {
   /**
    * Provide answer to a puzzle
    */
-  public void provideAnswer(String answer) throws IOException {
+  public void provideAnswer(String answer) {
     Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
     if (currentRoom.getPuzzle() == null || !currentRoom.getPuzzle().isActive()) {
       out.println("There's no active puzzle here.");
@@ -446,7 +451,7 @@ public class TextController extends GameController {
   /**
    * Attack monster in room
    */
-  public void attackMonster() throws IOException {
+  public void attackMonster() {
     Room currentRoom = gameWorld.getPlayer().getCurrentRoom();
     Monster monster = currentRoom.getMonster();
     if (monster == null || !monster.isActive()) {

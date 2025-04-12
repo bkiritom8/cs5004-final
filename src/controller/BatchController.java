@@ -1,6 +1,8 @@
 package controller;
 
 import java.util.List;
+import java.util.Objects;
+
 import model.GameWorld;
 import util.CommandParser;
 import util.CommandParser.ParsedCommand;
@@ -12,63 +14,86 @@ import view.GameView;
  */
 public class BatchController extends GameController {
   private final String batchFilePath;
+  private final GameView view;
+  private final List<String> testCommands;
 
   /**
-   * Constructs a BatchController with a game world and input file.
+   * Constructs a BatchController with a game world and a batch file path.
    *
    * @param world         The GameWorld instance
    * @param batchFilePath Path to the batch command file
-   * @param view          The GameView to display output (unused)
+   * @param view          The GameView to display output
    */
   public BatchController(GameWorld world, String batchFilePath, GameView view) {
     super(world);
     this.batchFilePath = batchFilePath;
-    // view parameter intentionally unused
+    this.view = view;
+    this.testCommands = null;
   }
 
   /**
-   * Runs the game using the commands from the batch file.
+   * Constructs a BatchController with test commands (for unit testing).
+   *
+   * @param world        The GameWorld instance
+   * @param testCommands List of test commands to execute
+   * @param view         The GameView to display output
+   */
+  public BatchController(GameWorld world, List<String> testCommands, GameView view) {
+    super(world);
+    this.testCommands = testCommands;
+    this.view = view;
+    this.batchFilePath = null;
+  }
+
+  /**
+   * Runs the game using either testCommands or batchFilePath.
    */
   public void run() {
-    List<String> commands = FileIoManager.readFile(batchFilePath);
+    List<String> commands;
+
+    commands = Objects.requireNonNullElseGet(testCommands, () -> FileIoManager.readFile(batchFilePath));
+
     for (String line : commands) {
       ParsedCommand parsed = CommandParser.parse(line);
-      Command command = CommandFactory.create(parsed.command(), parsed.args());
-      command.execute(); // no need for null check — fallback command always returned
+      Command command = CommandFactory.create(parsed.command(), view);
+      command.execute();
     }
   }
 
   private static class Command {
     public void execute() {
-      // Default fallback does nothing
+      // Default no-op
     }
   }
 
   private static class CommandFactory {
-    public static Command create(String commandName, List<String> args) {
+    /**
+     * Creates a command based on the command name.
+     *
+     * @param commandName Name of the command
+     * @param view        GameView for output
+     * @return Command instance
+     */
+    public static Command create(String commandName, GameView view) {
       return switch (commandName.toLowerCase()) {
         case "look" -> new Command() {
-          @Override
           public void execute() {
-            System.out.println("You look around.");
+            view.displayMessage("Executed: look");
           }
         };
         case "inventory" -> new Command() {
-          @Override
           public void execute() {
-            System.out.println("You check your inventory.");
+            view.displayMessage("Executed: inventory");
           }
         };
         case "quit" -> new Command() {
-          @Override
           public void execute() {
-            System.out.println("Game quit.");
+            view.displayMessage("Executed: quit");
           }
         };
         default -> new Command() {
-          @Override
           public void execute() {
-            System.out.println("Invalid command.");
+            view.displayMessage("Invalid command.");
           }
         };
       };

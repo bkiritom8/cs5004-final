@@ -36,7 +36,8 @@ class ImageLoaderTest {
   void testFallbackBlankImage() {
     // This test assumes no default.png exists for "weird"
     BufferedImage img = ImageLoader.loadImage("weird", "nothing.png");
-    assertEquals(100, img.getWidth());
-    assertEquals(100, img.getHeight());
+    assertEquals(64, img.getWidth(), "Should return fallback blank image with width 64");
+    assertEquals(64, img.getHeight(), "Should return fallback blank image with height 64");
   }
+
 }

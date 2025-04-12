@@ -1,16 +1,16 @@
 package view.text;
 
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import view.GameView;
 
 /**
  * Text-based implementation of the GameView interface.
- * Displays game information to the console with consistent formatting
- * and supports both direct console output and batch mode.
+ * Displays game information to the console or to a writer depending on mode.
  */
 public class ConsoleView implements GameView {
-  private StringBuilder outputBuffer;
   private final boolean batchMode;
+  private final PrintWriter writer;
 
   /**
    * Constructs a ConsoleView.
@@ -21,9 +21,8 @@ public class ConsoleView implements GameView {
    */
   public ConsoleView(boolean batchMode) {
     this.batchMode = batchMode;
-    if (batchMode) {
-      outputBuffer = new StringBuilder();
-    }
+    this.writer =
+            batchMode ? new PrintWriter(new StringWriter()) : new PrintWriter(System.out, true);
   }
 
   /**
@@ -34,8 +33,7 @@ public class ConsoleView implements GameView {
    */
   public ConsoleView(StringWriter output) {
     this.batchMode = true;
-    outputBuffer = new StringBuilder();
-    outputBuffer.append(output.toString());
+    this.writer = new PrintWriter(output, true);
   }
 
   @Override
@@ -45,6 +43,7 @@ public class ConsoleView implements GameView {
 
   @Override
   public void displayRoom(String roomDescription) {
+    display("== Room ==");
     display(roomDescription);
   }
 
@@ -55,7 +54,7 @@ public class ConsoleView implements GameView {
 
   @Override
   public void displayGameOver() {
-    display("Game Over");
+    display("GAME OVER");
   }
 
   @Override
@@ -64,24 +63,16 @@ public class ConsoleView implements GameView {
   }
 
   /**
-   * Displays the given message, either to the console or to the output buffer,
-   * depending on whether batch mode is enabled.
+   * Displays the given message to the appropriate writer or console.
    *
    * @param message the message to display
    */
   public void display(String message) {
-    String formattedMessage = formatMessage(message);
-    if (batchMode) {
-      outputBuffer.append(formattedMessage).append("\n");
-    } else {
-      System.out.println(formattedMessage);
-    }
+    writer.println(message);
+    writer.flush();
   }
 
-
-  private String formatMessage(String message) {
-    return "[Game Info] " + message;
+  public boolean isBatchMode() {
+    return batchMode;
   }
-
-
 }

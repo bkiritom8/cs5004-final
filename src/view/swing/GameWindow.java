@@ -8,6 +8,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import controller.SwingController;
+import controller.GameController;
+
 import model.Item;
 import model.Room;
 import view.GameView;
@@ -22,7 +24,7 @@ public class GameWindow extends JFrame implements GameView {
   protected NavigationPanel navigationPanel;
   protected ActionPanel actionPanel;
   protected SwingController controller;
-  
+  protected GameController gameController;
   /**
    * Constructs a new GameWindow.
    *
@@ -34,7 +36,7 @@ public class GameWindow extends JFrame implements GameView {
     // Set up main window
     super(title);
     this.controller = controller;
-    
+
     // Initialize UI components
     initComponents();
     createMenuBar();

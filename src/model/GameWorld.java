@@ -38,6 +38,18 @@ public class GameWorld implements  Serializable {
   private Player player;
 
   /**
+   * Default no-argument constructor for testing only.
+   * Initializes game data structures without loading from a file.
+   */
+  public GameWorld() {
+    this.rooms = new HashMap<>();
+    this.items = new HashMap<>();
+    this.fixtures = new HashMap<>();
+    this.puzzles = new HashMap<>();
+    this.monsters = new HashMap<>();
+  }
+
+  /**
    * Constructs a new GameWorld by loading game data from the specified JSON file.
    * Initializes all game elements and places the player in the first defined room.
    *
@@ -635,5 +647,6 @@ public class GameWorld implements  Serializable {
         }
       }
     }
+
   }
 }

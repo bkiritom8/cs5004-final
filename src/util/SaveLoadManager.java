@@ -5,8 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.File;
 import model.GameWorld;
-
 
 /**
  * Utility for saving and loading the GameWorld state.
@@ -20,7 +20,9 @@ public class SaveLoadManager {
    * @param filePath the file path to save to
    */
   public static void saveGame(GameWorld world, String filePath) {
-    try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filePath))) {
+    File file = new File(filePath);
+    file.getParentFile().mkdirs(); // Ensure directories exist
+    try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file))) {
       out.writeObject(world);
     } catch (IOException e) {
       System.err.println("Failed to save game: " + e.getMessage());
@@ -34,7 +36,13 @@ public class SaveLoadManager {
    * @return the loaded GameWorld, or null if failed
    */
   public static GameWorld loadGame(String filePath) {
-    try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))) {
+    File file = new File(filePath);
+    if (!file.exists()) {
+      System.err.println("Save file not found: " + filePath);
+      return null;
+    }
+
+    try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
       return (GameWorld) in.readObject();
     } catch (IOException | ClassNotFoundException e) {
       System.err.println("Failed to load game: " + e.getMessage());

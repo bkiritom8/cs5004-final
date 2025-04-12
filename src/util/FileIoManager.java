@@ -2,6 +2,7 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,11 +27,18 @@ public class FileIoManager {
    */
   public static List<String> readFile(String filePath) {
     List<String> lines = new ArrayList<>();
+
+    if (filePath == null) {
+      return lines; // Return empty list if null to prevent crash
+    }
+
     try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
       String line;
       while ((line = reader.readLine()) != null) {
         lines.add(line.trim());
       }
+    } catch (FileNotFoundException e) {
+      // Suppress logging for expected missing file scenario
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Error reading file: " + filePath, e);
     }

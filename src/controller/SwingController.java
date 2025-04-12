@@ -16,7 +16,6 @@ import model.Room;
 
 /**
  * SwingController shows a simple GUI for the game.
- *
  * Steps:
  * 1. Set up GUI.
  * 2. Show welcome screen (game name, current room, available exits).
@@ -83,9 +82,15 @@ public class SwingController extends GameController {
     appendText("Welcome to " + gameWorld.getGameName() + "!");
     appendText("Type 'help' or '?' for a list of commands.");
     Room current = gameWorld.getPlayer().getCurrentRoom();
-    appendText("You are in: " + current.getName());
-    appendText(current.getDescription());
-    showExits(current);
+    // Replace duplicate code with a call to describeRoom.
+    describeRoom(current);
+  }
+
+  //  New helper method to describe a room.
+  private void describeRoom(Room room) {
+    appendText("You are in: " + room.getName());
+    appendText(room.getDescription());
+    showExits(room);
   }
 
   // Show available exits in the room.
@@ -140,9 +145,8 @@ public class SwingController extends GameController {
     if (next != null) {
       player.setCurrentRoom(next);
       appendText("You move " + dir.toString().toLowerCase() + ".");
-      appendText("You are in: " + next.getName());
-      appendText(next.getDescription());
-      showExits(next);
+      // Use describeRoom to display room details after moving
+      describeRoom(next);
     } else {
       appendText("There's nothing in that direction.");
     }
@@ -151,15 +155,7 @@ public class SwingController extends GameController {
   // Displays the current room again.
   public void look() {
     Room room = gameWorld.getPlayer().getCurrentRoom();
-    appendText("You are in: " + room.getName());
-    appendText(room.getDescription());
-    showExits(room);
-    if (!room.getItems().isEmpty()) {
-      appendText("You see:");
-      for (Item item : room.getItems()) {
-        appendText("- " + item.getName());
-      }
-    }
+    describeRoom(room);
   }
 
   // Displays the player's inventory.

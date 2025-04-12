@@ -1,6 +1,7 @@
 package view.swing;
 
 import controller.SwingController;
+import controller.GameController;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -19,7 +20,7 @@ public class MenuBarSetup {
    * @param controller The controller for handling menu actions
    * @return The configured JMenuBar
    */
-  public static JMenuBar createMenuBar(GameWindow gameWindow, SwingController controller) {
+  public static JMenuBar createMenuBar(GameWindow gameWindow, GameController controller) {
     JMenuBar menuBar = new JMenuBar();
     
     // Game menu
@@ -27,18 +28,32 @@ public class MenuBarSetup {
     
     JMenuItem saveItem = new JMenuItem("Save Game");
     saveItem.addActionListener(e -> {
-      // Display a message since controller.saveGame() is not accessible
-      gameWindow.displayMessage("Saving game...");
+      try {
+        controller.saveGame();
+      } catch (java.io.IOException ex) {
+        JOptionPane.showMessageDialog(gameWindow, "Error saving game: " + ex.getMessage(), 
+            "Save Error", JOptionPane.ERROR_MESSAGE);
+      }
     });
     
     JMenuItem loadItem = new JMenuItem("Load Game");
     loadItem.addActionListener(e -> {
-      // Display a message since controller.loadGame() is not accessible
-      gameWindow.displayMessage("Loading game...");
+      try {
+        controller.restoreGame();
+      } catch (java.io.IOException ex) {
+        JOptionPane.showMessageDialog(gameWindow, "Error loading game: " + ex.getMessage(), 
+            "Load Error", JOptionPane.ERROR_MESSAGE);
+      }
     });
     
     JMenuItem exitItem = new JMenuItem("Exit");
     exitItem.addActionListener(e -> {
+      try {
+        controller.saveGame();
+      } catch (java.io.IOException ex) {
+        JOptionPane.showMessageDialog(gameWindow, "Error saving game: " + ex.getMessage(),
+                "Save Error", JOptionPane.ERROR_MESSAGE);
+      }
       // Use the built-in close() method in GameWindow
       gameWindow.close();
       System.exit(0);

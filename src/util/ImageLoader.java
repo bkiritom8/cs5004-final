@@ -31,7 +31,11 @@ public class ImageLoader {
       return ImageIO.read(primaryPath.toFile());
     } catch (IOException e) {
       LOGGER.warning("Failed to load: " + primaryPath + ", falling back to category default.");
-      Path categoryFallback = Paths.get("resources/images", category, "default.png");
+      Path categoryFallback = Paths.get(
+              "resources/images",
+              category,
+              "default " + category.substring(0, category.length() - 1) + ".png"
+      );
       try {
         return ImageIO.read(categoryFallback.toFile());
       } catch (IOException e1) {
@@ -61,7 +65,9 @@ public class ImageLoader {
    * @return an Icon containing the room image
    */
   public static Icon getRoomImage(Room room) {
-    BufferedImage image = loadImage("rooms", "default.png");
+    String roomName = room.getName().toLowerCase().replaceAll("[^a-z0-9]+", "-");
+    String fileName = roomName + ".png";
+    BufferedImage image = loadImage("rooms", fileName);
     return new ImageIcon(image);
   }
 }

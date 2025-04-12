@@ -2,10 +2,7 @@ package controller;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,21 +10,20 @@ import model.GameWorld;
 import model.Player;
 import model.Room;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * TextControllerTest verifies the TextController behavior.
+ * TextControllerTest verifies the behavior of the TextController.
  */
 public class TextControllerTest {
 
   /**
-   * Creates a simple dummy GameWorld instance.
+   * Creates a dummy GameWorld without loading from a file.
    *
-   * @return a dummy GameWorld for testing.
-   * @throws IOException if an I/O error occurs.
+   * @return a stubbed GameWorld instance for testing
    */
-  private GameWorld createDummyGameWorld() throws IOException {
-    return new GameWorld("dummy.json") {
+  private GameWorld createDummyWorld() {
+    return new GameWorld() {
       private final Player player;
 
       {
@@ -41,7 +37,7 @@ public class TextControllerTest {
 
       @Override
       public String getGameName() {
-        return "Dummy Game";
+        return "Adventure Game";
       }
 
       @Override
@@ -69,44 +65,171 @@ public class TextControllerTest {
     };
   }
 
-
   /**
-   * Test that TextController starts without throwing an exception.
+   * Test that TextController starts and outputs welcome and prompt text without errors.
    *
-   * @throws IOException if an I/O error occurs during GameWorld creation.
+   * @throws IOException if setup fails
    */
   @Test
   public void testTextControllerStart() throws IOException {
-    GameWorld dummyWorld = createDummyGameWorld();
+    String input = "Tester\nquit\n";
+    InputStream inputStream = new ByteArrayInputStream(input.getBytes());
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(outputStream);
+
+    GameWorld dummyWorld = createDummyWorld();
     TextController controller = new TextController(dummyWorld,
-            new BufferedReader(new InputStreamReader(System.in)),
-            System.out);
-    assertDoesNotThrow(controller::start, "TextController started successfully");
+            new BufferedReader(new InputStreamReader(inputStream)),
+            printStream);
+
+    controller.start();
+    String output = outputStream.toString().toLowerCase();
+
+    assertTrue(output.contains("welcome to adventure game"));
+    assertTrue(output.contains("welcome, tester"));
+    assertTrue(output.contains("what would you like to do"));
   }
 
   /**
-   * Test that TextController processes a valid command without error.
+   * Test processing a valid command: look.
    *
-   * <p>This test uses reflection to invoke the private processCommand(String) method
-   * defined in GameController. It ensures that processing the 'look' command does not
-   * throw any exceptions.</p>
-   *
-   * @throws Exception if reflection fails or an I/O error occurs.
+   * @throws IOException if setup fails
    */
   @Test
-  public void testProcessValidCommand() throws Exception {
-    GameWorld dummyWorld = createDummyGameWorld();
-    TextController controller = new TextController(dummyWorld, new BufferedReader(new InputStreamReader(System.in)), System.out);
+  public void testProcessValidLookCommand() throws IOException {
+    InputStream input = new ByteArrayInputStream("".getBytes());
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream print = new PrintStream(out);
 
-    // Use reflection to access the private processCommand(String) method from GameController.
-    Method processCommandMethod = TextController.class.getSuperclass().getDeclaredMethod("processCommand", String.class);
-    processCommandMethod.setAccessible(true);
+    GameWorld dummyWorld = createDummyWorld();
+    TextController controller = new TextController(dummyWorld,
+            new BufferedReader(new InputStreamReader(input)), print);
 
-    // Invoke the private method with the command "look" and verify no exception is thrown.
-    assertDoesNotThrow(() -> processCommandMethod.invoke(controller, "look"), "Processing 'look' command should not throw an exception");
+    controller.processCommand("look");
+
+    String output = out.toString().toLowerCase();
+    assertTrue(output.contains("dummy room"));
   }
 
+  /**
+   * Test that an unknown command displays a help suggestion message.
+   *
+   * @throws IOException if setup fails
+   */
   @Test
-  void start() {
+  public void testUnknownCommand() throws IOException {
+    InputStream input = new ByteArrayInputStream("".getBytes());
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream print = new PrintStream(out);
+
+    GameWorld dummyWorld = createDummyWorld();
+    TextController controller = new TextController(dummyWorld,
+            new BufferedReader(new InputStreamReader(input)), print);
+
+    controller.processCommand("fly");
+
+    String output = out.toString().toLowerCase();
+    assertTrue(output.contains("i don't understand"));
+  }
+
+  /**
+   * Test inventory display with an empty inventory.
+   *
+   * @throws IOException if setup fails
+   */
+  @Test
+  public void testInventoryCommand() throws IOException {
+    InputStream input = new ByteArrayInputStream("".getBytes());
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream print = new PrintStream(out);
+
+    GameWorld dummyWorld = createDummyWorld();
+    TextController controller = new TextController(dummyWorld,
+            new BufferedReader(new InputStreamReader(input)), print);
+
+    controller.processCommand("inventory");
+
+    String output = out.toString().toLowerCase();
+    assertTrue(output.contains("your inventory is empty"));
+  }
+  /**
+   * Test the 'take' command with a valid item in the room.
+   */
+  @Test
+  public void testTakeItemCommand() throws IOException {
+    GameWorld world = createDummyWorld();
+    Room room = world.getPlayer().getCurrentRoom();
+
+    room.addItem(new model.Item("key", 1, 1, 1, 0, "Use it", "A small key"));
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    TextController controller = new TextController(world,
+            new BufferedReader(new StringReader("")), new PrintStream(out));
+
+    controller.processCommand("take key");
+    String output = out.toString().toLowerCase();
+
+    assertTrue(output.contains("you pick up the key"));
+  }
+
+  /**
+   * Test the 'drop' command with an item in the player's inventory.
+   */
+  @Test
+  public void testDropItemCommand() throws IOException {
+    GameWorld world = createDummyWorld();
+    Player player = world.getPlayer();
+    Room room = player.getCurrentRoom();
+
+    model.Item item = new model.Item("gem", 1, 1, 1, 0, "Glows", "A glowing gem");
+    player.addToInventory(item);
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    TextController controller = new TextController(world,
+            new BufferedReader(new StringReader("")), new PrintStream(out));
+
+    controller.processCommand("drop gem");
+    String output = out.toString().toLowerCase();
+
+    assertTrue(output.contains("you drop the gem"));
+    assertNotNull(room.getItem("gem"));
+  }
+
+  /**
+   * Test 'use' command with an item that has 0 uses remaining.
+   */
+  @Test
+  public void testUseItemWithNoUsesLeft() throws IOException {
+    GameWorld world = createDummyWorld();
+    Player player = world.getPlayer();
+
+    model.Item item = new model.Item("torch", 1, 1, 0, 0, "Flickers", "A burnt-out torch");
+    player.addToInventory(item);
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    TextController controller = new TextController(world,
+            new BufferedReader(new StringReader("")), new PrintStream(out));
+
+    controller.processCommand("use torch");
+    String output = out.toString().toLowerCase();
+
+    assertTrue(output.contains("has no uses left"));
+  }
+
+  /**
+   * Test 'answer' command when there is no puzzle in the room.
+   */
+  @Test
+  public void testAnswerWithNoPuzzle() throws IOException {
+    GameWorld world = createDummyWorld();
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    TextController controller = new TextController(world,
+            new BufferedReader(new StringReader("")), new PrintStream(out));
+
+    controller.processCommand("answer solution");
+    String output = out.toString().toLowerCase();
+
+    assertTrue(output.contains("no active puzzle"));
   }
 }
