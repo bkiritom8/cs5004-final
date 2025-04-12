@@ -50,16 +50,18 @@ public class GameEngineApp {
       GameWorld gameWorld = new GameWorld(gameFileName);
 
       // Create appropriate controller based on mode
-      GameController controller;
+      GameController controller = null;
 
       switch (mode) {
+        // Inside GameEngineApp.java -> start() method
         case "text":
           // Text mode with console I/O
-          controller = new TextController(
+          TextController textController = new TextController(
                   gameWorld,
                   new BufferedReader(new InputStreamReader(System.in)),
                   System.out
           );
+          textController.start();
           break;
 
         case "graphics":
@@ -76,6 +78,7 @@ public class GameEngineApp {
             output = System.out;
           }
 
+          assert output instanceof GameView;
           controller = new BatchController(
                   gameWorld,
                   inputFile,
@@ -88,6 +91,7 @@ public class GameEngineApp {
       }
 
       // Start the game with chosen controller
+      assert controller != null;
       controller.start();
 
     } catch (IOException e) {

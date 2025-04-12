@@ -51,7 +51,8 @@ public class Main {
     try {
       switch (mode) {
         case "-text":
-          // Run in text mode
+          // Make sure we're explicitly showing the welcome screen
+          System.out.println("Starting text adventure mode...");
           GameEngineApp app = new GameEngineApp(gameFile, "text", null, null);
           app.start();
           break;
