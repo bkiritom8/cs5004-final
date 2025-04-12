@@ -1,16 +1,14 @@
 package enginedriver;
 
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.FileWriter;
 
 import controller.BatchController;
 import controller.SwingController;
 import controller.TextController;
-
 import model.GameWorld;
-
 import view.GameView;
 import view.text.ConsoleView;
 
@@ -53,48 +51,72 @@ public class GameEngineApp {
 
       // Process different modes
       if ("text".equals(mode)) {
-        // Text mode with console I/O
-        TextController textController = new TextController(
-                gameWorld,
-                new BufferedReader(new InputStreamReader(System.in)),
-                System.out
-        );
-        textController.start();
+        runTextMode(gameWorld);
       }
       else if ("graphics".equals(mode)) {
-        // Graphical mode with Swing UI
-        SwingController swingController = new SwingController(gameWorld);
-        swingController.start();
+        runGraphicsMode(gameWorld);
       }
       else if ("batch".equals(mode)) {
-        // Batch mode with file I/O
-        if (outputFile != null) {
-          // Create a view that writes to a file
-          try (FileWriter writer = new FileWriter(outputFile)) {
-            GameView view = new ConsoleView(true);
-            BatchController batchController = new BatchController(
-                    gameWorld,
-                    inputFile,
-                    view
-            );
-            batchController.run();
-          }
-        } else {
-          // Create a view that writes to console
-          GameView view = new ConsoleView(false);
-          BatchController batchController = new BatchController(
-                  gameWorld,
-                  inputFile,
-                  view
-          );
-          batchController.run();
-        }
+        runBatchMode(gameWorld);
       }
       else {
         throw new IllegalArgumentException("Invalid mode: " + mode);
       }
     } catch (IOException e) {
       throw new IOException("Error starting game: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Runs the game in text mode with console I/O.
+   *
+   * @param gameWorld The game world model
+   * @throws IOException If there is an error with I/O operations
+   */
+  private void runTextMode(GameWorld gameWorld) throws IOException {
+    // Create a text controller with standard input/output
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    TextController textController = new TextController(gameWorld, reader, System.out);
+
+    // Start the text controller
+    textController.start();
+  }
+
+  /**
+   * Runs the game in graphics mode with Swing UI.
+   *
+   * @param gameWorld The game world model
+   */
+  private void runGraphicsMode(GameWorld gameWorld) throws IOException {
+    // Create and start swing controller
+    SwingController swingController = new SwingController(gameWorld);
+    swingController.start();
+  }
+
+  /**
+   * Runs the game in batch mode with file I/O.
+   *
+   * @param gameWorld The game world model
+   * @throws IOException If there is an error with file I/O
+   */
+  private void runBatchMode(GameWorld gameWorld) throws IOException {
+    if (inputFile == null) {
+      throw new IllegalArgumentException("Batch mode requires an input file");
+    }
+
+    // Create appropriate view based on output destination
+    if (outputFile != null) {
+      // Output to file
+      try (FileWriter writer = new FileWriter(outputFile)) {
+        GameView view = new ConsoleView(true);
+        BatchController batchController = new BatchController(gameWorld, inputFile, view);
+        batchController.run();
+      }
+    } else {
+      // Output to console
+      GameView view = new ConsoleView(false);
+      BatchController batchController = new BatchController(gameWorld, inputFile, view);
+      batchController.run();
     }
   }
 }
