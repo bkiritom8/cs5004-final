@@ -1,16 +1,18 @@
 package enginedriver;
 
-import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import controller.BatchController;
-import controller.GameController;
 import controller.SwingController;
 import controller.TextController;
+
 import model.GameWorld;
+
 import view.GameView;
+import view.text.ConsoleView;
 
 /**
  * The main application class that initializes and runs the adventure game.
@@ -49,51 +51,48 @@ public class GameEngineApp {
       // Create model from game file
       GameWorld gameWorld = new GameWorld(gameFileName);
 
-      // Create appropriate controller based on mode
-      GameController controller = null;
-
-      switch (mode) {
-        // Inside GameEngineApp.java -> start() method
-        case "text":
-          // Text mode with console I/O
-          TextController textController = new TextController(
-                  gameWorld,
-                  new BufferedReader(new InputStreamReader(System.in)),
-                  System.out
-          );
-          textController.start();
-          break;
-
-        case "graphics":
-          // Graphical mode with Swing UI
-          controller = new SwingController(gameWorld);
-          break;
-
-        case "batch":
-          // Batch mode with file I/O
-          Appendable output;
-          if (outputFile != null) {
-            output = new FileWriter(outputFile);
-          } else {
-            output = System.out;
+      // Process different modes
+      if ("text".equals(mode)) {
+        // Text mode with console I/O
+        TextController textController = new TextController(
+                gameWorld,
+                new BufferedReader(new InputStreamReader(System.in)),
+                System.out
+        );
+        textController.start();
+      }
+      else if ("graphics".equals(mode)) {
+        // Graphical mode with Swing UI
+        SwingController swingController = new SwingController(gameWorld);
+        swingController.start();
+      }
+      else if ("batch".equals(mode)) {
+        // Batch mode with file I/O
+        if (outputFile != null) {
+          // Create a view that writes to a file
+          try (FileWriter writer = new FileWriter(outputFile)) {
+            GameView view = new ConsoleView(true);
+            BatchController batchController = new BatchController(
+                    gameWorld,
+                    inputFile,
+                    view
+            );
+            batchController.run();
           }
-
-          assert output instanceof GameView;
-          controller = new BatchController(
+        } else {
+          // Create a view that writes to console
+          GameView view = new ConsoleView(false);
+          BatchController batchController = new BatchController(
                   gameWorld,
                   inputFile,
-                  (GameView) output
+                  view
           );
-          break;
-
-        default:
-          throw new IllegalArgumentException("Invalid mode: " + mode);
+          batchController.run();
+        }
       }
-
-      // Start the game with chosen controller
-      assert controller != null;
-      controller.start();
-
+      else {
+        throw new IllegalArgumentException("Invalid mode: " + mode);
+      }
     } catch (IOException e) {
       throw new IOException("Error starting game: " + e.getMessage(), e);
     }

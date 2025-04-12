@@ -380,7 +380,7 @@ public class GameController {
    * Default start method for the base controller.
    * Empty implementation to be overridden by subclasses.
    */
-  public void start() {}
+  public void start() throws IOException {}
 
   /**
    * Provides an answer to a puzzle.
