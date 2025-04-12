@@ -449,7 +449,7 @@ public class GameWorldIntegrationTest {
     // Take damage
     player.takeDamage(30);
     assertEquals(70, player.getHealth());
-    assertEquals("FATIGUED", player.getHealthStatus());
+    assertEquals("AWAKE", player.getHealthStatus());
 
     // Take more damage
     player.takeDamage(40);

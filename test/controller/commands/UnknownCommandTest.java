@@ -39,16 +39,15 @@ public class UnknownCommandTest {
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+    GameController controller = new GameController(testWorld);
 
-    // Create a controller using the test world
-    controller = new GameController(testWorld);
   }
 
   @Test
   @DisplayName("Should execute UnknownCommand without error")
   void testCommandExecution() throws IOException {
-    // Step 2: Instantiate the command with controller and command string
-    Command command = new UnknownCommand(controller, "unknown-command");
+    // Step 2: Instantiate the command
+    Command command = new UnknownCommand(controller,"take");
 
     // Step 3: Run the command
     command.execute();

@@ -1,6 +1,7 @@
 package controller.commands;
 
 import controller.Command;
+import controller.GameController;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ public class MoveCommandTest {
 
   private GameWorld testWorld;
   private Player player;
+  private GameController controller;
 
   @BeforeEach
   void setUp() {
@@ -47,7 +49,7 @@ public class MoveCommandTest {
   @DisplayName("Should execute MoveCommand without error")
   void testCommandExecution() throws IOException {
     // Step 2: Instantiate the command
-    Command command = new MoveCommand(testWorld);
+    Command command = new MoveCommand(controller, Direction.NORTH);
 
     // Step 3: Run the command
     command.execute();

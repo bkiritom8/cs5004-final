@@ -39,15 +39,14 @@ public class SaveCommandTest {
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+    GameController controller = new GameController(testWorld);
 
-    // Create a controller using the test world
-    controller = new GameController(testWorld);
   }
 
   @Test
   @DisplayName("Should execute SaveCommand without error")
   void testCommandExecution() throws IOException {
-    // Step 2: Instantiate the command with the controller (not the world)
+    // Step 2: Instantiate the command
     Command command = new SaveCommand(controller);
 
     // Step 3: Run the command

@@ -39,16 +39,15 @@ public class ExamineCommandTest {
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+    GameController controller = new GameController(testWorld);
 
-    // Create a controller using the test world
-    controller = new GameController(testWorld);
   }
 
   @Test
   @DisplayName("Should execute ExamineCommand without error")
   void testCommandExecution() throws IOException {
     // Step 2: Instantiate the command
-    Command command = new ExamineCommand(controller, "room" );
+    Command command = new ExamineCommand(controller, "room");
 
     // Step 3: Run the command
     command.execute();

@@ -39,9 +39,8 @@ public class LoadCommandTest {
       @Override public void setPlayerName(String name) { player.setName(name); }
       @Override public boolean applySolution(String s) { return true; }
     };
+    GameController controller = new GameController(testWorld);
 
-    // Create a controller using the test world
-    controller = new GameController(testWorld);
   }
 
   @Test
