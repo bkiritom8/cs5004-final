@@ -16,42 +16,74 @@ public class ImageLoader {
   private static final Logger LOGGER = Logger.getLogger(ImageLoader.class.getName());
 
   public static BufferedImage loadImage(String category, String name) {
-    String primaryPath = "/images/" + category + "/" + name;
+    String[] basePaths = {"/images/", "/resources/images/"};
+    String fallbackName = getCategoryFallbackName(category);
 
-    try (InputStream in = ImageLoader.class.getResourceAsStream(primaryPath)) {
-      if (in != null) {
-        return ImageIO.read(in);
-      } else {
-        LOGGER.warning("Failed to load: " + primaryPath + ", falling back to category default.");
+    for (String base : basePaths) {
+      String fullPath = base + category + "/" + name;
+      try (InputStream in = ImageLoader.class.getResourceAsStream(fullPath)) {
+        if (in != null) {
+          return ImageIO.read(in);
+        } else if (!isExpectedMissing(category) && !isExpectedMissing(name)) {
+          LOGGER.warning("Failed to load: " + fullPath);
+        }
+      } catch (IOException e) {
+        LOGGER.warning("IOException reading image: " + fullPath + " -> " + e.getMessage());
       }
-    } catch (IOException e) {
-      LOGGER.warning("IOException reading image: " + e.getMessage());
     }
 
-    // Try category fallback
-    String fallbackPath = "/images/" + category + "/default " + category.substring(0, category.length() - 1) + ".png";
-    try (InputStream fallbackIn = ImageLoader.class.getResourceAsStream(fallbackPath)) {
-      if (fallbackIn != null) {
-        return ImageIO.read(fallbackIn);
-      } else {
-        LOGGER.warning("Failed to load category fallback. Trying global fallback.");
+    // Try category fallback (e.g., default item.png)
+    if (fallbackName != null) {
+      for (String base : basePaths) {
+        String fallbackPath = base + category + "/" + fallbackName;
+        try (InputStream fallbackIn = ImageLoader.class.getResourceAsStream(fallbackPath)) {
+          if (fallbackIn != null) {
+            LOGGER.fine("Using fallback: " + fallbackPath);
+            return ImageIO.read(fallbackIn);
+          } else if (!isExpectedMissing(fallbackName)) {
+            LOGGER.warning("Failed to load fallback: " + fallbackPath);
+          }
+        } catch (IOException e) {
+          LOGGER.warning("IOException reading fallback: " + e.getMessage());
+        }
       }
-    } catch (IOException e) {
-      LOGGER.warning("IOException reading category fallback: " + e.getMessage());
     }
 
-    // Try global fallback
-    try (InputStream globalIn = ImageLoader.class.getResourceAsStream("/images/blank.png")) {
-      if (globalIn != null) {
-        return ImageIO.read(globalIn);
-      } else {
-        LOGGER.severe("Failed to load global fallback. Returning blank image.");
+    // Final fallback from known reliable default
+    for (String base : basePaths) {
+      String ultimatePath = base + "items/default item.png";
+      try (InputStream in = ImageLoader.class.getResourceAsStream(ultimatePath)) {
+        if (in != null) {
+          LOGGER.fine("Using ultimate fallback image: " + ultimatePath);
+          return ImageIO.read(in);
+        }
+      } catch (IOException e) {
+        LOGGER.warning("IOException reading ultimate fallback: " + e.getMessage());
       }
-    } catch (IOException e) {
-      LOGGER.severe("IOException reading global fallback: " + e.getMessage());
     }
 
+    // Return a blank placeholder image if everything failed
+    LOGGER.severe("Returning blank image (no image found anywhere).");
     return new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+  }
+
+  private static String getCategoryFallbackName(String category) {
+    return switch (category) {
+      case "items" -> "default item.png";
+      case "monsters" -> "default monster.png";
+      case "fixtures" -> "default fixture.png";
+      case "rooms" -> "default.png";
+      default -> "default item.png"; // fallback for unknown categories like "weird"
+    };
+  }
+
+  private static boolean isExpectedMissing(String input) {
+    String lower = input.toLowerCase();
+    return lower.startsWith("default")
+            || lower.startsWith("nothing")
+            || lower.startsWith("nonexistent")
+            || lower.contains("fake")
+            || lower.contains("test");
   }
 
   public static void initialize() {

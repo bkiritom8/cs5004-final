@@ -133,11 +133,10 @@ public class GameWindow extends JFrame implements GameView {
    * Displays the player's health information.
    *
    * @param health The health value
-   * @param status The health status description
    */
-  public void displayHealth(int health, String status) {
+  public void displayHealth(int health) {
     if (roomPanel != null) {
-      roomPanel.updateHealth(health, status);
+      roomPanel.updateHealth(health);
     }
   }
   

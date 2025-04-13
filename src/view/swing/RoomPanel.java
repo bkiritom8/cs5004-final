@@ -16,6 +16,7 @@ public class RoomPanel extends JPanel {
   private JLabel healthLabel;
   private JTextArea descriptionArea;
   private JTextArea messageArea;
+  private JProgressBar healthBar;
 
   /**
    * Constructs the layout, border/s, and adds images and descriptions for rooms.
@@ -25,22 +26,29 @@ public class RoomPanel extends JPanel {
     setLayout(new BorderLayout());
 
     // Initialize components
-    JLabel roomImageLabel = new JLabel();
+    roomImageLabel = new JLabel();
 
-    JTextArea descriptionArea = new JTextArea();
+    descriptionArea = new JTextArea();
     descriptionArea.setEditable(false);
 
-    JTextArea messageArea = new JTextArea();
+    messageArea = new JTextArea();
     messageArea.setEditable(false);
 
-    JLabel healthLabel = new JLabel();
+    // Health Bar using JProgressBar
+    JProgressBar healthBar = new JProgressBar(0, 100);
+    // TODO: Set the initial value based on player's health | Update health every time the health is changed
+    healthBar.setValue(100);
+    healthBar.setStringPainted(true);
+
+    healthBar.setForeground(Color.GREEN);
+    healthBar.setString("Health");
 
     // Add components
     add(roomImageLabel, BorderLayout.NORTH);
     add(new JScrollPane(descriptionArea), BorderLayout.CENTER);
 
     JPanel bottomPanel = new JPanel(new BorderLayout());
-    bottomPanel.add(healthLabel, BorderLayout.NORTH);
+    bottomPanel.add(healthBar, BorderLayout.NORTH);
     bottomPanel.add(new JScrollPane(messageArea), BorderLayout.CENTER);
 
     add(bottomPanel, BorderLayout.SOUTH);
@@ -82,10 +90,9 @@ public class RoomPanel extends JPanel {
    * Updates the player's health information.
    *
    * @param health Player's numerical health value
-   * @param status Player's health status
    */
-  public void updateHealth(int health, String status) {
-    healthLabel.setText("Health: " + health + " (" + status + ")");
+  public void updateHealth(int health) {
+    healthBar.setValue(health);
   }
 
   /**

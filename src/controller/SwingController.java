@@ -25,7 +25,6 @@ public class SwingController extends GameController {
   private final GameWorld gameWorld;
   private final Map<String, Runnable> commandMap;
   private JTextArea outputArea;
-  private JTextField inputField;
   private JPanel controlPanel;
   private JScrollPane scrollPane;
 
@@ -73,16 +72,12 @@ public class SwingController extends GameController {
     outputArea.setWrapStyleWord(true);
     scrollPane = new JScrollPane(outputArea);
     
-    // Create input field
-    inputField = new JTextField();
-    inputField.addActionListener(new InputHandler());
-    
     // Add components to the panel
     controlPanel.add(scrollPane, BorderLayout.CENTER);
   }
   
   /**
-   * Gets the controller panel containing text area and input field.
+   * Gets the controller panel containing text area.
    *
    * @return The controller panel
    */
@@ -106,15 +101,6 @@ public class SwingController extends GameController {
    */
   public JTextArea getOutputArea() {
     return outputArea;
-  }
-  
-  /**
-   * Gets the input field.
-   *
-   * @return The input text field
-   */
-  public JTextField getInputField() {
-    return inputField;
   }
 
   // 2. Display welcome message and room info.
@@ -238,17 +224,6 @@ public class SwingController extends GameController {
     if (outputArea != null) {
       outputArea.append(text + "\n");
       outputArea.setCaretPosition(outputArea.getDocument().getLength());
-    }
-  }
-
-  // 3. Handle user input from the text field.
-  private class InputHandler implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      String command = inputField.getText().trim().toLowerCase();
-      inputField.setText("");
-      appendText("> " + command);
-      processCommand(command);
     }
   }
 }

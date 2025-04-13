@@ -66,7 +66,7 @@ public class MenuBarSetup {
     gameMenu.add(exitItem);
     
     // Help menu
-    JMenu helpMenu = new JMenu("Help");
+    JMenu helpMenu = new JMenu("About");
     
     JMenuItem aboutItem = new JMenuItem("About");
     aboutItem.addActionListener(e -> gameWindow.showAboutDialog());

@@ -1,4 +1,3 @@
-// Fix for BatchController.java
 package controller;
 
 import java.io.FileWriter;
@@ -9,6 +8,7 @@ import model.Direction;
 import model.GameWorld;
 import model.Player;
 import model.Room;
+import model.Item;
 import util.FileIoManager;
 import view.GameView;
 
@@ -39,10 +39,10 @@ public class BatchController extends GameController {
   /**
    * Constructs a BatchController with output to a file.
    *
-   * @param world         The GameWorld instance
-   * @param batchFilePath Path to the batch command file
+   * @param world          The GameWorld instance
+   * @param batchFilePath  Path to the batch command file
    * @param outputFilePath Path to the output file
-   * @param view          The GameView to display output
+   * @param view           The GameView to display output
    */
   public BatchController(GameWorld world, String batchFilePath, String outputFilePath, GameView view) {
     super(world);
@@ -66,108 +66,41 @@ public class BatchController extends GameController {
       addToOutput("Player name set to: " + playerName);
     }
 
-    // Process the remaining commands
     for (String command : commands) {
       if (command.trim().isEmpty() || command.startsWith("//")) {
-        continue; // Skip empty lines and comments
+        continue;
       }
 
       addToOutput("> " + command);
 
-      // Process the command
-      if (command.equals("look") || command.equals("l")) {
-        performLook();
-      } else if (command.equals("inventory") || command.equals("i")) {
-        performInventory();
-      } else if (command.equals("north") || command.equals("n")) {
-        performMove(Direction.NORTH);
-      } else if (command.equals("south") || command.equals("s")) {
-        performMove(Direction.SOUTH);
-      } else if (command.equals("east") || command.equals("e")) {
-        performMove(Direction.EAST);
-      } else if (command.equals("west") || command.equals("w")) {
-        performMove(Direction.WEST);
-      } else if (command.startsWith("take ") || command.startsWith("t ")) {
-        String itemName = command.startsWith("take ") ? command.substring(5) : command.substring(2);
-        performTake(itemName);
-      } else if (command.equals("quit") || command.equals("q")) {
-        addToOutput("Exiting game with score: " + gameWorld.getPlayer().getScore());
-        break;
-      } else {
-        addToOutput("Unknown command: " + command);
+      switch (command.toLowerCase()) {
+        case "look", "l" -> performLook();
+        case "inventory", "i" -> performInventory();
+        case "north", "n" -> performMove(Direction.NORTH);
+        case "south", "s" -> performMove(Direction.SOUTH);
+        case "east", "e" -> performMove(Direction.EAST);
+        case "west", "w" -> performMove(Direction.WEST);
+        case "quit", "q" -> {
+          addToOutput("Exiting game with score: " + gameWorld.getPlayer().getScore());
+          break;
+        }
+        default -> {
+          if (command.startsWith("take ") || command.startsWith("t ")) {
+            String itemName = command.startsWith("take ") ? command.substring(5) : command.substring(2);
+            performTake(itemName);
+          } else {
+            addToOutput("Unknown command: " + command);
+          }
+        }
       }
     }
 
-    // Write output to file if specified
     if (outputFilePath != null) {
       try (FileWriter writer = new FileWriter(outputFilePath)) {
         writer.write(outputBuffer.toString());
       } catch (IOException e) {
         System.err.println("Error writing to output file: " + e.getMessage());
       }
-    }
-  }
-
-  private void addToOutput(String message) {
-    outputBuffer.append(message).append("\n");
-    if (outputFilePath == null) {
-      // Only print to console if not writing to file
-      System.out.println(message);
-    }
-  }
-
-  private void performLook() {
-    Player player = gameWorld.getPlayer();
-    Room room = player.getCurrentRoom();
-
-    addToOutput("Health: " + player.getHealth() + " (" + player.getHealthStatus() + ")");
-    addToOutput("You are in: " + room.getName());
-    addToOutput(room.getDescription());
-
-    // Show items in room
-    if (!room.getItems().isEmpty()) {
-      StringBuilder items = new StringBuilder("Items here: ");
-      room.getItems().forEach(item -> items.append(item.getName()).append(" "));
-      addToOutput(items.toString());
-    }
-
-    // Show exits
-    StringBuilder exits = new StringBuilder("Exits: ");
-    boolean hasExits = false;
-
-    if (!room.getExitRoomNumber(Direction.NORTH).equals("0")) {
-      exits.append("NORTH ");
-      hasExits = true;
-    }
-    if (!room.getExitRoomNumber(Direction.SOUTH).equals("0")) {
-      exits.append("SOUTH ");
-      hasExits = true;
-    }
-    if (!room.getExitRoomNumber(Direction.EAST).equals("0")) {
-      exits.append("EAST ");
-      hasExits = true;
-    }
-    if (!room.getExitRoomNumber(Direction.WEST).equals("0")) {
-      exits.append("WEST ");
-      hasExits = true;
-    }
-
-    if (hasExits) {
-      addToOutput(exits.toString());
-    } else {
-      addToOutput("There are no obvious exits.");
-    }
-  }
-
-  private void performInventory() {
-    Player player = gameWorld.getPlayer();
-
-    if (player.getInventory().isEmpty()) {
-      addToOutput("Your inventory is empty.");
-    } else {
-      addToOutput("Inventory:");
-      player.getInventory().forEach(item ->
-              addToOutput("- " + item.getName() + " (uses: " + item.getUsesRemaining() + ")"));
     }
   }
 
@@ -191,11 +124,59 @@ public class BatchController extends GameController {
     }
   }
 
+  private void performLook() {
+    Player player = gameWorld.getPlayer();
+    Room room = player.getCurrentRoom();
+
+    addToOutput("Health: " + player.getHealth() + " (" + player.getHealthStatus() + ")");
+    addToOutput("You are in: " + room.getName());
+    addToOutput(room.getDescription());
+
+    if (!room.getItems().isEmpty()) {
+      StringBuilder items = new StringBuilder("Items here: ");
+      room.getItems().forEach(item -> items.append(item.getName()).append(" "));
+      addToOutput(items.toString().trim());
+    }
+
+    StringBuilder exits = new StringBuilder("Exits: ");
+    boolean hasExits = false;
+
+    if (!room.getExitRoomNumber(Direction.NORTH).equals("0")) {
+      exits.append("NORTH ");
+      hasExits = true;
+    }
+    if (!room.getExitRoomNumber(Direction.SOUTH).equals("0")) {
+      exits.append("SOUTH ");
+      hasExits = true;
+    }
+    if (!room.getExitRoomNumber(Direction.EAST).equals("0")) {
+      exits.append("EAST ");
+      hasExits = true;
+    }
+    if (!room.getExitRoomNumber(Direction.WEST).equals("0")) {
+      exits.append("WEST ");
+      hasExits = true;
+    }
+
+    addToOutput(hasExits ? exits.toString().trim() : "There are no obvious exits.");
+  }
+
+  private void performInventory() {
+    Player player = gameWorld.getPlayer();
+    if (player.getInventory().isEmpty()) {
+      addToOutput("Your inventory is empty.");
+    } else {
+      addToOutput("Inventory:");
+      player.getInventory().forEach(item ->
+              addToOutput("- " + item.getName() + " (uses: " + item.getUsesRemaining() + ")"));
+    }
+  }
+
   private void performTake(String itemName) {
     Player player = gameWorld.getPlayer();
     Room currentRoom = player.getCurrentRoom();
 
-    model.Item item = currentRoom.getItem(itemName);
+    Item item = currentRoom.getItem(itemName);
     if (item == null) {
       addToOutput("There's no " + itemName + " here to take.");
       return;
@@ -206,6 +187,13 @@ public class BatchController extends GameController {
       addToOutput("You pick up the " + item.getName() + ".");
     } else {
       addToOutput("You can't carry any more; your inventory is too heavy.");
+    }
+  }
+
+  private void addToOutput(String message) {
+    outputBuffer.append(message).append("\n");
+    if (outputFilePath == null) {
+      System.out.println(message);
     }
   }
 }

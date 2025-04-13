@@ -39,6 +39,7 @@ class ImageLoaderTest {
     assertEquals(64, img.getWidth(), "Should return fallback blank image with width 64");
     assertEquals(64, img.getHeight(), "Should return fallback blank image with height 64");
   }
+
   /**
    * Tests that an image can be loaded directly from the classpath for Swing use.
    */
@@ -54,4 +55,45 @@ class ImageLoaderTest {
     }
   }
 
+  /**
+   * Test that loading a valid item image works.
+   */
+  @Test
+  void testLoadValidItemImage() {
+    BufferedImage image = ImageLoader.loadImage("items", "diamond.png");
+    assertNotNull(image, "Expected to load known item image");
+    assertTrue(image.getWidth() > 0 && image.getHeight() > 0);
+  }
+
+  /**
+   * Test fallback to category default image for missing item.
+   */
+  @Test
+  void testFallbackToCategoryDefault() {
+    BufferedImage image = ImageLoader.loadImage("items", "nonexistent-item.png");
+    assertNotNull(image, "Expected to load fallback image for missing item");
+    assertTrue(image.getWidth() > 0 && image.getHeight() > 0);
+  }
+
+  /**
+   * Test fallback to default item image for unknown category.
+   */
+  @Test
+  void testFallbackForUnknownCategory() {
+    BufferedImage image = ImageLoader.loadImage("weird", "nothing.png");
+    assertNotNull(image, "Expected fallback to 'default item.png' for unknown category");
+    assertTrue(image.getWidth() > 0 && image.getHeight() > 0);
+  }
+
+  /**
+   * Test ultimate fallback to blank image.
+   */
+  @Test
+  void testFallbackToUltimateBackup() {
+    BufferedImage image = ImageLoader.loadImage("fakecategory", "fakeimage.png");
+    assertNotNull(image, "Expected fallback to ultimate backup image");
+    assertEquals(64, image.getWidth(), "Should return blank 64x64 image if all fails");
+    assertEquals(64, image.getHeight(), "Should return blank 64x64 image if all fails");
+  }
 }
+
