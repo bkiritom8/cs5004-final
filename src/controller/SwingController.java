@@ -26,6 +26,8 @@ public class SwingController extends GameController {
   private final Map<String, Runnable> commandMap;
   private JTextArea outputArea;
   private JTextField inputField;
+  private JPanel controlPanel;
+  private JScrollPane scrollPane;
 
   /**
    * Creates a new SwingController with the specified GameWorld.
@@ -36,7 +38,7 @@ public class SwingController extends GameController {
     this.gameWorld = gameWorld;
     this.commandMap = new HashMap<>();
     initCommands();       // 1a. Map commands to actions.
-    createGui();          // 1b. Build and show the window.
+    createGui();          // 1b. Build UI components.
     showWelcome();        // 2. Display welcome message.
   }
 
@@ -59,22 +61,60 @@ public class SwingController extends GameController {
     commandMap.put("?", this::showHelp);             // show help
   }
 
-  // 1b. Create and display the GUI.
+  // 1b. Create the UI components.
   private void createGui() {
-    JFrame frame = new JFrame("Adventure Game");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(600, 400);
-
+    // Create panel instead of frame
+    controlPanel = new JPanel(new BorderLayout());
+    
+    // Create text area for output
     outputArea = new JTextArea();
     outputArea.setEditable(false);
-    JScrollPane scrollPane = new JScrollPane(outputArea);
-
+    outputArea.setLineWrap(true);
+    outputArea.setWrapStyleWord(true);
+    scrollPane = new JScrollPane(outputArea);
+    
+    // Create input field
     inputField = new JTextField();
     inputField.addActionListener(new InputHandler());
-
-    frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-    frame.getContentPane().add(inputField, BorderLayout.SOUTH);
-    frame.setVisible(true);
+    
+    // Add components to the panel
+    controlPanel.add(scrollPane, BorderLayout.CENTER);
+  }
+  
+  /**
+   * Gets the controller panel containing text area and input field.
+   *
+   * @return The controller panel
+   */
+  public JPanel getControlPanel() {
+    return controlPanel;
+  }
+  
+  /**
+   * Gets the scroll pane containing the output text area.
+   *
+   * @return The scroll pane
+   */
+  public JScrollPane getScrollPane() {
+    return scrollPane;
+  }
+  
+  /**
+   * Gets the text area used for output.
+   *
+   * @return The output text area
+   */
+  public JTextArea getOutputArea() {
+    return outputArea;
+  }
+  
+  /**
+   * Gets the input field.
+   *
+   * @return The input text field
+   */
+  public JTextField getInputField() {
+    return inputField;
   }
 
   // 2. Display welcome message and room info.
@@ -82,15 +122,9 @@ public class SwingController extends GameController {
     appendText("Welcome to " + gameWorld.getGameName() + "!");
     appendText("Type 'help' or '?' for a list of commands.");
     Room current = gameWorld.getPlayer().getCurrentRoom();
-    // Replace duplicate code with a call to describeRoom.
-    describeRoom(current);
-  }
-
-  //  New helper method to describe a room.
-  private void describeRoom(Room room) {
-    appendText("You are in: " + room.getName());
-    appendText(room.getDescription());
-    showExits(room);
+    appendText("You are in: " + current.getName());
+    appendText(current.getDescription());
+    showExits(current);
   }
 
   // Show available exits in the room.
@@ -145,8 +179,9 @@ public class SwingController extends GameController {
     if (next != null) {
       player.setCurrentRoom(next);
       appendText("You move " + dir.toString().toLowerCase() + ".");
-      // Use describeRoom to display room details after moving
-      describeRoom(next);
+      appendText("You are in: " + next.getName());
+      appendText(next.getDescription());
+      showExits(next);
     } else {
       appendText("There's nothing in that direction.");
     }
@@ -155,7 +190,15 @@ public class SwingController extends GameController {
   // Displays the current room again.
   public void look() {
     Room room = gameWorld.getPlayer().getCurrentRoom();
-    describeRoom(room);
+    appendText("You are in: " + room.getName());
+    appendText(room.getDescription());
+    showExits(room);
+    if (!room.getItems().isEmpty()) {
+      appendText("You see:");
+      for (Item item : room.getItems()) {
+        appendText("- " + item.getName());
+      }
+    }
   }
 
   // Displays the player's inventory.
@@ -192,8 +235,10 @@ public class SwingController extends GameController {
 
   // Appends text to the output area.
   private void appendText(String text) {
-    outputArea.append(text + "\n");
-    outputArea.setCaretPosition(outputArea.getDocument().getLength());
+    if (outputArea != null) {
+      outputArea.append(text + "\n");
+      outputArea.setCaretPosition(outputArea.getDocument().getLength());
+    }
   }
 
   // 3. Handle user input from the text field.

@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import controller.SwingController;
 import controller.GameController;
@@ -46,6 +47,7 @@ public class GameWindow extends JFrame implements GameView {
     setSize(800, 600);
     setLocationRelativeTo(null); // Center on screen
 
+    // Set the window to be visible
     setVisible(true);
   }
   
@@ -62,8 +64,13 @@ public class GameWindow extends JFrame implements GameView {
     navigationPanel = new NavigationPanel(controller);
     actionPanel = new ActionPanel(controller);
     
+    // Create center panel to hold room panel and controller panel
+    JPanel centerPanel = new JPanel(new BorderLayout());
+    centerPanel.add(roomPanel, BorderLayout.CENTER);
+    centerPanel.add(controller.getControlPanel(), BorderLayout.SOUTH);
+    
     // Add panels to window
-    mainPanel.add(roomPanel, BorderLayout.CENTER);
+    mainPanel.add(centerPanel, BorderLayout.CENTER);
     mainPanel.add(inventoryPanel, BorderLayout.EAST);
     
     JPanel bottomPanel = new JPanel(new BorderLayout());
@@ -113,8 +120,12 @@ public class GameWindow extends JFrame implements GameView {
    */
   @Override
   public void displayMessage(String message) {
-    if (roomPanel != null) {
-      roomPanel.addMessage(message);
+    if (controller != null) {
+      JTextArea outputArea = controller.getOutputArea();
+      if (outputArea != null) {
+        outputArea.append(message + "\n");
+        outputArea.setCaretPosition(outputArea.getDocument().getLength());
+      }
     }
   }
   
